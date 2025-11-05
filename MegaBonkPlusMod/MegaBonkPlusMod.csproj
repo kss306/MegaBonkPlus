@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Reference Include="Assembly-CSharp">
+        <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\Assembly-CSharp.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
+      <Reference Include="BepInEx.Core">
+        <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\core\BepInEx.Core.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
+      <Reference Include="BepInEx.Unity.Common">
+        <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\core\BepInEx.Unity.Common.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
+      <Reference Include="BepInEx.Unity.IL2CPP">
+        <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\core\BepInEx.Unity.IL2CPP.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
+      <Reference Include="Il2CppInterop.Runtime">
+        <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\core\Il2CppInterop.Runtime.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
+      <Reference Include="Il2Cppmscorlib">
+        <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\Il2Cppmscorlib.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
+      <Reference Include="UnityEngine">
+        <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\UnityEngine.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
+      <Reference Include="UnityEngine.CoreModule">
+        <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\UnityEngine.CoreModule.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
+      <Reference Include="UnityEngine.JSONSerializeModule">
+        <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\UnityEngine.JSONSerializeModule.dll</HintPath>
+        <Private>False</Private>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="API\" />
+      <Folder Include="Core\" />
+      <Folder Include="Frontend\" />
+      <Folder Include="GameLogic\" />
+    </ItemGroup>
+
+</Project>
