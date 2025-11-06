@@ -20,7 +20,7 @@ pre {
 }
 
 .minimap-container {
-    max-width: 400px;
+    max-width: 1000px;
     border: 1px solid #555;
     background: #111;
     min-height: 50px;

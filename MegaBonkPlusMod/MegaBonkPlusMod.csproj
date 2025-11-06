@@ -51,6 +51,10 @@
             <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\UnityEngine.UI.dll</HintPath>
             <Private>False</Private>
         </Reference>
+        <Reference Include="UnityEngine.UIModule">
+          <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\UnityEngine.UIModule.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup>
@@ -64,6 +68,84 @@
         <EmbeddedResource Include="Frontend\js\services\apiService.js"/>
         <None Remove="Frontend\js\services\renderService.js"/>
         <EmbeddedResource Include="Frontend\js\services\renderService.js"/>
+        <None Remove="Frontend\images\characters\amog.png" />
+        <EmbeddedResource Include="Frontend\images\characters\amog.png" />
+        <None Remove="Frontend\images\characters\athena.png" />
+        <EmbeddedResource Include="Frontend\images\characters\athena.png" />
+        <None Remove="Frontend\images\characters\bandit.png" />
+        <EmbeddedResource Include="Frontend\images\characters\bandit.png" />
+        <None Remove="Frontend\images\characters\birdo.png" />
+        <EmbeddedResource Include="Frontend\images\characters\birdo.png" />
+        <None Remove="Frontend\images\characters\bush.png" />
+        <EmbeddedResource Include="Frontend\images\characters\bush.png" />
+        <None Remove="Frontend\images\characters\calcium.png" />
+        <EmbeddedResource Include="Frontend\images\characters\calcium.png" />
+        <None Remove="Frontend\images\characters\cl4nk.png" />
+        <EmbeddedResource Include="Frontend\images\characters\cl4nk.png" />
+        <None Remove="Frontend\images\characters\dicehead.png" />
+        <EmbeddedResource Include="Frontend\images\characters\dicehead.png" />
+        <None Remove="Frontend\images\characters\fox.png" />
+        <EmbeddedResource Include="Frontend\images\characters\fox.png" />
+        <None Remove="Frontend\images\characters\megachad.png" />
+        <EmbeddedResource Include="Frontend\images\characters\megachad.png" />
+        <None Remove="Frontend\images\characters\monke.png" />
+        <EmbeddedResource Include="Frontend\images\characters\monke.png" />
+        <None Remove="Frontend\images\characters\ninja.png" />
+        <EmbeddedResource Include="Frontend\images\characters\ninja.png" />
+        <None Remove="Frontend\images\characters\noelle.png" />
+        <EmbeddedResource Include="Frontend\images\characters\noelle.png" />
+        <None Remove="Frontend\images\characters\ogre.png" />
+        <EmbeddedResource Include="Frontend\images\characters\ogre.png" />
+        <None Remove="Frontend\images\characters\robinette.png" />
+        <EmbeddedResource Include="Frontend\images\characters\robinette.png" />
+        <None Remove="Frontend\images\characters\sirchadwell.png" />
+        <EmbeddedResource Include="Frontend\images\characters\sirchadwell.png" />
+        <None Remove="Frontend\images\characters\siroofie.png" />
+        <EmbeddedResource Include="Frontend\images\characters\siroofie.png" />
+        <None Remove="Frontend\images\characters\spaceman.png" />
+        <EmbeddedResource Include="Frontend\images\characters\spaceman.png" />
+        <None Remove="Frontend\images\characters\tonymczoom.png" />
+        <EmbeddedResource Include="Frontend\images\characters\tonymczoom.png" />
+        <None Remove="Frontend\images\characters\vlad.png" />
+        <EmbeddedResource Include="Frontend\images\characters\vlad.png" />
+        <None Remove="Frontend\images\map_objects\bossspawner.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\bossspawner.png" />
+        <None Remove="Frontend\images\map_objects\challenge.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\challenge.png" />
+        <None Remove="Frontend\images\map_objects\charge_gold.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\charge_gold.png" />
+        <None Remove="Frontend\images\map_objects\charge_normal.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\charge_normal.png" />
+        <None Remove="Frontend\images\map_objects\chest_free.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\chest_free.png" />
+        <None Remove="Frontend\images\map_objects\chest_normal.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\chest_normal.png" />
+        <None Remove="Frontend\images\map_objects\cursed.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\cursed.png" />
+        <None Remove="Frontend\images\map_objects\greed.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\greed.png" />
+        <None Remove="Frontend\images\map_objects\magnet.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\magnet.png" />
+        <None Remove="Frontend\images\map_objects\maoi.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\maoi.png" />
+        <None Remove="Frontend\images\map_objects\microwave_common.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\microwave_common.png" />
+        <None Remove="Frontend\images\map_objects\microwave_epic.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\microwave_epic.png" />
+        <None Remove="Frontend\images\map_objects\microwave_legendary.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\microwave_legendary.png" />
+        <None Remove="Frontend\images\map_objects\microwave_rare.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\microwave_rare.png" />
+        <None Remove="Frontend\images\map_objects\openchest.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\openchest.png" />
+        <None Remove="Frontend\images\map_objects\shady_common.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\shady_common.png" />
+        <None Remove="Frontend\images\map_objects\shady_epic.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\shady_epic.png" />
+        <None Remove="Frontend\images\map_objects\shady_legendary.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\shady_legendary.png" />
+        <None Remove="Frontend\images\map_objects\shady_rare.png" />
+        <EmbeddedResource Include="Frontend\images\map_objects\shady_rare.png" />
     </ItemGroup>
 
     <ItemGroup>

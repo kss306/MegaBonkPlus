@@ -17,9 +17,10 @@ public class ShadyGuyTracker : BaseTracker
     {
         var trackedShadyGuys = new List<TrackedObjectData>();
         var allShadyGuys = Object.FindObjectsOfType<InteractableShadyGuy>();
-
+        
         foreach (var shadyGuy in allShadyGuys)
         {
+            CacheIconsForObject(shadyGuy.transform.parent);
             var guyData = new TrackedObjectData
             {
                 Position = PositionData.FromVector3(shadyGuy.transform.position)

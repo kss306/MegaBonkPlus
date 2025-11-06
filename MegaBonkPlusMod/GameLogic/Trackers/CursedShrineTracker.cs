@@ -18,9 +18,10 @@ public class CursedShrineTracker : BaseTracker
     {
         var trackedObjects = new List<TrackedObjectData>();
         var allObjects = Object.FindObjectsOfType<InteractableShrineCursed>();
-
+        
         foreach (var trackedObject in allObjects)
         {
+            CacheIconsForObject(trackedObject.transform);
             var objectData = new TrackedObjectData
             {
                 Position = PositionData.FromVector3(trackedObject.transform.position)

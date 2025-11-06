@@ -5,19 +5,19 @@ using Object = UnityEngine.Object;
 
 namespace MegaBonkPlusMod.GameLogic.Trackers;
 
-public class MagnetShrineTracker : BaseTracker
+public class ChallengeShrineTracker : BaseTracker
 {
-    public MagnetShrineTracker(ManualLogSource logger, float scanIntervalInSeconds) : base(logger,
+    public ChallengeShrineTracker(ManualLogSource logger, float scanIntervalInSeconds) : base(logger,
         scanIntervalInSeconds)
     {
     }
 
-    public override string ApiRoute => "/api/tracker/shrines/magnet";
+    public override string ApiRoute => "/api/tracker/shrines/challenge";
 
     protected override object BuildDataPayload()
     {
         var trackedObjects = new List<TrackedObjectData>();
-        var allObjects = Object.FindObjectsOfType<InteractableShrineMagnet>();
+        var allObjects = Object.FindObjectsOfType<InteractableShrineChallenge>();
 
         foreach (var trackedObject in allObjects)
         {

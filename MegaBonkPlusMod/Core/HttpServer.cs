@@ -107,6 +107,10 @@ public class HttpServer
     {
         if (path.EndsWith(".js")) return "application/javascript";
         if (path.EndsWith(".css")) return "text/css";
-        return "text/html"; // Standard
+        if (path.EndsWith(".html")) return "text/html";
+        if (path.EndsWith(".png")) return "image/png";
+        if (path.EndsWith(".jpg")) return "image/jpeg";
+        if (path.EndsWith(".jpeg")) return "image/jpeg";
+        return "application/octet-stream";
     }
 }

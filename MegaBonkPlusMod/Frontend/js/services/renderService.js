@@ -1,11 +1,6 @@
-// --- HIER ANPASSEN: DEIN KARTEN-MASSSTAB ---
-// Dies ist die wichtigste Zahl. Sie sagt, wie viele Spiel-Einheiten
-// (z.B. Meter) einem Pixel auf deiner 256x256-Minimap entsprechen.
-// Du musst mit diesem Wert experimentieren, bis die Punkte passen.
-// Ein guter Startwert ist oft die (ungefähre) Breite der Map in Spieleinheiten / 256.
-// z.B. 1000 Einheiten / 256px = ~4.0
-
 const MAP_SCALE = 2.32;
+
+const imageCache = {};
 
 function getElem(id) {
     const elem = document.getElementById(id);
@@ -118,34 +113,6 @@ export function renderGreedShrines(data) {
     elem.textContent = html;
 }
 
-export function renderSimpleShrine(elemId, name, data) {
-    const elem = getElem(elemId);
-    if (!elem) return;
-    if (data.count === 0) {
-        elem.textContent = `Keine ${name} gefunden.`;
-        return;
-    }
-    let html = `${name}: ${data.count}\n\n`;
-    data.items.forEach((shrine, index) => {
-        html += `Schrein #${index + 1}\n`;
-        html += createPositionString(shrine.position);
-    });
-    elem.textContent = html;
-}
-
-export function renderTrackerDots(ctx, data, color) {
-    if (data.count === 0) return;
-
-    ctx.fillStyle = color;
-
-    ctx.beginPath();
-    data.items.forEach(item => {
-        const { u, v } = worldToCanvas(item.position, ctx.canvas);
-
-        ctx.rect(u - 2, v - 2, 8, 8);
-    });
-    ctx.fill();
-}
 
 export function renderMinimap(data) {
     const canvas = getElem('minimap-canvas');
@@ -174,9 +141,7 @@ export function renderMinimap(data) {
         for (let i = 0; i < len; i++) {
             bytes[i] = binaryString.charCodeAt(i);
         }
-
         const imageData = new ImageData(new Uint8ClampedArray(bytes.buffer), width, height);
-        
         ctx.putImageData(imageData, 0, 0);
 
         return ctx;
@@ -185,4 +150,99 @@ export function renderMinimap(data) {
         console.error("Fehler beim Malen der Minimap auf das Canvas:", e);
         return null;
     }
+}
+
+export function renderTrackers(ctx, data, renderConfigSelector, hoveredItem) {
+    if (data.count === 0) return;
+
+    data.items.forEach(item => {
+        const config = renderConfigSelector(item, item === hoveredItem);
+
+        if (config.type === 'none') {
+            return;
+        }
+
+        const pos = worldToCanvas(item.position, ctx.canvas);
+        const size = config.size ?? 16;
+        
+        switch (config.type) {
+            case 'dot':
+                ctx.fillStyle = config.color ?? '#FF00FF';
+                ctx.beginPath();
+                ctx.rect(pos.u - (size / 2), pos.v - (size / 2), size, size);
+                ctx.fill();
+                break;
+
+            case 'image':
+                renderImage(ctx, pos, config.path, size);
+                break;
+        }
+    });
+}
+
+function renderImage(ctx, pos, imagePath, size) {
+    if (!imagePath) return;
+
+    if (imageCache[imagePath]) {
+        const img = imageCache[imagePath];
+        try {
+            ctx.save();
+            ctx.translate(pos.u, pos.v);
+            ctx.scale(1, -1);
+            ctx.drawImage(img, -(size / 2), -(size / 2), size, size);
+            ctx.restore();
+        } catch (e) { ctx.restore(); }
+    } else if (imageCache[imagePath] !== null) {
+        imageCache[imagePath] = null;
+        const img = new Image();
+        img.src = imagePath;
+        img.onload = () => { imageCache[imagePath] = img; };
+        img.onerror = () => { console.error(`Fehler beim Laden des Bildes: ${imagePath}.`); };
+    }
+}
+
+export function findItemAtPosition(mousePos, dataMap, configMap, canvas) {
+    let foundItem = null;
+    const keys = Object.keys(configMap).reverse();
+
+    for (const key of keys) {
+        if (key === 'minimap' || !dataMap[key]) continue;
+
+        const data = dataMap[key];
+        const config = configMap[key];
+
+        if (data.count === 0) continue;
+
+        for (const item of data.items) {
+            const renderInfo = config.renderConfigSelector(item, false);
+
+            if (renderInfo.type === 'none') continue;
+
+            const size = renderInfo.size ?? 16;
+            const pos = worldToCanvas(item.position, canvas);
+
+            if (Math.abs(mousePos.x - pos.u) < size / 2 &&
+                Math.abs(mousePos.y - pos.v) < size / 2)
+            {
+                foundItem = item;
+                break;
+            }
+        }
+
+        if (foundItem) {
+            break;
+        }
+    }
+
+    return foundItem;
+}
+
+export function getMousePos(canvas, evt) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+        x: (evt.clientX - rect.left) * scaleX,
+        y: (evt.clientY - rect.top) * scaleY
+    };
 }

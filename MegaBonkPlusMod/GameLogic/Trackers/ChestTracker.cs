@@ -19,9 +19,10 @@ public class ChestTracker : BaseTracker
     {
         var trackedChests = new List<TrackedObjectData>();
         var allChests = Object.FindObjectsOfType<InteractableChest>();
-
+        
         foreach (var chest in allChests)
         {
+            CacheIconsForObject(chest.transform);
             var chestData = new TrackedObjectData
             {
                 Position = PositionData.FromVector3(chest.transform.position)

@@ -20,6 +20,7 @@ public class MaoiShrineTracker : BaseTracker
 
         foreach (var maoiShrine in allMaoiShrines)
         {
+            CacheIconsForObject(maoiShrine.transform);
             var shrineData = new TrackedObjectData
             {
                 Position = PositionData.FromVector3(maoiShrine.transform.position)

@@ -26,6 +26,7 @@ public class BossSpawnerTracker : BaseTracker
 
         if (bossSpawner)
         {
+            CacheIconsForObject(bossSpawner.transform);
             var bossSpawnerData = new TrackedObjectData
             {
                 Position = PositionData.FromVector3(bossSpawner.transform.position)

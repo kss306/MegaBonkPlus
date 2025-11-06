@@ -5,27 +5,28 @@ using Object = UnityEngine.Object;
 
 namespace MegaBonkPlusMod.GameLogic.Trackers;
 
-public class MagnetShrineTracker : BaseTracker
+public class MicrowaveTracker : BaseTracker
 {
-    public MagnetShrineTracker(ManualLogSource logger, float scanIntervalInSeconds) : base(logger,
+    public MicrowaveTracker(ManualLogSource logger, float scanIntervalInSeconds) : base(logger,
         scanIntervalInSeconds)
     {
     }
 
-    public override string ApiRoute => "/api/tracker/shrines/magnet";
+    public override string ApiRoute => "/api/tracker/microwave";
 
     protected override object BuildDataPayload()
     {
         var trackedObjects = new List<TrackedObjectData>();
-        var allObjects = Object.FindObjectsOfType<InteractableShrineMagnet>();
+        var allObjects = Object.FindObjectsOfType<InteractableMicrowave>();
 
         foreach (var trackedObject in allObjects)
         {
-            CacheIconsForObject(trackedObject.transform);
+            CacheIconsForObject(trackedObject.transform.parent);
             var objectData = new TrackedObjectData
             {
                 Position = PositionData.FromVector3(trackedObject.transform.position)
             };
+            objectData.CustomProperties["rarity"] = trackedObject.rarity.ToString();
             trackedObjects.Add(objectData);
         }
 

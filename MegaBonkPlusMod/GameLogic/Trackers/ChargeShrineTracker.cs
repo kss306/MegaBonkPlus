@@ -18,9 +18,10 @@ public class ChargeShrineTracker : BaseTracker
     {
         var trackedChargeShrines = new List<TrackedObjectData>();
         var allChargeShrines = Object.FindObjectsOfType<ChargeShrine>();
-
+        
         foreach (var chargeShrine in allChargeShrines)
         {
+            CacheIconsForObject(chargeShrine.transform);
             var shrineData = new TrackedObjectData
             {
                 Position = PositionData.FromVector3(chargeShrine.transform.position)

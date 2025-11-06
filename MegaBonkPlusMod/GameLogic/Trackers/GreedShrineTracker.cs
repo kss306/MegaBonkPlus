@@ -20,6 +20,7 @@ public class GreedShrineTracker : BaseTracker
 
         foreach (var trackedObject in allObjects)
         {
+            CacheIconsForObject(trackedObject.transform);
             var objectData = new TrackedObjectData
             {
                 Position = PositionData.FromVector3(trackedObject.transform.position)

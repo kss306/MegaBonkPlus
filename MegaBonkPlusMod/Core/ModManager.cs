@@ -2,120 +2,182 @@
 using System.Collections.Generic;
 using BepInEx.Logging;
 using MegaBonkPlusMod.API;
-using MegaBonkPlusMod.GameLogic.Common;
 using MegaBonkPlusMod.GameLogic.Minimap;
 using MegaBonkPlusMod.GameLogic.Trackers;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace MegaBonkPlusMod.Core;
-
-public class ModManager : MonoBehaviour
+namespace MegaBonkPlusMod.Core
 {
-    private const float MINIMAP_LOAD_DELAY = 2.0f;
-    public static bool IsInGame;
-
-    private ManualLogSource _logger;
-    private MinimapStreamer _minimapStreamer;
-    private float _minimapTriggerTimer;
-
-    private bool _pendingMinimapUpdate;
-
-    private readonly List<BasePollingProvider> _providers = new();
-    private ApiRouter _router;
-    private HttpServer _server;
-
-    private void Update()
+    public class ModManager : MonoBehaviour
     {
-        if (_pendingMinimapUpdate)
-        {
-            _minimapTriggerTimer -= Time.deltaTime;
-            if (_minimapTriggerTimer <= 0f)
-            {
-                _logger.LogInfo("[ModManager] Manueller Timer abgelaufen. Löse Minimap-Update aus.");
-                try
-                {
-                    _minimapStreamer.TriggerMinimapUpdate();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(
-                        $"[ModManager] FEHLER beim Auslösen von TriggerMinimapUpdate: {ex.Message}\n{ex.StackTrace}");
-                }
+        public static bool IsInGame = false;
 
-                _pendingMinimapUpdate = false;
+        private ManualLogSource _logger;
+        private HttpServer _server;
+        private ApiRouter _router;
+
+        private List<BaseTracker> _trackers = new List<BaseTracker>();
+        private MinimapStreamer _minimapStreamer;
+
+        private enum CaptureState
+        {
+            Idle,
+            WaitingForSpawn,
+            WaitingForMapDelay,
+            HidingIcons,
+            TakingPicture
+        }
+
+        private CaptureState _captureState = CaptureState.Idle;
+        private float _captureTimer = 0f;
+
+        private const float SPAWN_DELAY = 0.2f;
+        private const float MINIMAP_CAPTURE_DELAY = 1.5f;
+
+        public void Initialize(ManualLogSource logger)
+        {
+            _logger = logger;
+            _logger.LogInfo("ModManager wird initialisiert...");
+
+            _logger.LogInfo("Erstelle alle Datenanbieter...");
+
+            _minimapStreamer = new MinimapStreamer(logger);
+
+            _trackers.Add(new PlayerTracker(logger, 0.1f));
+            _trackers.Add(new BossSpawnerTracker(logger, 5.0f));
+            _trackers.Add(new ShadyGuyTracker(logger, 5.0f));
+            _trackers.Add(new ChestTracker(logger, 2.0f));
+            _trackers.Add(new ChargeShrineTracker(logger, 2.0f));
+            _trackers.Add(new MaoiShrineTracker(logger, 2.0f));
+            _trackers.Add(new CursedShrineTracker(logger, 2.0f));
+            _trackers.Add(new GreedShrineTracker(logger, 2.0f));
+            _trackers.Add(new MagnetShrineTracker(logger, 2.0f));
+            _trackers.Add(new MicrowaveTracker(logger, 2.0f));
+            _trackers.Add(new ChallengeShrineTracker(logger, 2.0f));
+
+            _router = new ApiRouter(logger, _trackers, _minimapStreamer);
+            _server = new HttpServer(logger, _router);
+            _server.Start();
+
+            SceneManager.activeSceneChanged += new Action<Scene, Scene>(OnSceneChanged);
+            SetInitialSceneState(SceneManager.GetActiveScene());
+        }
+
+        private void SetInitialSceneState(Scene scene)
+        {
+            if (!scene.name.Contains("GeneratedMap"))
+                IsInGame = false;
+            else
+                IsInGame = true;
+        }
+
+        private void OnSceneChanged(Scene current, Scene next)
+        {
+            if (!next.name.Contains("GeneratedMap"))
+            {
+                IsInGame = false;
+                _captureState = CaptureState.Idle;
+                _minimapStreamer.ClearData();
+            }
+            else
+            {
+                IsInGame = true;
+                _minimapStreamer.ClearData();
+                _captureState = CaptureState.WaitingForSpawn;
+                _captureTimer = SPAWN_DELAY;
             }
         }
 
-        foreach (var provider in _providers) provider.Update();
-    }
 
-    private void OnDestroy()
-    {
-        _logger.LogInfo("ModManager wird zerstört, stoppe Server...");
-        _server?.Stop();
-        SceneManager.activeSceneChanged -= new Action<Scene, Scene>(OnSceneChanged);
-    }
-
-    public void Initialize(ManualLogSource logger)
-    {
-        _logger = logger;
-        _logger.LogInfo("ModManager wird initialisiert...");
-
-        _logger.LogInfo("Erstelle alle Datenanbieter...");
-
-        _minimapStreamer = new MinimapStreamer(logger);
-
-        _providers.Add(new PlayerTracker(logger, 0.1f));
-        _providers.Add(new BossSpawnerTracker(logger, 5.0f));
-        _providers.Add(new ShadyGuyTracker(logger, 5.0f));
-        _providers.Add(new ChestTracker(logger, 2.0f));
-        _providers.Add(new ChargeShrineTracker(logger, 2.0f));
-        _providers.Add(new MaoiShrineTracker(logger, 2.0f));
-        _providers.Add(new CursedShrineTracker(logger, 2.0f));
-        _providers.Add(new GreedShrineTracker(logger, 2.0f));
-        _providers.Add(new MagnetShrineTracker(logger, 2.0f));
-
-        _logger.LogInfo($"Insgesamt {_providers.Count} Tracker und 1 Streamer geladen.");
-
-        _router = new ApiRouter(logger, _providers, _minimapStreamer);
-        _server = new HttpServer(logger, _router);
-        _server.Start();
-
-        SceneManager.activeSceneChanged += new Action<Scene, Scene>(OnSceneChanged);
-        SetInitialSceneState(SceneManager.GetActiveScene());
-    }
-
-    private void SetInitialSceneState(Scene scene)
-    {
-        if (scene.name.Contains("Menu") || scene.name.Contains("Loading") || scene.name.Contains("Splash"))
-            IsInGame = false;
-        else
-            IsInGame = true;
-        _logger.LogInfo($"Initiale Szene '{scene.name}' erkannt. IsInGame = {IsInGame}");
-    }
-
-
-    private void OnSceneChanged(Scene current, Scene next)
-    {
-        if (!next.name.Contains("GeneratedMap"))
+        private void Update()
         {
-            IsInGame = false;
-            _logger.LogInfo($"Szene gewechselt zu '{next.name}'. Anbieter werden pausiert.");
-            _pendingMinimapUpdate = false;
-            _minimapStreamer.ClearData();
+            switch (_captureState)
+            {
+                case CaptureState.WaitingForSpawn:
+                {
+                    _captureTimer -= Time.deltaTime;
+                    if (_captureTimer <= 0f)
+                    {
+                        foreach (var tracker in _trackers)
+                        {
+                            tracker.ForceUpdatePayload();
+                        }
+
+                        _captureState = CaptureState.WaitingForMapDelay;
+                        _captureTimer = MINIMAP_CAPTURE_DELAY;
+                    }
+
+                    break;
+                }
+
+                case CaptureState.WaitingForMapDelay:
+                {
+                    _captureTimer -= Time.deltaTime;
+                    if (_captureTimer <= 0f)
+                    {
+                        try
+                        {
+                            foreach (var tracker in _trackers)
+                            {
+                                tracker.HideIcons();
+                            }
+
+                            Canvas.ForceUpdateCanvases();
+                            _captureState = CaptureState.HidingIcons;
+                        }
+                        catch (Exception ex)
+                        {
+                            _captureState = CaptureState.Idle;
+                            _logger.LogError($"Fehler beim Ausblenden der Icons: {ex.Message}");
+                        }
+                    }
+
+                    break;
+                }
+
+                case CaptureState.HidingIcons:
+                {
+                    _captureState = CaptureState.TakingPicture;
+
+                    try
+                    {
+                        _minimapStreamer.TriggerMinimapUpdate();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Fehler beim Aufnehmen des Minimap-Bildes: {ex.Message}");
+                    }
+                    finally
+                    {
+                        foreach (var tracker in _trackers)
+                        {
+                            tracker.ShowIcons();
+                        }
+                    }
+
+                    _captureState = CaptureState.Idle;
+                    break;
+                }
+
+                case CaptureState.TakingPicture:
+                case CaptureState.Idle:
+                {
+                    break;
+                }
+            }
+
+            foreach (var provider in _trackers)
+            {
+                provider.Update();
+            }
         }
-        else
+
+        private void OnDestroy()
         {
-            IsInGame = true;
-            _logger.LogInfo($"Szene gewechselt zu '{next.name}'. Anbieter werden aktiviert.");
-
-            _logger.LogInfo("[ModManager] Lösche alte Minimap-Daten...");
-            _minimapStreamer.ClearData();
-
-            _logger.LogInfo($"[ModManager] Minimap-Update-Timer gestartet ({MINIMAP_LOAD_DELAY}s).");
-            _pendingMinimapUpdate = true;
-            _minimapTriggerTimer = MINIMAP_LOAD_DELAY;
+            _logger.LogInfo("Stopping WebServer...");
+            _server?.Stop();
+            SceneManager.activeSceneChanged -= new Action<Scene, Scene>(OnSceneChanged);
         }
     }
 }
