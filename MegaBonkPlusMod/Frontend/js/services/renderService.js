@@ -1,4 +1,13 @@
-﻿function getElem(id) {
+// --- HIER ANPASSEN: DEIN KARTEN-MASSSTAB ---
+// Dies ist die wichtigste Zahl. Sie sagt, wie viele Spiel-Einheiten
+// (z.B. Meter) einem Pixel auf deiner 256x256-Minimap entsprechen.
+// Du musst mit diesem Wert experimentieren, bis die Punkte passen.
+// Ein guter Startwert ist oft die (ungefähre) Breite der Map in Spieleinheiten / 256.
+// z.B. 1000 Einheiten / 256px = ~4.0
+
+const MAP_SCALE = 2.32;
+
+function getElem(id) {
     const elem = document.getElementById(id);
     if (!elem) {
         console.error(`Render-Fehler: Element mit ID '${id}' nicht gefunden.`);
@@ -9,6 +18,17 @@
 function createPositionString(pos) {
     if (!pos) return "Position: Unbekannt\n";
     return `Position: (X: ${pos.x}, Y: ${pos.y}, Z: ${pos.z})\n`;
+}
+
+function worldToCanvas(worldPos, canvas) {
+    const canvasCenterX = canvas.width / 2;
+    const canvasCenterY = canvas.height / 2;
+    
+    const u = (worldPos.x / MAP_SCALE) + canvasCenterX;
+    
+    const v = (worldPos.z / MAP_SCALE) + canvasCenterY;
+
+    return { u, v };
 }
 
 export function renderPlayer(data) {
@@ -113,17 +133,30 @@ export function renderSimpleShrine(elemId, name, data) {
     elem.textContent = html;
 }
 
+export function renderTrackerDots(ctx, data, color) {
+    if (data.count === 0) return;
+
+    ctx.fillStyle = color;
+
+    ctx.beginPath();
+    data.items.forEach(item => {
+        const { u, v } = worldToCanvas(item.position, ctx.canvas);
+
+        ctx.rect(u - 2, v - 2, 8, 8);
+    });
+    ctx.fill();
+}
+
 export function renderMinimap(data) {
     const canvas = getElem('minimap-canvas');
-    if (!canvas) return;
+    if (!canvas) return null;
 
     if (data.count === 0 || !data.items[0] || !data.items[0].customProperties.rawPixelData) {
         canvas.style.display = 'none';
-        return;
+        return null;
     }
 
     canvas.style.display = 'block';
-
     const props = data.items[0].customProperties;
     const width = props.width;
     const height = props.height;
@@ -132,7 +165,7 @@ export function renderMinimap(data) {
     if (canvas.height !== height) canvas.height = height;
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) return null;
 
     try {
         const binaryString = atob(props.rawPixelData);
@@ -143,9 +176,13 @@ export function renderMinimap(data) {
         }
 
         const imageData = new ImageData(new Uint8ClampedArray(bytes.buffer), width, height);
+        
         ctx.putImageData(imageData, 0, 0);
+
+        return ctx;
 
     } catch (e) {
         console.error("Fehler beim Malen der Minimap auf das Canvas:", e);
+        return null;
     }
 }
