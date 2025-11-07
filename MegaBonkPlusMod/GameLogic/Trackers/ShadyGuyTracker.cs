@@ -23,7 +23,8 @@ public class ShadyGuyTracker : BaseTracker
             CacheIconsForObject(shadyGuy.transform.parent);
             var guyData = new TrackedObjectData
             {
-                Position = PositionData.FromVector3(shadyGuy.transform.position)
+                Position = PositionData.FromVector3(shadyGuy.transform.position),
+                InstanceId = shadyGuy.gameObject.GetInstanceID()
             };
 
             var itemNames = new List<string>();

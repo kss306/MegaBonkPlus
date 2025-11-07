@@ -6,13 +6,11 @@ namespace MegaBonkPlusMod.API;
 
 public static class JsonResponse
 {
-    // Sendet einen JSON-String (Standard)
     public static void Send(HttpListenerContext context, string jsonString)
     {
         Send(context, jsonString, 200, "application/json");
     }
 
-    // Sendet eine beliebige Text-Antwort
     public static void Send(HttpListenerContext context, string content, int statusCode, string contentType)
     {
         try
@@ -25,7 +23,7 @@ public static class JsonResponse
         }
         catch (Exception)
         {
-            // Ignoriere Fehler, wenn der Client die Verbindung bereits geschlossen hat
+            // ignore if client closed connection
         }
         finally
         {

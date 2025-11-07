@@ -23,7 +23,8 @@ public class GreedShrineTracker : BaseTracker
             CacheIconsForObject(trackedObject.transform);
             var objectData = new TrackedObjectData
             {
-                Position = PositionData.FromVector3(trackedObject.transform.position)
+                Position = PositionData.FromVector3(trackedObject.transform.position),
+                InstanceId = trackedObject.gameObject.GetInstanceID()
             };
             objectData.CustomProperties["done"] = trackedObject.done;
             trackedObjects.Add(objectData);

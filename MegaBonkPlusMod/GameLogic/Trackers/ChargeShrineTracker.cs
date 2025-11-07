@@ -24,7 +24,8 @@ public class ChargeShrineTracker : BaseTracker
             CacheIconsForObject(chargeShrine.transform);
             var shrineData = new TrackedObjectData
             {
-                Position = PositionData.FromVector3(chargeShrine.transform.position)
+                Position = PositionData.FromVector3(chargeShrine.transform.position),
+                InstanceId = chargeShrine.gameObject.GetInstanceID(), 
             };
             shrineData.CustomProperties["completed"] = chargeShrine.completed;
             shrineData.CustomProperties["isGolden"] = chargeShrine.isGolden;

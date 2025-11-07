@@ -1,7 +1,9 @@
-﻿import { getElem } from './utils.js';
-import { MAP_SCALE, WORLD_OFFSET_X, WORLD_OFFSET_Z } from '../config.js';
+import {getElem} from './utils.js';
+import {MAP_SCALE, WORLD_OFFSET_X, WORLD_OFFSET_Z} from '../config.js';
+import {postData} from './apiService.js';
 
 const imageCache = {};
+
 export function renderMinimap(data) {
     const canvas = getElem('minimap-canvas');
     const wrapper = getElem('minimap-wrapper');
@@ -10,11 +12,11 @@ export function renderMinimap(data) {
 
     if (data.count === 0 || !data.items[0] || !data.items[0].customProperties.rawPixelData) {
         wrapper.classList.add('is-loading');
-        return; 
+        return;
     }
-    
+
     wrapper.classList.remove('is-loading');
-    
+
     const props = data.items[0].customProperties;
     const width = props.width;
     const height = props.height;
@@ -54,7 +56,7 @@ function worldToCanvasPercentages(worldPos, canvasWidth, canvasHeight) {
     leftPercent = Math.max(0, Math.min(100, leftPercent));
     topPercent = Math.max(0, Math.min(100, topPercent));
 
-    return { leftPercent, topPercent };
+    return {leftPercent, topPercent};
 }
 
 export function updateMapIcons(dataMap, configMap, filterStates) {
@@ -86,7 +88,7 @@ export function updateMapIcons(dataMap, configMap, filterStates) {
             if (renderInfo.type === 'none') return;
 
             const tooltipHtml = config.getTooltipHtml(item).replace(/"/g, '&quot;');
-            const { leftPercent, topPercent } = worldToCanvasPercentages(item.position, canvasWidth, canvasHeight);
+            const {leftPercent, topPercent} = worldToCanvasPercentages(item.position, canvasWidth, canvasHeight);
 
             const sizeInPixels = renderInfo.size ?? 16;
             const widthPercent = (sizeInPixels / canvasWidth) * 100;
@@ -105,6 +107,7 @@ export function updateMapIcons(dataMap, configMap, filterStates) {
                           src="${renderInfo.path}" 
                           style="${style}"
                           data-tooltip-html="${tooltipHtml}"
+                          data-instance-id="${item.instanceId}"
                     />`;
             } else if (renderInfo.type === 'dot') {
                 style += ` background-color: ${renderInfo.color};`;
@@ -112,6 +115,7 @@ export function updateMapIcons(dataMap, configMap, filterStates) {
                     `<div class="map-icon" 
                          style="${style}"
                          data-tooltip-html="${tooltipHtml}"
+                         data-instance-id="${item.instanceId}"
                     ></div>`;
             }
         });
@@ -125,23 +129,127 @@ export function setupTooltipListeners() {
     const tooltip = getElem('map-tooltip');
     if (!iconContainer || !tooltip) return;
 
-    iconContainer.addEventListener('mousemove', (e) => {
-        const targetIcon = e.target.closest('.map-icon');
+    let pinnedIcon = null;
+    let hideTimeout = null;
+    let lockSwitch = false;
 
-        if (targetIcon) {
-            const html = targetIcon.dataset.tooltipHtml;
-            if (html) {
-                tooltip.innerHTML = html;
-                tooltip.style.display = 'block';
-                tooltip.style.left = (e.clientX + 15) + 'px';
-                tooltip.style.top = (e.clientY + 15) + 'px';
+    function setBodyFlag(open) {
+        document.body.classList.toggle('body-tooltip-open', !!open);
+    }
+
+    function showTooltipForIcon(iconEl) {
+        const html = iconEl.dataset.tooltipHtml;
+        if (!html) return;
+
+        const isWide = html.includes('data-tooltip-wide="1"');
+
+        tooltip.classList.toggle('tooltip--wide', isWide);
+
+        const iconRect = iconEl.getBoundingClientRect();
+        const gap = 4;
+
+        tooltip.innerHTML = html;
+        tooltip.style.display = 'block';
+        tooltip.style.visibility = 'hidden';
+        tooltip.style.left = '0px';
+        tooltip.style.top = '0px';
+
+        const ttWidth = tooltip.offsetWidth || (isWide ? 480 : 380);
+        const ttHeight = tooltip.offsetHeight || 200;
+
+        let left = iconRect.right + gap;
+        let top = iconRect.top;
+
+        if (left + ttWidth > window.innerWidth - 6) {
+            left = Math.max(6, iconRect.left - gap - ttWidth);
+        }
+        top = Math.min(
+            Math.max(6, iconRect.top + (iconRect.height / 2) - (ttHeight / 2)),
+            window.innerHeight - 6 - ttHeight
+        );
+
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
+        tooltip.style.visibility = 'visible';
+        setBodyFlag(true);
+    }
+
+    function scheduleHide(immediate = false) {
+        clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(() => {
+            if (!pinnedIcon) return;
+
+            const overIcon = pinnedIcon.matches(':hover');
+            const overTooltip = tooltip.matches(':hover');
+
+            if (!overIcon && !overTooltip) {
+                tooltip.style.display = 'none';
+                pinnedIcon = null;
+                setBodyFlag(false);
             }
-        } else {
-            tooltip.style.display = 'none';
+        }, immediate ? 0 : 100);
+    }
+
+    let enterTimer = null;
+
+    function handleEnter(icon) {
+        clearTimeout(enterTimer);
+        if (lockSwitch) return;
+        if (pinnedIcon === icon) return;
+
+        enterTimer = setTimeout(() => {
+            pinnedIcon = icon;
+            showTooltipForIcon(icon);
+        }, 40);
+    }
+
+    iconContainer.addEventListener('mouseover', (e) => {
+        const icon = e.target.closest('.map-icon');
+        if (!icon) return;
+        const from = e.relatedTarget;
+        if (from && icon.contains(from)) return;
+        handleEnter(icon);
+    });
+
+    iconContainer.addEventListener('mouseout', (e) => {
+        const icon = e.target.closest('.map-icon');
+        if (!icon) return;
+        const to = e.relatedTarget;
+        if (to && icon.contains(to)) return;
+        if (icon === pinnedIcon) {
+            scheduleHide();
         }
     });
 
-    iconContainer.addEventListener('mouseleave', () => {
-        tooltip.style.display = 'none';
+    tooltip.addEventListener('mouseenter', () => {
+        clearTimeout(hideTimeout);
+        lockSwitch = true;
+    });
+    tooltip.addEventListener('mouseleave', () => {
+        lockSwitch = false;
+        scheduleHide();
+    });
+
+    tooltip.addEventListener('click', (e) => {
+        const button = e.target.closest('button[data-action]');
+        if (!button) return;
+
+        if (pinnedIcon) {
+            const instanceId = pinnedIcon.dataset.instanceId;
+            const action = button.dataset.action;
+
+            if (instanceId && action) {
+                console.log(`Sende Aktion: ${action}, ID: ${instanceId}`);
+
+                postData('/api/action', {
+                    action: action,
+                    instanceId: parseInt(instanceId)
+                });
+
+                tooltip.style.display = 'none';
+                pinnedIcon = null;
+                setBodyFlag(false);
+            }
+        }
     });
 }

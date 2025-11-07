@@ -24,9 +24,24 @@ export const ENDPOINTS_TO_TRACK = {
         },
         getTooltipHtml: (item) => {
             return `
-                <h4>Greed Shrine</h4>
-                <img src="/images/map_objects/greed.png" alt="Greed Shrine">
-                <p>Increases the Difficulty by 5%</p>
+                <div class="tooltip-content">
+                    <div class="tooltip-icon">
+                        <img src="/images/map_objects/greed.png" alt="Greed Shrine">
+                    </div>
+                    <div class="tooltip-right">
+                        <div class="tooltip-header">
+                            <div class="tooltip-title">Greed Shrine</div>
+                            <div class="tooltip-meta">Items</div>
+                        </div>
+                        <div class="tooltip-body">
+                            Increases the Difficulty by 5%
+                        </div>
+                    </div>
+                    <div class="tooltip-actions">
+                        <button class="tooltip-button primary" data-action="teleport">Teleport</button>
+                        <button class="tooltip-button" data-action="interact">Interact</button>
+                    </div>
+                </div>
             `;
         }
     },
@@ -44,9 +59,24 @@ export const ENDPOINTS_TO_TRACK = {
         getTooltipHtml: (item) => {
             const type = item.customProperties.type ?? 'Normal';
             return `
-                <h4>${type ?? ""} Chest</h4>
-                <img src="/images/map_objects/chest_${type.toLowerCase()}.png" alt="Chest">
-                <p>Buy to recieve a random item</p>
+                <div class="tooltip-content">
+                    <div class="tooltip-icon">
+                        <img src="/images/map_objects/chest_${type.toLowerCase()}.png" alt="Chest">
+                    </div>
+                    <div class="tooltip-right">
+                        <div class="tooltip-header">
+                            <div class="tooltip-title">${type ?? ""} Chest</div>
+                            <div class="tooltip-meta">Items</div>
+                        </div>
+                        <div class="tooltip-body">
+                            Buy to recieve a random item
+                        </div>
+                    </div>
+                    <div class="tooltip-actions">
+                        <button class="tooltip-button primary" data-action="teleport">Teleport</button>
+                        <button class="tooltip-button" data-action="interact">Interact</button>
+                    </div>
+                </div>
             `;
         }
     },
@@ -60,9 +90,24 @@ export const ENDPOINTS_TO_TRACK = {
         }),
         getTooltipHtml: (item) => {
             return `
-                <h4>Cursed Shrine</h4>
-                <img src="/images/map_objects/cursed.png" alt="Cursed Shrine">
-                <p>Interact with this Shrine to Spawn +1 Boss</p>
+                <div class="tooltip-content">
+                    <div class="tooltip-icon">
+                        <img src="/images/map_objects/cursed.png" alt="Cursed Shrine">
+                    </div>
+                    <div class="tooltip-right">
+                        <div class="tooltip-header">
+                            <div class="tooltip-title">Cursed Shrine</div>
+                            <div class="tooltip-meta">Enemies</div>
+                        </div>
+                        <div class="tooltip-body">
+                            Interact with this Shrine to Spawn +1 Boss
+                        </div>
+                    </div>
+                    <div class="tooltip-actions">
+                        <button class="tooltip-button primary" data-action="teleport">Teleport</button>
+                        <button class="tooltip-button" data-action="interact">Interact</button>
+                    </div>
+                </div>
             `;
         }
     },
@@ -76,9 +121,24 @@ export const ENDPOINTS_TO_TRACK = {
         }),
         getTooltipHtml: (item) => {
             return `
-                <h4>Challenge Shrine</h4>
-                <img src="/images/map_objects/challenge.png" alt="Challenge Shrine">
-                <p>Spawns elite enemies that drop a free chest on death</p>
+                <div class="tooltip-content">
+                    <div class="tooltip-icon">
+                        <img src="/images/map_objects/challenge.png" alt="Challenge Shrine">
+                    </div>
+                    <div class="tooltip-right">
+                        <div class="tooltip-header">
+                            <div class="tooltip-title">Challenge Shrine</div>
+                            <div class="tooltip-meta">Enemies</div>
+                        </div>
+                        <div class="tooltip-body">
+                            Spawns elite enemies that drop a free chest on death
+                        </div>
+                    </div>
+                    <div class="tooltip-actions">
+                        <button class="tooltip-button primary" data-action="teleport">Teleport</button>
+                        <button class="tooltip-button" data-action="interact">Interact</button>
+                    </div>
+                </div>
             `;
         }
     },
@@ -92,9 +152,24 @@ export const ENDPOINTS_TO_TRACK = {
         }),
         getTooltipHtml: (item) => {
             return `
-                <h4>Magnet Shrine</h4>
-                <img src="/images/map_objects/magnet.png" alt="Magnet Shrine">
-                <p>Interact to pull all dropped XP across the map towards you</p>
+                <div class="tooltip-content">
+                    <div class="tooltip-icon">
+                        <img src="/images/map_objects/magnet.png" alt="Magnet Shrine">
+                    </div>
+                    <div class="tooltip-right">
+                        <div class="tooltip-header">
+                            <div class="tooltip-title">Magnet Shrine</div>
+                            <div class="tooltip-meta">Level</div>
+                        </div>
+                        <div class="tooltip-body">
+                            Interact to pull all dropped XP across the map towards you
+                        </div>
+                    </div>
+                    <div class="tooltip-actions">
+                        <button class="tooltip-button primary" data-action="teleport">Teleport</button>
+                        <button class="tooltip-button" data-action="interact">Interact</button>
+                    </div>
+                </div>
             `;
         }
     },
@@ -110,11 +185,26 @@ export const ENDPOINTS_TO_TRACK = {
             };
         },
         getTooltipHtml: (item) => {
-            const type = item.customProperties.type ?? 'Common';
+            const type = item.customProperties.rarity ?? 'Common';
             return `
-                <h4>${type ?? ""} Microwave</h4>
-                <img src="/images/map_objects/microwave_${type.toLowerCase()}.png" alt="Microwave">
-                <p>Clone one ${type ?? ""} Item by sacrificing another. You need at least three of the same rarity</p>
+                <div class="tooltip-content">
+                    <div class="tooltip-icon">
+                        <img src="/images/map_objects/microwave_${type.toLowerCase()}.png" alt="Microwave">
+                    </div>
+                    <div class="tooltip-right">
+                        <div class="tooltip-header">
+                            <div class="tooltip-title">${type ?? ""} Microwave</div>
+                            <div class="tooltip-meta">Items</div>
+                        </div>
+                        <div class="tooltip-body">
+                            Clone one ${type ?? ""} Item by sacrificing another. You need at least three of the same rarity
+                        </div>
+                    </div>
+                    <div class="tooltip-actions">
+                        <button class="tooltip-button primary" data-action="teleport">Teleport</button>
+                        <button class="tooltip-button" data-action="interact">Interact</button>
+                    </div>
+                </div>
             `;
         }
     },
@@ -128,9 +218,24 @@ export const ENDPOINTS_TO_TRACK = {
         }),
         getTooltipHtml: (item) => {
             return `
-                <h4>Moai Shrine</h4>
-                <img src="/images/map_objects/maoi.png" alt="Moai Shrine">
-                <p>Interact select a random Item from the Shrine for free</p>
+                <div class="tooltip-content">
+                    <div class="tooltip-icon">
+                        <img src="/images/map_objects/maoi.png" alt="Moai Shrine">
+                    </div>
+                    <div class="tooltip-right">
+                        <div class="tooltip-header">
+                            <div class="tooltip-title">Moai Shrine</div>
+                            <div class="tooltip-meta">Items</div>
+                        </div>
+                        <div class="tooltip-body">
+                            Interact select a random Item from the Shrine for free
+                        </div>
+                    </div>
+                    <div class="tooltip-actions">
+                        <button class="tooltip-button primary" data-action="teleport">Teleport</button>
+                        <button class="tooltip-button" data-action="interact">Interact</button>
+                    </div>
+                </div>
             `;
         }
     },
@@ -152,9 +257,23 @@ export const ENDPOINTS_TO_TRACK = {
             const imgName = item.customProperties.isGolden ? 'charge_gold' : 'charge_normal';
             const baseName = item.customProperties.isGolden ? 'Golden Charge Shrine' : 'Charge Shrine';
             return `
-                <h4>${baseName ?? "Charge Shrine"}</h4>
-                <img src="/images/map_objects/${imgName}.png" alt="Charge Shrine">
-                <p>Stand in the range of shrine to recieve a Stat Boost</p>
+                <div class="tooltip-content">
+                    <div class="tooltip-icon">
+                        <img src="/images/map_objects/${imgName}.png" alt="Charge Shrine">
+                    </div>
+                    <div class="tooltip-right">
+                        <div class="tooltip-header">
+                            <div class="tooltip-title">${baseName}</div>
+                            <div class="tooltip-meta">Stats</div>
+                        </div>
+                        <div class="tooltip-body">
+                            Stand in the range of shrine to recieve a Stat Boost
+                        </div>
+                    </div>
+                    <div class="tooltip-actions">
+                        <button class="tooltip-button primary" data-action="teleport">Teleport</button>
+                    </div>
+                </div>
             `;
         }
     },
@@ -170,12 +289,64 @@ export const ENDPOINTS_TO_TRACK = {
             };
         },
         getTooltipHtml: (item) => {
-            const rarity = item.customProperties.rarity ?? 'Common';
+            const props = item.customProperties || {};
+            const rarity = props.rarity ?? 'Common';
+            const names = Array.isArray(props.itemNames) ? props.itemNames : [];
+            const prices = Array.isArray(props.itemPrices) ? props.itemPrices : [];
+
+            const offersHtml = names.slice(0, 3).map((rawName, i) => {
+                const id = rawName.toString().trim()
+                    .toLowerCase()
+                    .replace(/\s+/g, ' ')
+                    .replace(/[^a-z0-9 ]/g, '')
+                    .replace(/\s+/g, '');
+                const price = prices[i] != null ? prices[i] : '-';
+                const displayName = rawName;
+                const icon = `/images/items/${id}.png`;
+                return `
+                        <div class="offer-item">
+                            <img src="${icon}" alt="${displayName}">
+                            <div class="offer-name" title="${displayName}">${displayName}</div>
+                            <div class="offer-price">${price}g</div>
+                        </div>
+                    `;
+            }).join('') || `
+                    <div class="offer-item">
+                        <div class="offer-name" title="No offers">No offers</div>
+                        <div class="offer-price">-</div>
+                    </div>
+                `;
+
             return `
-                <h4>${rarity ?? ""} Shady Guy</h4>
-                <img src="/images/map_objects/shady_${rarity.toLowerCase()}.png" alt="Shady Guy">
-                <p>Buy one ${rarity ?? ""} Item from this shady vendor</p>
-            `;
+                    <div class="tooltip-content" data-tooltip-wide="1">
+                        <div class="tooltip-icon">
+                            <img src="/images/map_objects/shady_${(rarity||'Common').toLowerCase()}.png" alt="Shady Guy">
+                        </div>
+
+                        <div class="tooltip-right">
+                            <div class="tooltip-header">
+                                <div class="tooltip-title">${rarity} Shady Guy</div>
+                                <div class="tooltip-meta">Vendor</div>
+                            </div>
+
+                            <div class="tooltip-body">
+                                Buy one ${rarity} item from this shady vendor.
+                            </div>
+
+                            <div class="tooltip-offers">
+                                <h5>Offers</h5>
+                                <div class="offer-list">
+                                    ${offersHtml}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tooltip-actions">
+                            <button class="tooltip-button primary" data-action="teleport">Teleport</button>
+                            <button class="tooltip-button" data-action="interact">Open Shop</button>
+                        </div>
+                    </div>
+                `;
         }
     },
 
@@ -188,9 +359,24 @@ export const ENDPOINTS_TO_TRACK = {
         }),
         getTooltipHtml: (item) => {
             return `
-                <h4>Boss Spawner</h4>
-                <img src="/images/map_objects/bossspawner.png" alt="Boss Spawner">
-                <p>Interact to spawn the final boss of the Stage and trigger the Final Wave</p>
+                <div class="tooltip-content">
+                    <div class="tooltip-icon">
+                        <img src="/images/map_objects/bossspawner.png" alt="Boss Spawner">
+                    </div>
+                    <div class="tooltip-right">
+                        <div class="tooltip-header">
+                            <div class="tooltip-title">Boss Spawner</div>
+                            <div class="tooltip-meta">Final Wave</div>
+                        </div>
+                        <div class="tooltip-body">
+                            Interact to spawn the final boss of the Stage and trigger the Final Wave
+                        </div>
+                    </div>
+                    <div class="tooltip-actions">
+                        <button class="tooltip-button primary" data-action="teleport">Teleport</button>
+                        <button class="tooltip-button" data-action="interact">Interact</button>
+                    </div>
+                </div>
             `;
         }
     },
@@ -204,13 +390,24 @@ export const ENDPOINTS_TO_TRACK = {
             size: isHovered ? 22 : 18
         }),
         getTooltipHtml: (item) => {
-            const props = item.customProperties;
-            const pos = item.position;
+            const props = item.customProperties || {};
+            const ch = props.character ?? 'Unknown';
+            const slug = typeof ch === 'string' ? ch.toLowerCase() : 'placeholder';
+            const lvl = item.level ?? 0;
             return `
-                <h4>${props.character} (Du)</h4>
-                <img src="/images/characters/${props.character.toString().toLowerCase()}.png" alt="${props.character}">
-                <p>Position: ${Math.round(pos.x)}, ${Math.round(pos.y)}, ${Math.round(pos.z)}</p>
-            `;
+                    <div class="tooltip-content">
+                        <div class="tooltip-icon">
+                            <img src="/images/characters/${slug}.png" alt="${ch}">
+                        </div>
+                        <div class="tooltip-right">
+                            <div class="tooltip-header">
+                                <div class="tooltip-title">${ch} (You)</div>
+                                <div class="tooltip-meta">Level ${lvl}</div>
+                            </div>
+   
+                        </div>
+                    </div>
+                `;
         }
     }
 };

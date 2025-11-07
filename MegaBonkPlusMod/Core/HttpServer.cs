@@ -5,112 +5,121 @@ using System.Threading.Tasks;
 using BepInEx.Logging;
 using MegaBonkPlusMod.API;
 
-namespace MegaBonkPlusMod.Core;
-
-public class HttpServer
+namespace MegaBonkPlusMod.Core
 {
-    private readonly HttpListener _listener;
-    private readonly ManualLogSource _logger;
-    private readonly ApiRouter _router;
-    private bool _isRunning;
-    private readonly Assembly _pluginAssembly; // Um auf die Embedded Resources zuzugreifen
-
-    public HttpServer(ManualLogSource logger, ApiRouter router)
+    public class HttpServer
     {
-        _logger = logger;
-        _router = router;
-        _listener = new HttpListener();
-        _listener.Prefixes.Add("http://localhost:8080/");
-        _pluginAssembly = Assembly.GetExecutingAssembly(); // Holt unsere eigene DLL
-    }
+        private readonly HttpListener _listener;
+        private readonly ManualLogSource _logger;
+        private readonly ApiRouter _router;
+        private bool _isRunning;
+        private readonly Assembly _pluginAssembly; 
 
-    public void Start()
-    {
-        if (_isRunning) return;
-
-        _isRunning = true;
-        Task.Run(RunServerLoop);
-        _logger.LogInfo("HttpServer gestartet auf http://localhost:8080/");
-    }
-
-    public void Stop()
-    {
-        _isRunning = false;
-        _listener?.Stop();
-        _listener?.Close();
-    }
-
-    private async void RunServerLoop()
-    {
-        try
+        public HttpServer(ManualLogSource logger, ApiRouter router)
         {
-            _listener.Start();
-            while (_isRunning)
-            {
-                var context = await _listener.GetContextAsync();
+            _logger = logger;
+            _router = router;
+            _listener = new HttpListener();
+            _listener.Prefixes.Add("http://localhost:8080/");
+            _pluginAssembly = Assembly.GetExecutingAssembly(); 
+        }
 
-                // Übergib die Anfrage an den Router
-                // Wenn der Router 'false' zurückgibt, war es keine API-Anfrage
-                if (!_router.HandleApiRequest(context))
-                    //...also versuchen wir, eine Frontend-Datei zu senden
-                    HandleFrontendRequest(context);
+        public void Start()
+        {
+            if (_isRunning) return;
+
+            _isRunning = true;
+            Task.Run(RunServerLoop);
+            _logger.LogInfo("HttpServer gestartet auf http://localhost:8080/");
+        }
+
+        public void Stop()
+        {
+            _isRunning = false;
+            try
+            {
+                _listener?.Stop();
+                _listener?.Close();
             }
+            catch (Exception) { /* Ignore if closed */ }
         }
-        catch (Exception ex)
+
+        private async void RunServerLoop()
         {
-            if (_isRunning) // Zeige Fehler nur an, wenn der Server laufen sollte
-                _logger.LogError($"HttpServer-Loop-Fehler: {ex.Message}");
-        }
-    }
-
-    // Diese Methode liest die HTML/JS/CSS-Dateien aus der DLL
-    private void HandleFrontendRequest(HttpListenerContext context)
-    {
-        var urlPath = context.Request.Url.AbsolutePath;
-
-        // Standard-Route auf index.html umleiten
-        if (urlPath == "/") urlPath = "/index.html";
-
-        // Konvertiert den Web-Pfad (z.B. /js/app.js) in den Ressourcennamen
-        // (z.B. MeinSpielWebMod.Frontend.js.app.js)
-        var resourcePath = "MegaBonkPlusMod.Frontend" + urlPath.Replace('/', '.');
-
-        try
-        {
-            // Versuche, die Ressource aus der DLL zu laden
-            using (var resourceStream = _pluginAssembly.GetManifestResourceStream(resourcePath))
+            try
             {
-                if (resourceStream == null)
+                _listener.Start();
+                while (_isRunning)
                 {
-                    _logger.LogWarning($"Frontend-Ressource nicht gefunden: {resourcePath}");
-                    JsonResponse.Send(context, "404 Not Found", 404, "text/plain");
-                    return;
+                    HttpListenerContext context = await _listener.GetContextAsync();
+                    
+                    if (context.Request.HttpMethod == "POST")
+                    {
+                        _router.HandleApiPostRequest(context);
+                    }
+                    else if (context.Request.HttpMethod == "GET")
+                    {
+                        if (!_router.HandleApiGetRequest(context))
+                        {
+                            HandleEmbeddedRequest(context);
+                        }
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = 200;
+                        context.Response.Close();
+                    }
                 }
-
-                // Sende die Datei
-                context.Response.ContentType = GetMimeType(urlPath);
-                resourceStream.CopyTo(context.Response.OutputStream);
+            }
+            catch (Exception ex)
+            {
+                if (_isRunning && ex is not ObjectDisposedException) 
+                    _logger.LogError($"HttpServer-Loop-Fehler: {ex.Message}");
             }
         }
-        catch (Exception ex)
+        
+        private void HandleEmbeddedRequest(HttpListenerContext context)
         {
-            _logger.LogError($"Fehler beim Senden der Frontend-Datei: {ex.Message}");
-            JsonResponse.Send(context, "500 Internal Error", 500, "text/plain");
-        }
-        finally
-        {
-            context.Response.OutputStream.Close();
-        }
-    }
+            var urlPath = context.Request.Url.AbsolutePath;
+            
+            if (urlPath == "/") urlPath = "/index.html";
+            
+            var resourcePath = "MegaBonkPlusMod.Frontend" + urlPath.Replace('/', '.');
 
-    private string GetMimeType(string path)
-    {
-        if (path.EndsWith(".js")) return "application/javascript";
-        if (path.EndsWith(".css")) return "text/css";
-        if (path.EndsWith(".html")) return "text/html";
-        if (path.EndsWith(".png")) return "image/png";
-        if (path.EndsWith(".jpg")) return "image/jpeg";
-        if (path.EndsWith(".jpeg")) return "image/jpeg";
-        return "application/octet-stream";
+            try
+            {
+                using (var resourceStream = _pluginAssembly.GetManifestResourceStream(resourcePath))
+                {
+                    if (resourceStream == null)
+                    {
+                        _logger.LogWarning($"Frontend-Ressource nicht gefunden: {resourcePath}");
+                        JsonResponse.Send(context, "404 Not Found", 404, "text/plain");
+                        return;
+                    }
+
+                    context.Response.ContentType = GetMimeType(urlPath);
+                    resourceStream.CopyTo(context.Response.OutputStream);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Fehler beim Senden der Frontend-Datei: {ex.Message}");
+                JsonResponse.Send(context, "500 Internal Error", 500, "text/plain");
+            }
+            finally
+            {
+                context.Response.OutputStream.Close();
+            }
+        }
+
+        private string GetMimeType(string path)
+        {
+            if (path.EndsWith(".js")) return "application/javascript";
+            if (path.EndsWith(".css")) return "text/css";
+            if (path.EndsWith(".html")) return "text/html";
+            if (path.EndsWith(".png")) return "image/png";
+            if (path.EndsWith(".jpg") || path.EndsWith(".jpeg")) return "image/jpeg";
+            return "application/octet-stream";
+        }
     }
 }

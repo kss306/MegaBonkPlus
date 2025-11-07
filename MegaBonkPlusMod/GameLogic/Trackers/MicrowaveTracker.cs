@@ -18,13 +18,14 @@ public class MicrowaveTracker : BaseTracker
     {
         var trackedObjects = new List<TrackedObjectData>();
         var allObjects = Object.FindObjectsOfType<InteractableMicrowave>();
-
-        foreach (var trackedObject in allObjects)
+        
+        foreach (var trackedObject in allObjects)   
         {
             CacheIconsForObject(trackedObject.transform.parent);
             var objectData = new TrackedObjectData
             {
-                Position = PositionData.FromVector3(trackedObject.transform.position)
+                Position = PositionData.FromVector3(trackedObject.transform.position),
+                InstanceId = trackedObject.gameObject.GetInstanceID()
             };
             objectData.CustomProperties["rarity"] = trackedObject.rarity.ToString();
             trackedObjects.Add(objectData);

@@ -24,7 +24,8 @@ public class MagnetShrineTracker : BaseTracker
             CacheIconsForObject(trackedObject.transform);
             var objectData = new TrackedObjectData
             {
-                Position = PositionData.FromVector3(trackedObject.transform.position)
+                Position = PositionData.FromVector3(trackedObject.transform.position),
+                InstanceId = trackedObject.gameObject.GetInstanceID()
             };
             trackedObjects.Add(objectData);
         }

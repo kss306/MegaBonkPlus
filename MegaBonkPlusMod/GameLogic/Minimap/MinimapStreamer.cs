@@ -42,8 +42,7 @@ namespace MegaBonkPlusMod.GameLogic.Minimap
         {
             Texture2D readableTex = null;
             try
-            {
-                _logger.LogWarning("[MinimapStreamer] Sende 'CaptureStart'-Signal JETZT...");
+            { 
                 MinimapCaptureController.TriggerCaptureStart();
                 
                 var payload = BuildDataPayload(out readableTex);
@@ -57,8 +56,6 @@ namespace MegaBonkPlusMod.GameLogic.Minimap
             }
             finally
             {
-                _logger.LogWarning("[MinimapStreamer] Sende 'CaptureEnd'-Signal JETZT...");
-                
                 if (readableTex != null) UnityObject.Destroy(readableTex);
             }
         }

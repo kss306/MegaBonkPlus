@@ -1,6 +1,6 @@
-import { fetchData } from './services/apiService.js';
-import { ENDPOINTS_TO_TRACK } from './config.js';
-import { renderMinimap, updateMapIcons, setupTooltipListeners } from './services/mapService.js';
+import {fetchData} from './services/apiService.js';
+import {ENDPOINTS_TO_TRACK} from './config.js';
+import {renderMinimap, updateMapIcons, setupTooltipListeners} from './services/mapService.js';
 import * as TextRenderers from './services/uiService.js';
 
 let filterStates = {};
@@ -21,7 +21,9 @@ async function updateDashboard() {
     );
 
     const dataMap = {};
-    allKeys.forEach((key, index) => { dataMap[key] = allData[index]; });
+    allKeys.forEach((key, index) => {
+        dataMap[key] = allData[index];
+    });
 
     if (dataMap['minimap']) {
         renderMinimap(dataMap['minimap']);
@@ -41,7 +43,18 @@ async function updateDashboard() {
     updateMapIcons(dataMap, ENDPOINTS_TO_TRACK);
 }
 
+
 console.log("Dashboard gestartet...");
+
+const filterList = document.querySelector('.filter-list');
+if (filterList) {
+    filterList.addEventListener('change', () => {
+        updateFilterState();
+        updateDashboard();
+    });
+}
+updateFilterState();
+
 setupTooltipListeners();
 setInterval(updateDashboard, 1000);
 updateDashboard();

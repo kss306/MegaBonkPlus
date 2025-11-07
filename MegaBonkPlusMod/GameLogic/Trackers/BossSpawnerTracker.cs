@@ -29,7 +29,8 @@ public class BossSpawnerTracker : BaseTracker
             CacheIconsForObject(bossSpawner.transform);
             var bossSpawnerData = new TrackedObjectData
             {
-                Position = PositionData.FromVector3(bossSpawner.transform.position)
+                Position = PositionData.FromVector3(bossSpawner.transform.position),
+                InstanceId = bossSpawner.gameObject.GetInstanceID(), 
             };
             trackedSpawner.Add(bossSpawnerData);
         }

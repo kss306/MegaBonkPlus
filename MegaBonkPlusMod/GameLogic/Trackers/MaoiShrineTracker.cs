@@ -23,7 +23,8 @@ public class MaoiShrineTracker : BaseTracker
             CacheIconsForObject(maoiShrine.transform);
             var shrineData = new TrackedObjectData
             {
-                Position = PositionData.FromVector3(maoiShrine.transform.position)
+                Position = PositionData.FromVector3(maoiShrine.transform.position),
+                InstanceId = maoiShrine.gameObject.GetInstanceID()
             };
             trackedMaoiShrines.Add(shrineData);
         }

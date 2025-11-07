@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BepInEx.Logging;
 using MegaBonkPlusMod.API;
+using MegaBonkPlusMod.GameLogic.Common;
 using MegaBonkPlusMod.GameLogic.Minimap;
 using MegaBonkPlusMod.GameLogic.Trackers;
 using UnityEngine;
@@ -55,7 +56,7 @@ namespace MegaBonkPlusMod.Core
             _trackers.Add(new MagnetShrineTracker(logger, 2.0f));
             _trackers.Add(new MicrowaveTracker(logger, 2.0f));
             _trackers.Add(new ChallengeShrineTracker(logger, 2.0f));
-
+            
             _router = new ApiRouter(logger, _trackers, _minimapStreamer);
             _server = new HttpServer(logger, _router);
             _server.Start();
@@ -92,6 +93,10 @@ namespace MegaBonkPlusMod.Core
 
         private void Update()
         {
+            
+            MainThreadActionQueue.ExecuteAll();
+            TeleportService.Update();
+            
             switch (_captureState)
             {
                 case CaptureState.WaitingForSpawn:
