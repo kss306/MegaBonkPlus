@@ -32,7 +32,7 @@ namespace MegaBonkPlusMod.Core
         private CaptureState _captureState = CaptureState.Idle;
         private float _captureTimer = 0f;
 
-        private const float SPAWN_DELAY = 0.2f;
+        private const float SPAWN_DELAY = 0.5f;
         private const float MINIMAP_CAPTURE_DELAY = 1.5f;
 
         public void Initialize(ManualLogSource logger)

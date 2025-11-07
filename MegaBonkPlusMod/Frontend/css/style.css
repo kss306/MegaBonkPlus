@@ -1,37 +1,198 @@
-﻿body {
-    font-family: Arial, sans-serif;
-    background: #222;
-    color: #eee;
+﻿/* --- 1. CSS-Variablen (Farbpalette aus deinem Prototyp) --- */
+:root {
+    --bg-dark: #1a1d24;      /* Dunkelster Hintergrund */
+    --bg-light: #2a2f3a;     /* Hellerer "Card"-Hintergrund */
+    --accent: #00bcd4;       /* Türkis-Akzent */
+    --text-primary: #f8f8f8;
+    --text-secondary: #a0aec0;
+    --border-color: #4a5568;
 }
 
-#app {
+/* --- 2. Basis-Layout --- */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    margin: 0;
     padding: 20px;
 }
-
-h1 {
-    color: #00bcd4;
+.card {
+    background: var(--bg-light);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-pre {
-    background: #333;
+/* --- 3. Dashboard-Grid-Layout --- */
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr 220px;
+    gap: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* --- 4. Spalte 1: Charakter-Info (Unverändert) --- */
+.char-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.char-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    margin-bottom: 16px;
+    object-fit: cover;
+}
+.char-info h2 { margin: 0 0 24px 0; color: var(--text-primary); }
+.char-stats { width: 100%; list-style: none; padding: 0; margin: 0; }
+.char-stats li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.char-stats li:last-child { border-bottom: none; }
+.char-stats span { color: var(--text-secondary); font-size: 14px; }
+.char-stats strong { color: var(--text-primary); font-weight: 600; }
+
+/* --- 5. Spalte 2: Minimap (JETZT MIT LADE-LOGIK) --- */
+.map-container {
     padding: 10px;
-    border-radius: 5px;
-    font-size: 1.2em;
+}
+#minimap-wrapper {
+    position: relative;
+    width: 100%;
+    border: 1px solid var(--border-color);
+    background: #111; /* Das ist dein "schwarzes bild" */
+    transform: scaleY(-1);
+
+    /* * HIER IST DER FIX FÜR DAS "SPRINGEN": 
+     * Erzwingt, dass der Container immer quadratisch ist (1:1-Verhältnis).
+     */
+    aspect-ratio: 1 / 1;
+
+    /* Verhindert Überlaufen, falls etwas schiefgeht */
+    overflow: hidden;
 }
 
-.minimap-container {
-    max-width: 1000px;
-    border: 1px solid #555;
-    background: #111;
-    min-height: 50px;
-    margin-bottom: 20px;
+/* Alle 3 Kinder (Karte, Icons, Lader) stapeln übereinander */
+#minimap-canvas,
+#minimap-icons,
+#minimap-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 #minimap-canvas {
-    width: 100%;
     display: block;
     image-rendering: pixelated;
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -webkit-crisp-edges;
+}
+
+/* --- 6. NEU: Lade-Platzhalter Stile --- */
+#minimap-loader {
+    /* (display: flex wird per JS/CSS-Klasse gesteuert) */
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-secondary, #a0aec0);
+
+    /* Muss zurückgespiegelt werden, damit der Text lesbar ist */
     transform: scaleY(-1);
+}
+.loader-spinner {
+    border: 4px solid #333; /* Grauer Kreis */
+    border-top: 4px solid var(--accent, #00bcd4); /* Blauer Bogen */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite; /* Animation anwenden */
+    margin-bottom: 16px;
+}
+/* Die Animation selbst */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- NEU: Sichtbarkeits-Steuerung --- */
+/* Standardmäßig (KEIN .is-loading): Lader ist versteckt */
+#minimap-wrapper:not(.is-loading) #minimap-loader {
+    display: none;
+}
+
+/* Wenn der Wrapper 'is-loading' hat... */
+#minimap-wrapper.is-loading #minimap-canvas,
+#minimap-wrapper.is-loading #minimap-icons {
+    display: none; /* ...verstecke die Karte und die Icons... */
+}
+#minimap-wrapper.is-loading #minimap-loader {
+    display: flex; /* ...und zeige den Lade-Platzhalter. */
+}
+
+
+/* --- 7. Spalte 3: Filter (Unverändert) --- */
+.filter-sidebar h3 { margin-top: 0; color: var(--text-primary); }
+.filter-list ul { list-style: none; padding: 0; margin: 0; }
+.filter-list li {
+    display: grid;
+    grid-template-columns: 30px 1fr auto;
+    align-items: center;
+    padding: 12px 0;
+    font-size: 14px;
+}
+.filter-icon { font-size: 18px; }
+
+/* --- 8. CSS Toggle Switch (Unverändert) --- */
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 24px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute; cursor: pointer; top: 0; left: 0;
+    right: 0; bottom: 0; background-color: #555;
+    transition: .2s; border-radius: 34px;
+}
+.slider:before {
+    position: absolute; content: ""; height: 18px; width: 18px;
+    left: 3px; bottom: 3px; background-color: white;
+    transition: .2s; border-radius: 50%;
+}
+input:checked + .slider { background-color: var(--accent); }
+input:checked + .slider:before { transform: translateX(16px); }
+
+/* --- 9. Icons & Tooltip (Unverändert) --- */
+.map-icon {
+    position: absolute;
+    left: var(--icon-left);
+    top: var(--icon-top);
+    width: var(--icon-width);
+    height: var(--icon-height);
+    transform: translate(-50%, -50%) scaleY(-1);
+    transition: transform 0.15s ease-out, width 0.15s ease-out, height 0.15s ease-out;
+}
+.map-icon:hover {
+    transform: translate(-50%, -50%) scaleY(-1) scale(1.5);
+    z-index: 10;
+}
+#map-tooltip {
+    position: fixed; display: none; background: white; color: black;
+    border-radius: 8px; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-size: 14px; z-index: 1000; pointer-events: none; max-width: 250px;
+    white-space: pre-wrap;
+}
+#map-tooltip img { width: 100%; border-radius: 4px; margin-bottom: 8px; }
+#map-tooltip h4 { margin: 0 0 5px 0; font-size: 16px; font-weight: bold; }
+#map-tooltip p { margin: 0; font-size: 13px; color: #333; }
+
+/* --- 10. Responsivität (Unverändert) --- */
+@media (max-width: 900px) {
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+    }
 }

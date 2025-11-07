@@ -3,20 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <title>Mod-Dashboard</title>
-    <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div id="app">
-    
-    <h1>Minimap-Stream</h1>
-    <div class="minimap-container">
-        <canvas id="minimap-canvas"></canvas>
-    </div>
 
-    <h1>Shady Guy</h1>
-    <pre id="shadyguys-data">Lade...</pre>
-    
-</div>
+<div class="dashboard-layout">
+
+    <section class="card char-info">
+        <img id="char-avatar" src="/images/characters/placeholder.png" alt="Avatar" class="char-avatar">
+        <h2 id="char-name">Loading...</h2>
+
+        <ul id="char-stats" class="char-stats">
+        </ul>
+    </section>
+
+    <section class="card map-container">
+        <div id="minimap-wrapper">
+            <canvas id="minimap-canvas"></canvas>
+            <div id="minimap-icons"></div>
+            <div id="minimap-loader" class="minimap-loader">
+                <div class="loader-spinner"></div>
+                <p>Waiting for round start...</p>
+            </div>
+        </div>
+    </section>
+
+    <aside class="card filter-sidebar">
+        <h3>Filter</h3>
+        <nav class="filter-list">
+            <ul>
+                <li>
+                    <span class="filter-icon">📦</span> <span class="filter-name">Chests</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="filter-chests" data-filter-key="chests" checked>
+                        <span class="slider"></span>
+                    </label>
+                </li>
+                <li>
+                    <span class="filter-icon">🕵️</span>
+                    <span class="filter-name">Shady Guys</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="filter-shadyGuys" data-filter-key="shadyGuys" checked>
+                        <span class="slider"></span>
+                    </label>
+                </li>
+                <li>
+                    <span class="filter-icon">🏛️</span>
+                    <span class="filter-name">Shrines</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="filter-shrines" data-filter-key="allShrines" checked>
+                        <span class="slider"></span>
+                    </label>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+</div> <div id="map-tooltip" class="map-tooltip" style="display: none;"></div>
 
 <script src="js/app.js" type="module"></script>
 </body>

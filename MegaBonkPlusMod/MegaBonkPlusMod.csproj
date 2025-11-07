@@ -4,6 +4,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>disable</Nullable>
+        <EnableDefaultContentItems>false</EnableDefaultContentItems>
     </PropertyGroup>
 
     <ItemGroup>
@@ -66,8 +67,6 @@
         <EmbeddedResource Include="Frontend\index.html"/>
         <None Remove="Frontend\js\services\apiService.js"/>
         <EmbeddedResource Include="Frontend\js\services\apiService.js"/>
-        <None Remove="Frontend\js\services\renderService.js"/>
-        <EmbeddedResource Include="Frontend\js\services\renderService.js"/>
         <None Remove="Frontend\images\characters\amog.png" />
         <EmbeddedResource Include="Frontend\images\characters\amog.png" />
         <None Remove="Frontend\images\characters\athena.png" />
@@ -146,6 +145,14 @@
         <EmbeddedResource Include="Frontend\images\map_objects\shady_legendary.png" />
         <None Remove="Frontend\images\map_objects\shady_rare.png" />
         <EmbeddedResource Include="Frontend\images\map_objects\shady_rare.png" />
+        <None Remove="Frontend\js\config.js" />
+        <EmbeddedResource Include="Frontend\js\config.js" />
+        <None Remove="Frontend\js\services\mapService.js" />
+        <EmbeddedResource Include="Frontend\js\services\mapService.js" />
+        <None Remove="Frontend\js\services\uiService.js" />
+        <EmbeddedResource Include="Frontend\js\services\uiService.js" />
+        <None Remove="Frontend\js\services\utils.js" />
+        <EmbeddedResource Include="Frontend\js\services\utils.js" />
     </ItemGroup>
 
     <ItemGroup>
