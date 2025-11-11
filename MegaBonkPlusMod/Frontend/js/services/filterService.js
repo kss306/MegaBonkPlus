@@ -1,4 +1,4 @@
-import { FILTERS_CONFIG } from '../filterConfig.js';
+import { FILTERS_CONFIG } from '../configs/filterConfig.js';
 
 const filterState = {};
 

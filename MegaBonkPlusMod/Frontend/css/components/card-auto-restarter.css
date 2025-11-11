@@ -1,6 +1,4 @@
 ﻿.auto-restarter-card {
-    padding-bottom: 16px;
-
     display: flex;
     flex-direction: column;
 }
@@ -70,6 +68,7 @@
     overflow-x: auto;
     overflow-y: hidden;
     padding: 8px 0;
+    min-height: 0;
 }
 
 .restarter-item-list {

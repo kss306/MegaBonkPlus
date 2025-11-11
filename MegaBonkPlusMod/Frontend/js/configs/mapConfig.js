@@ -1,7 +1,7 @@
-import {renderMinimap} from './services/mapService.js';
+import {renderMinimap} from '../services/mapService.js';
 
-export const MAP_SCALE = 2.3;
-export const WORLD_OFFSET_X = 15;
+export const MAP_SCALE = 2.35;
+export const WORLD_OFFSET_X = 0;
 export const WORLD_OFFSET_Z = 0.0;
 
 export const ENDPOINTS_TO_TRACK = {
@@ -344,6 +344,33 @@ export const ENDPOINTS_TO_TRACK = {
                         </div>
                     </div>
                 `;
+        }
+    },
+
+    bosses: {
+        endpoint: '/api/tracker/bosses',
+        renderConfigSelector: (item, isHovered) => ({
+            type: 'image',
+            path: '/images/characters/boss.png',
+            size: isHovered ? 16 : 12
+        }),
+        getTooltipHtml: (item) => {
+            return `
+                <div class="tooltip-content">
+                    <div class="tooltip-icon">
+                        <img src="/images/characters/boss.png" alt="Boss">
+                    </div>
+                    <div class="tooltip-right">
+                        <div class="tooltip-header">
+                            <div class="tooltip-title">Boss</div>
+                            <div class="tooltip-meta">Enemy</div>
+                        </div>
+                    </div>
+                    <div class="tooltip-actions">
+                        <button class="tooltip-button primary" data-action="teleport">Teleport</button>
+                    </div>
+                </div>
+            `;
         }
     },
 

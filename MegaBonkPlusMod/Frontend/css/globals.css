@@ -31,11 +31,3 @@ body {
     margin: 0 auto;
     align-items: stretch;
 }
-
-.sub-map-grid {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: var(--card-gap);
-    align-items: start;
-}

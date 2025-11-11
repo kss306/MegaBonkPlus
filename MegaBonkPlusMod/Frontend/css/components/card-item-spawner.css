@@ -1,19 +1,28 @@
 ﻿.item-spawner-card {
     display: flex;
     flex-direction: column;
-    height: 100%;
 }
 
-.item-spawner-footer {
-    margin-top: auto;
-    padding-top: 16px;
-    border-top: 1px solid var(--border-color);
+.item-spawner-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
 }
 
-.item-spawner-footer .button-primary {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
+.item-spawner-title-group h3 {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.item-spawner-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.item-spawner-controls .button-primary {
+    font-size: 12px;
 }
 
 .restarter-item-slot .quantity-selector {
@@ -44,7 +53,6 @@
     padding: 2px;
 
     -webkit-appearance: textfield;
-    -moz-appearance: textfield;
 }
 
 .restarter-item-slot .quantity-input::-webkit-outer-spin-button,

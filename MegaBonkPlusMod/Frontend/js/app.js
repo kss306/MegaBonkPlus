@@ -6,6 +6,7 @@ import { setupAutoRestarter } from "./services/autoRestarterService.js";
 import { setupItemSpawner } from "./services/itemSpawnerService.js";
 import { setupModal } from "./services/modalService.js";
 import { fetchData } from "./services/apiService.js";
+import {setupHotkeys} from "./services/hotkeyService.js";
 
 console.log("Dashboard wird initialisiert...");
 
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupModal(allItems);
     setupAutoRestarter(allItems);
     setupItemSpawner(allItems);
+    setupHotkeys(allItems);
 
     setInterval(updateDashboard, 1000);
     updateDashboard();

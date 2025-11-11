@@ -1,0 +1,49 @@
+﻿.hotkey-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.hotkey-modal-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hotkey-modal-group label {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.hotkey-modal-group .hotkey-select,
+.hotkey-modal-group .modifier-input {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.hotkey-modal-modifiers {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 10px;
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    min-height: 50px;
+}
+
+.hotkey-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}

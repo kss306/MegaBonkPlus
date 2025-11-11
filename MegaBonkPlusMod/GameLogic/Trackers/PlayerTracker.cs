@@ -19,75 +19,80 @@ namespace MegaBonkPlusMod.GameLogic.Trackers
 
         protected override object BuildDataPayload()
         {
+            var isInGame = BonkersAPI.Game.IsInGame;
             var trackedObjects = new List<TrackedObjectDataModel>();
 
-            if (!BonkersAPI.Game.IsInGame || !BonkersAPI.Game.PlayerController)
-                return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
-
-            PlayerService player = BonkersAPI.Player;
-            GameStateService gameState = BonkersAPI.Game;
-
-            var playerData = new TrackedObjectDataModel
+            if (isInGame)
             {
-                InstanceId = player.InstanceId,
-                Position = PositionDataModel.FromVector3(player.Position)
+                PlayerService player = BonkersAPI.Player;
+                GameStateService gameState = BonkersAPI.Game;
+
+                var playerData = new TrackedObjectDataModel
+                {
+                    InstanceId = player.InstanceId,
+                    Position = PositionDataModel.FromVector3(player.Position)
+                };
+
+                playerData.CustomProperties["character"] = player.CharacterName;
+
+                var stats = player.StatsDict;
+
+                playerData.CustomProperties["level"] = player.Level;
+                playerData.CustomProperties["stageTime"] = gameState.StageTime;
+                playerData.CustomProperties["timeAlive"] = gameState.TimeAlive;
+                playerData.CustomProperties["bossCurses"] = gameState.BossCurses;
+                playerData.CustomProperties["stageTier"] = gameState.StageTier;
+
+                var statsForFrontend = new Dictionary<string, object>();
+
+                statsForFrontend["HP"] = $"{player.Health} / {player.MaxHealth}";
+                statsForFrontend["Shield"] = $"{(int)player.Shield} / {(int)player.MaxShield}";
+
+                statsForFrontend["HP Regen"] = stats[EStat.HealthRegen];
+                statsForFrontend["Overheal"] = AddTimesStat(stats[EStat.Overheal]);
+                statsForFrontend["Armor"] = AddPercentStat(stats[EStat.Armor]);
+                statsForFrontend["Evasion"] = AddPercentStat(stats[EStat.Evasion]);
+                statsForFrontend["Lifesteal"] = AddPercentStat(stats[EStat.Lifesteal]);
+                statsForFrontend["Thorns"] = RoundInt(stats[EStat.Thorns]);
+
+                statsForFrontend["Damage"] = AddTimesStat(stats[EStat.DamageMultiplier]);
+                statsForFrontend["Crit Chance"] = AddPercentStat(stats[EStat.CritChance]);
+                statsForFrontend["Crit Damage"] = AddTimesStat(stats[EStat.CritDamage], 2);
+                statsForFrontend["Attack Speed"] = AddPercentStat(stats[EStat.AttackSpeed]);
+                statsForFrontend["Projectile Count"] = RoundDownInt(stats[EStat.Projectiles]);
+                statsForFrontend["Projectile Bounces"] = stats[EStat.ProjectileBounces];
+                statsForFrontend["Evasion"] = AddPercentStat(stats[EStat.Evasion]);
+
+                statsForFrontend["Size"] = AddTimesStat(stats[EStat.SizeMultiplier]);
+                statsForFrontend["Projectile Speed"] = AddTimesStat(stats[EStat.ProjectileSpeedMultiplier]);
+                statsForFrontend["Duration"] = AddTimesStat(stats[EStat.DurationMultiplier]);
+                statsForFrontend["Damage to Elites"] = AddTimesStat(stats[EStat.EliteDamageMultiplier]);
+                statsForFrontend["Knockback"] = AddTimesStat(stats[EStat.KnockbackMultiplier]);
+                statsForFrontend["Movement Speed"] = AddTimesStat(stats[EStat.MoveSpeedMultiplier]);
+
+                statsForFrontend["Extra Jumps"] = RoundInt(stats[EStat.ExtraJumps]);
+                statsForFrontend["Jump Height"] = RoundInt(stats[EStat.JumpHeight]);
+                statsForFrontend["Luck"] = AddPercentStat(stats[EStat.Luck]);
+                statsForFrontend["Difficulty"] = AddPercentStat(stats[EStat.Difficulty]);
+
+                statsForFrontend["Pickup Range"] = RoundInt(stats[EStat.PickupRange]);
+                statsForFrontend["XP Gain"] = AddTimesStat(stats[EStat.XpIncreaseMultiplier]);
+                statsForFrontend["Gold Gain"] = AddTimesStat(stats[EStat.GoldIncreaseMultiplier]);
+                statsForFrontend["Silver Gain"] = AddTimesStat(stats[EStat.SilverIncreaseMultiplier]);
+                statsForFrontend["Elite Spawn Increase"] = AddTimesStat(stats[EStat.EliteSpawnIncrease]);
+                statsForFrontend["Powerup Multiplier"] = AddTimesStat(stats[EStat.PowerupBoostMultiplier]);
+                statsForFrontend["Powerup Drop Chance"] = AddTimesStat(stats[EStat.PowerupChance]);
+
+                playerData.CustomProperties["stats"] = statsForFrontend;
+
+                trackedObjects.Add(playerData);
+            }
+            
+            return new
+            {
+                IsInGame = isInGame,
+                PlayerDataList = new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects)
             };
-
-            playerData.CustomProperties["character"] = player.CharacterName;
-
-            var stats = player.StatsDict;
-
-            playerData.CustomProperties["level"] = player.Level;
-            playerData.CustomProperties["stageTime"] = gameState.StageTime;
-            playerData.CustomProperties["timeAlive"] = gameState.TimeAlive;
-            playerData.CustomProperties["bossCurses"] = gameState.BossCurses;
-            playerData.CustomProperties["stageTier"] = gameState.StageTier;
-
-            var statsForFrontend = new Dictionary<string, object>();
-
-            statsForFrontend["HP"] = $"{player.Health} / {player.MaxHealth}";
-            statsForFrontend["Shield"] = $"{(int)player.Shield} / {(int)player.MaxShield}";
-
-            statsForFrontend["HP Regen"] = stats[EStat.HealthRegen];
-            statsForFrontend["Overheal"] = AddTimesStat(stats[EStat.Overheal]);
-            statsForFrontend["Armor"] = AddPercentStat(stats[EStat.Armor]);
-            statsForFrontend["Evasion"] = AddPercentStat(stats[EStat.Evasion]);
-            statsForFrontend["Lifesteal"] = AddPercentStat(stats[EStat.Lifesteal]);
-            statsForFrontend["Thorns"] = RoundInt(stats[EStat.Thorns]);
-
-            statsForFrontend["Damage"] = AddTimesStat(stats[EStat.DamageMultiplier]);
-            statsForFrontend["Crit Chance"] = AddPercentStat(stats[EStat.CritChance]);
-            statsForFrontend["Crit Damage"] = AddTimesStat(stats[EStat.CritDamage], 2);
-            statsForFrontend["Attack Speed"] = AddPercentStat(stats[EStat.AttackSpeed]);
-            statsForFrontend["Projectile Count"] = RoundDownInt(stats[EStat.Projectiles]);
-            statsForFrontend["Projectile Bounces"] = stats[EStat.ProjectileBounces];
-            statsForFrontend["Evasion"] = AddPercentStat(stats[EStat.Evasion]);
-
-            statsForFrontend["Size"] = AddTimesStat(stats[EStat.SizeMultiplier]);
-            statsForFrontend["Projectile Speed"] = AddTimesStat(stats[EStat.ProjectileSpeedMultiplier]);
-            statsForFrontend["Duration"] = AddTimesStat(stats[EStat.DurationMultiplier]);
-            statsForFrontend["Damage to Elites"] = AddTimesStat(stats[EStat.EliteDamageMultiplier]);
-            statsForFrontend["Knockback"] = AddTimesStat(stats[EStat.KnockbackMultiplier]);
-            statsForFrontend["Movement Speed"] = AddTimesStat(stats[EStat.MoveSpeedMultiplier]);
-
-            statsForFrontend["Extra Jumps"] = RoundInt(stats[EStat.ExtraJumps]);
-            statsForFrontend["Jump Height"] = RoundInt(stats[EStat.JumpHeight]);
-            statsForFrontend["Luck"] = AddPercentStat(stats[EStat.Luck]);
-            statsForFrontend["Difficulty"] = AddPercentStat(stats[EStat.Difficulty]);
-
-            statsForFrontend["Pickup Range"] = RoundInt(stats[EStat.PickupRange]);
-            statsForFrontend["XP Gain"] = AddTimesStat(stats[EStat.XpIncreaseMultiplier]);
-            statsForFrontend["Gold Gain"] = AddTimesStat(stats[EStat.GoldIncreaseMultiplier]);
-            statsForFrontend["Silver Gain"] = AddTimesStat(stats[EStat.SilverIncreaseMultiplier]);
-            statsForFrontend["Elite Spawn Increase"] = AddTimesStat(stats[EStat.EliteSpawnIncrease]);
-            statsForFrontend["Powerup Multiplier"] = AddTimesStat(stats[EStat.PowerupBoostMultiplier]);
-            statsForFrontend["Powerup Drop Chance"] = AddTimesStat(stats[EStat.PowerupChance]);
-
-            playerData.CustomProperties["stats"] = statsForFrontend;
-
-            trackedObjects.Add(playerData);
-
-            return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
         }
 
         protected override void OnTrackerError(Exception ex)

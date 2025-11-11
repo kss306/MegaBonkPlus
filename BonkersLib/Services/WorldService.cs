@@ -89,7 +89,18 @@ public class WorldService
     {
         return FindInteractables<OpenChest>();
     }
+    
+    public IEnumerable<Enemy> GetBosses()
+    {
+        if (!BonkersAPI.Game.IsInGame) 
+            return Enumerable.Empty<Enemy>();
 
+        var allEnemies = Object.FindObjectsOfType<Enemy>();
+        return allEnemies.Where(enemy => 
+            enemy.GetComponentsInChildren<Transform>(true).Any(t => t.name == "isBoss")
+        );
+    }
+    
     public void KillAllEnemies()
     {
         if (!BonkersAPI.Game.IsInGame) return;

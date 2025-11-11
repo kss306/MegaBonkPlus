@@ -44,6 +44,14 @@
             <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\UnityEngine.ImageConversionModule.dll</HintPath>
             <Private>False</Private>
         </Reference>
+        <Reference Include="UnityEngine.InputLegacyModule">
+          <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\UnityEngine.InputLegacyModule.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="UnityEngine.InputModule">
+          <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\unity-libs\UnityEngine.InputModule.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
         <Reference Include="UnityEngine.JSONSerializeModule">
             <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\UnityEngine.JSONSerializeModule.dll</HintPath>
             <Private>False</Private>
@@ -68,6 +76,8 @@
 
     <ItemGroup>
       <None Remove="Frontend\js\services\actionService.js" />
+      <EmbeddedResource Include="Frontend\js\configs\mapConfig.js" />
+      <EmbeddedResource Include="Frontend\js\configs\filterConfig.js" />
       <EmbeddedResource Include="Frontend\js\services\actionService.js" />
       <None Remove="Frontend\js\services\apiService.js" />
       <EmbeddedResource Include="Frontend\js\services\apiService.js" />
@@ -86,11 +96,8 @@
       <None Remove="Frontend\js\app.js" />
       <EmbeddedResource Include="Frontend\js\app.js" />
       <None Remove="Frontend\js\config.js" />
-      <EmbeddedResource Include="Frontend\js\config.js" />
       <None Remove="Frontend\js\filterConfig.js" />
-      <EmbeddedResource Include="Frontend\js\filterConfig.js" />
       <None Remove="Frontend\js\itemConfig.js" />
-      <EmbeddedResource Include="Frontend\js\itemConfig.js" />
       <None Remove="Frontend\index.html" />
       <EmbeddedResource Include="Frontend\index.html" />
       <None Remove="Frontend\css\components\card-auto-restarter.css" />
@@ -357,6 +364,20 @@
       <EmbeddedResource Include="Frontend\js\services\itemSpawnerService.js" />
       <None Remove="Frontend\js\services\modalService.js" />
       <EmbeddedResource Include="Frontend\js\services\modalService.js" />
+      <None Remove="Frontend\images\characters\boss.png" />
+      <EmbeddedResource Include="Frontend\images\characters\boss.png" />
+      <None Remove="Frontend\css\components\card-hotkey.css" />
+      <EmbeddedResource Include="Frontend\css\components\card-hotkey.css" />
+      <None Remove="Frontend\js\services\hotkeyService.js" />
+      <EmbeddedResource Include="Frontend\js\services\hotkeyService.js" />
+      <None Remove="Frontend\css\components\not-in-game.css" />
+      <EmbeddedResource Include="Frontend\css\components\not-in-game.css" />
+      <None Remove="Frontend\css\components\sub-map-grid.css" />
+      <EmbeddedResource Include="Frontend\css\components\sub-map-grid.css" />
+      <None Remove="Frontend\css\components\card-hotkey-modal.css" />
+      <EmbeddedResource Include="Frontend\css\components\card-hotkey-modal.css" />
+      <None Remove="Frontend\js\configs\actionConfig.js" />
+      <EmbeddedResource Include="Frontend\js\configs\actionConfig.js" />
     </ItemGroup>
 
 </Project>

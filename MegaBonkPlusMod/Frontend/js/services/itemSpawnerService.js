@@ -37,10 +37,21 @@ export async function setupItemSpawner(items) {
     itemListContainer.addEventListener('input', (event) => {
         if (event.target.classList.contains('quantity-input')) {
             const itemId = event.target.dataset.id;
-            let newQuantity = parseInt(event.target.value, 10);
-            if (newQuantity < 1) newQuantity = 1;
-            if (newQuantity > 999) newQuantity = 999;
-            updateQuantity(itemId, newQuantity);
+            const input = event.target;
+            const max = 99;
+
+            let sanitizedValue = input.value.replace(/[^0-9]/g, '');
+
+            let newQuantity = parseInt(sanitizedValue, 10);
+
+            if (newQuantity > max) {
+                newQuantity = max;
+                sanitizedValue = max.toString();
+            }
+            input.value = sanitizedValue;
+            if (!isNaN(newQuantity)) {
+                updateQuantity(itemId, newQuantity);
+            }
         }
     });
 
@@ -67,7 +78,7 @@ function renderItemSlots() {
                            class="quantity-input" 
                            value="${itemEntry.quantity}" 
                            min="1" 
-                           max="999" 
+                           max="99" 
                            data-id="${itemEntry.id}">
                 </div>
                 

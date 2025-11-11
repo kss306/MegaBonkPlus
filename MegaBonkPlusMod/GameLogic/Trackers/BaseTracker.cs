@@ -9,7 +9,7 @@ namespace MegaBonkPlusMod.GameLogic.Trackers
     public abstract class BaseTracker : BasePollingProvider
     {
         public abstract string ApiRoute { get; }
-        protected readonly List<GameObject> _cachedMinimapIcons = new List<GameObject>();
+        private readonly List<GameObject> _cachedMinimapIcons = new();
         
         public int LastKnownCacheCount { get; private set; } = 0;
 

@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using BepInEx.Logging;
-using Assets.Scripts.Actors.Player;
+using MegaBonkPlusMod.Core;
 using MegaBonkPlusMod.Utils;
 
 namespace MegaBonkPlusMod.Actions;
@@ -28,7 +27,9 @@ public class ActionHandler
         _actions["kill_all_enemies"] = new KillAllEnemiesAction();
         _actions["set_auto_restart_config"] = new AutoRestartAction();
         _actions["spawn_items"] = new SpawnItemsAction();
+        _actions["edit_gold"] = new GoldAction();
         
+        _actions["set_hotkey_config"] = new SetHotkeyConfigAction();
         ModLogger.LogDebug($"{_actions.Count} actions registered.");
     }
     
@@ -82,6 +83,7 @@ public class ActionHandler
 
     public void UpdateActions()
     {
+        HotkeyManager.CheckKeys(this);
         if (_updatableActions.Count == 0) return;
         foreach (var action in _updatableActions.ToList())
         {

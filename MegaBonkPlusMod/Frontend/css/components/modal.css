@@ -1,6 +1,4 @@
-﻿/* * 1. Modal Backdrop (der dunkle Hintergrund)
- */
-.modal-backdrop {
+﻿.modal-backdrop {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.6);
@@ -14,14 +12,11 @@
     transition: opacity 0.2s ease-in-out;
 }
 
-/* Versteckter Zustand */
 .modal-backdrop.is-hidden {
     opacity: 0;
     pointer-events: none;
 }
 
-/* * 2. Modal Inhalt (die 'card')
- */
 .modal-content {
     width: 90%;
     max-width: 600px;
@@ -31,8 +26,6 @@
     padding: 16px;
 }
 
-/* * 3. Modal Header
- */
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -61,8 +54,6 @@
     color: var(--text-primary);
 }
 
-/* * 4. Modal Suchleiste
- */
 .modal-search {
     margin-bottom: 12px;
 }
@@ -82,8 +73,6 @@
     border-color: var(--accent);
 }
 
-/* * 5. Modal Item-Liste
- */
 .modal-item-list {
     list-style: none;
     padding: 0;
@@ -92,7 +81,6 @@
     flex-grow: 1;
 }
 
-/* Einzelnes Item in der Liste */
 .modal-item {
     display: flex;
     align-items: center;
@@ -107,7 +95,6 @@
     background: var(--bg-dark);
 }
 
-/* Versteckt Items, die nicht dem Suchfilter entsprechen */
 .modal-item.is-filtered {
     display: none;
 }

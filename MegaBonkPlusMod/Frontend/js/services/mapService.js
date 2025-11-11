@@ -1,5 +1,5 @@
 import {getElem} from './utils.js';
-import {MAP_SCALE, WORLD_OFFSET_X, WORLD_OFFSET_Z} from '../config.js';
+import {MAP_SCALE, WORLD_OFFSET_X, WORLD_OFFSET_Z} from '../configs/mapConfig.js';
 import {postData} from './apiService.js';
 
 const imageCache = {};

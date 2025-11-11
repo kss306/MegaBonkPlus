@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using BepInEx.Logging;
+using BonkersLib.Core;
 using MegaBonkPlusMod.Actions;
 using MegaBonkPlusMod.API;
 using MegaBonkPlusMod.GameLogic.Common;
@@ -8,14 +8,11 @@ using MegaBonkPlusMod.GameLogic.Minimap;
 using MegaBonkPlusMod.GameLogic.Trackers;
 using MegaBonkPlusMod.Utils;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace MegaBonkPlusMod.Core
 {
     public class ModManager : MonoBehaviour
     {
-        public static bool IsInGame = false;
-
         private HttpServer _server;
         private ApiRouter _router;
 
@@ -38,6 +35,8 @@ namespace MegaBonkPlusMod.Core
         private const float SPAWN_DELAY = 0.5f;
         private const float MINIMAP_CAPTURE_DELAY = 1.5f;
 
+        private bool _wasInGame = false;
+
         public void Initialize()
         {
             ModLogger.LogDebug("ModManager initializing...");
@@ -58,127 +57,111 @@ namespace MegaBonkPlusMod.Core
             _trackers.Add(new MagnetShrineTracker(2.0f));
             _trackers.Add(new MicrowaveTracker(2.0f));
             _trackers.Add(new ChallengeShrineTracker(2.0f));
-            
+            _trackers.Add(new BossesTracker(2.0f));
+
             _router = new ApiRouter(_trackers, _minimapStreamer, _actionHandler);
             _server = new HttpServer(_router);
             _server.Start();
-            
+
             ModLogger.LogDebug("ModManager initialized.");
-
-            SceneManager.activeSceneChanged += new Action<Scene, Scene>(OnSceneChanged);
-            SetInitialSceneState(SceneManager.GetActiveScene());
         }
+        
 
-        private void SetInitialSceneState(Scene scene)
+        private void Update()
         {
-            if (!scene.name.Contains("GeneratedMap"))
-                IsInGame = false;
-            else
-                IsInGame = true;
-        }
+            MainThreadActionQueue.ExecuteAll();
 
-        private void OnSceneChanged(Scene current, Scene next)
-        {
-            if (!next.name.Contains("GeneratedMap"))
+            foreach (var tracker in _trackers)
             {
-                IsInGame = false;
-                _captureState = CaptureState.Idle;
-                _minimapStreamer.ClearData();
+                tracker.Update();
             }
-            else
+
+            _actionHandler.UpdateActions();
+
+
+            bool isNowInGame = BonkersAPI.Game.IsInGame;
+            if (isNowInGame && !_wasInGame)
             {
-                IsInGame = true;
+                ModLogger.LogDebug("New run detected via BonkersAPI, starting minimap capture logic...");
                 _minimapStreamer.ClearData();
                 _captureState = CaptureState.WaitingForSpawn;
                 _captureTimer = SPAWN_DELAY;
             }
-        }
+
+            _wasInGame = isNowInGame;
 
 
-        private void Update()
-        {
-            
-            MainThreadActionQueue.ExecuteAll();
-            _actionHandler.UpdateActions();
-            
-            switch (_captureState)
+            if (_captureState != CaptureState.Idle)
             {
-                case CaptureState.WaitingForSpawn:
+                _captureTimer -= Time.unscaledDeltaTime;
+                if (_captureTimer > 0f) return;
+                switch (_captureState)
                 {
-                    _captureTimer -= Time.deltaTime;
-                    if (_captureTimer <= 0f)
+                    case CaptureState.WaitingForSpawn:
                     {
-                        foreach (var tracker in _trackers)
+                        if (BonkersAPI.Game.IsInGame)
                         {
-                            tracker.ForceUpdatePayload();
+                            foreach (var tracker in _trackers)
+                            {
+                                tracker.ForceUpdatePayload();
+                            }
+                            _captureState = CaptureState.WaitingForMapDelay;
+                            _captureTimer = MINIMAP_CAPTURE_DELAY;
                         }
 
-                        _captureState = CaptureState.WaitingForMapDelay;
-                        _captureTimer = MINIMAP_CAPTURE_DELAY;
+                        break;
                     }
 
-                    break;
-                }
-
-                case CaptureState.WaitingForMapDelay:
-                {
-                    _captureTimer -= Time.deltaTime;
-                    if (_captureTimer <= 0f)
+                    case CaptureState.WaitingForMapDelay:
                     {
+                        _captureState = CaptureState.HidingIcons;
                         try
                         {
                             foreach (var tracker in _trackers)
                             {
                                 tracker.HideIcons();
                             }
-
                             Canvas.ForceUpdateCanvases();
-                            _captureState = CaptureState.HidingIcons;
+                        }
+                        catch(Exception ex)
+                        {
+                            _captureState = CaptureState.Idle;
+                            ModLogger.LogDebug($"Error hiding icons: {ex.Message}");
+                        }
+
+                        break;
+                    }
+
+                    case CaptureState.HidingIcons:
+                    {
+                        _captureState = CaptureState.TakingPicture;
+
+                        try
+                        {
+                            _minimapStreamer.TriggerMinimapUpdate();
                         }
                         catch (Exception ex)
                         {
-                            _captureState = CaptureState.Idle;
-                            ModLogger.LogDebug($"Error hiding Icons: {ex.Message}");
+                            ModLogger.LogDebug($"Error creating the MinimapImage: {ex.Message}");
                         }
-                    }
-
-                    break;
-                }
-
-                case CaptureState.HidingIcons:
-                {
-                    _captureState = CaptureState.TakingPicture;
-
-                    try
-                    {
-                        _minimapStreamer.TriggerMinimapUpdate();
-                    }
-                    catch (Exception ex)
-                    {
-                        ModLogger.LogDebug($"Error creating the MinimapImage: {ex.Message}");
-                    }
-                    finally
-                    {
-                        foreach (var tracker in _trackers)
+                        finally
                         {
-                            tracker.ShowIcons();
+                            foreach (var tracker in _trackers)
+                            {
+                                tracker.ShowIcons();
+                            }
                         }
+
+                        _captureState = CaptureState.Idle;
+                        break;
                     }
 
-                    _captureState = CaptureState.Idle;
-                    break;
+                    case CaptureState.TakingPicture:
+                    case CaptureState.Idle:
+                    {
+                        break;
+                    }
                 }
-
-                case CaptureState.TakingPicture:
-                case CaptureState.Idle:
-                {
-                    break;
-                }
-            }
-
-            foreach (var provider in _trackers)
-            {
-                provider.Update();
             }
         }
 
@@ -186,7 +169,6 @@ namespace MegaBonkPlusMod.Core
         {
             ModLogger.LogDebug("Stopping WebServer...");
             _server?.Stop();
-            SceneManager.activeSceneChanged -= new Action<Scene, Scene>(OnSceneChanged);
         }
     }
 }

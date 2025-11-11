@@ -2,6 +2,7 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using BonkersLib.Core;
 using MegaBonkPlusMod.Utils;
 using UnityEngine;
 
@@ -27,7 +28,7 @@ namespace MegaBonkPlusMod.GameLogic.Common
 
         public bool CheckTimer()
         {
-            if (!Core.ModManager.IsInGame && _scanInterval > 0)
+            if (!BonkersAPI.Game.IsInGame && _scanInterval > 0)
             {
                 _lastJsonData = "{\"count\":0,\"items\":[]}"; 
                 return false;

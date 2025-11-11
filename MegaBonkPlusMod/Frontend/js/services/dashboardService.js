@@ -1,5 +1,5 @@
 ﻿import { fetchData } from './apiService.js';
-import { ENDPOINTS_TO_TRACK } from '../config.js';
+import { ENDPOINTS_TO_TRACK } from '../configs/mapConfig.js';
 import { renderMinimap, updateMapIcons } from './mapService.js';
 import * as TextRenderers from './uiService.js';
 import {applyActionStates} from "./actionService.js";
@@ -18,11 +18,19 @@ export async function updateDashboard() {
 
     const actionStates = allResults.pop();
     const allData = allResults;
-    
+
     const dataMap = {};
     allKeys.forEach((key, index) => {
         dataMap[key] = allData[index];
     });
+    
+    let isInGame = false;
+    if (dataMap['player'] && dataMap['player'].IsInGame !== undefined) {
+        isInGame = dataMap['player'].IsInGame;
+        
+        dataMap['player'] = dataMap['player'].PlayerDataList;
+    }
+    document.body.classList.toggle('game-not-running', !isInGame);
 
     if (dataMap['minimap']) {
         renderMinimap(dataMap['minimap']);

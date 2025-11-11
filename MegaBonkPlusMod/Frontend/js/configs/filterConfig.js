@@ -6,6 +6,12 @@ export const FILTERS_CONFIG = [
         rarities: null
     },
     {
+        id: 'bosses',
+        name: 'Bosses',
+        icon: '/images/characters/boss.png',
+        rarities: null
+    },
+    {
         id: 'chests',
         name: 'Chests',
         icon: '/images/map_objects/chest_normal.png',

@@ -1,0 +1,29 @@
+﻿.sub-map-grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 180px 180px;
+    gap: var(--card-gap);
+    align-items: stretch;
+}
+
+.item-spawner-card {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.auto-restarter-card {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.hotkey-card {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+}
+
+
+.new-long-card {
+    grid-column: 1 / span 2;
+    grid-row: 2;
+}

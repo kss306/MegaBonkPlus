@@ -63,7 +63,7 @@
         </div>
     </section>
 
-    <section class="card filter-sidebar">
+    <section class="card filter-sidebar disabled-when-not-in-game">
         <h3>Filter</h3>
         <nav class="filter-list">
             <ul id="filter-list-container">
@@ -72,28 +72,27 @@
     </section>
 
     <div class="sub-map-grid">
+        <section class="card item-spawner-card disabled-when-not-in-game">
 
-        <section class="card item-spawner-card">
-            <div class="restarter-header"> <div class="restarter-title-group">
-                <h3>Item Spawner</h3>
-                <div class="info-tooltip"
-                     data-tooltip="Select items from the list and spawn them directly.">
-                    ?
+            <div class="item-spawner-header">
+                <div class="item-spawner-title-group">
+                    <h3>Item Spawner</h3>
+                    <div class="info-tooltip"
+                         data-tooltip="Select items from the list and spawn them directly.">
+                        ?
+                    </div>
+                </div>
+                <div class="item-spawner-controls">
+                    <button id="spawn-items-btn" class="quick-action-button">Spawn Items</button>
                 </div>
             </div>
-            </div>
-
             <div class="restarter-item-list-container">
                 <div id="item-spawner-list" class="restarter-item-list">
                 </div>
             </div>
-
-            <div class="item-spawner-footer">
-                <button id="spawn-items-btn" class="button-primary">Get Items</button>
-            </div>
         </section>
 
-        <section class="card auto-restarter-card" id="auto-restarter-card">
+        <section class="card auto-restarter-card disabled-when-not-in-game" id="auto-restarter-card">
             <div class="restarter-header">
                 <div class="restarter-title-group">
                     <h3>Auto Restarter</h3>
@@ -115,7 +114,32 @@
             </div>
         </section>
 
-        <section class="card placeholder-card">
+        <section class="card hotkey-card" id="hotkey-card">
+            <div class="restarter-header">
+                <div class="restarter-title-group">
+                    <h3>Hotkeys</h3>
+                    <div class="info-tooltip"
+                         data-tooltip="Configure custom hotkey actions">
+                        ?
+                    </div>
+                </div>
+                <div class="restarter-controls">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="hotkey-master-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="hotkey-list-container">
+                <ul id="hotkey-list" class="hotkey-list">
+                </ul>
+            </div>
+        </section>
+
+        <section class="card new-long-card disabled-when-not-in-game">
+            <h3>Placeholder</h3>
+            <p>New placeholder</p>
         </section>
 
     </div>
@@ -138,6 +162,34 @@
 
         <ul id="modal-item-list" class="modal-item-list modal-item-list-container">
         </ul>
+
+    </div>
+</div>
+
+<div id="hotkey-action-modal-backdrop" class="modal-backdrop is-hidden">
+    <div id="hotkey-action-modal" class="modal-content card">
+
+        <div class="modal-header">
+            <h3>Configure Action</h3>
+            <button id="hotkey-modal-close-btn" class="modal-close-btn">&times;</button>
+        </div>
+
+        <div class="hotkey-modal-body">
+
+            <div class="hotkey-modal-group">
+                <label for="hotkey-modal-action-select">Action</label>
+                <select id="hotkey-modal-action-select" class="hotkey-select">
+                </select>
+            </div>
+
+            <div id="hotkey-modal-modifiers" class="hotkey-modal-modifiers">
+            </div>
+
+        </div>
+
+        <div class="hotkey-modal-footer">
+            <button id="hotkey-modal-save-btn" class="quick-action-button">Save</button>
+        </div>
 
     </div>
 </div>

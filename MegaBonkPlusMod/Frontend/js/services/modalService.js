@@ -33,10 +33,11 @@ export function openItemModal(onSelect, getDisabledItems) {
     onSelectCallback = onSelect;
     getDisabledItemsCallback = getDisabledItems;
 
-    buildModalList(modalSearchInput.value);
+    modalSearchInput.value = '';
+
+    buildModalList();
 
     modalBackdrop.classList.remove('is-hidden');
-    modalSearchInput.value = '';
     modalSearchInput.focus();
 }
 
