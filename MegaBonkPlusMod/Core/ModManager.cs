@@ -6,6 +6,7 @@ using MegaBonkPlusMod.API;
 using MegaBonkPlusMod.GameLogic.Common;
 using MegaBonkPlusMod.GameLogic.Minimap;
 using MegaBonkPlusMod.GameLogic.Trackers;
+using MegaBonkPlusMod.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,7 +16,6 @@ namespace MegaBonkPlusMod.Core
     {
         public static bool IsInGame = false;
 
-        private ManualLogSource _logger;
         private HttpServer _server;
         private ApiRouter _router;
 
@@ -38,33 +38,32 @@ namespace MegaBonkPlusMod.Core
         private const float SPAWN_DELAY = 0.5f;
         private const float MINIMAP_CAPTURE_DELAY = 1.5f;
 
-        public void Initialize(ManualLogSource logger)
+        public void Initialize()
         {
-            _logger = logger;
-            _logger.LogInfo("ModManager initializing...");
+            ModLogger.LogDebug("ModManager initializing...");
 
-            _logger.LogInfo("Creating API-Router and Trackers...");
+            ModLogger.LogDebug("Creating API-Router and Trackers...");
 
-            _minimapStreamer = new MinimapStreamer(logger);
-            _actionHandler = new ActionHandler(logger);
+            _minimapStreamer = new MinimapStreamer();
+            _actionHandler = new ActionHandler();
 
-            _trackers.Add(new PlayerTracker(logger, 0.1f));
-            _trackers.Add(new BossSpawnerTracker(logger, 5.0f));
-            _trackers.Add(new ShadyGuyTracker(logger, 5.0f));
-            _trackers.Add(new ChestTracker(logger, 2.0f));
-            _trackers.Add(new ChargeShrineTracker(logger, 2.0f));
-            _trackers.Add(new MaoiShrineTracker(logger, 2.0f));
-            _trackers.Add(new CursedShrineTracker(logger, 2.0f));
-            _trackers.Add(new GreedShrineTracker(logger, 2.0f));
-            _trackers.Add(new MagnetShrineTracker(logger, 2.0f));
-            _trackers.Add(new MicrowaveTracker(logger, 2.0f));
-            _trackers.Add(new ChallengeShrineTracker(logger, 2.0f));
+            _trackers.Add(new PlayerTracker(0.1f));
+            _trackers.Add(new BossSpawnerTracker(5.0f));
+            _trackers.Add(new ShadyGuyTracker(5.0f));
+            _trackers.Add(new ChestTracker(2.0f));
+            _trackers.Add(new ChargeShrineTracker(2.0f));
+            _trackers.Add(new MaoiShrineTracker(2.0f));
+            _trackers.Add(new CursedShrineTracker(2.0f));
+            _trackers.Add(new GreedShrineTracker(2.0f));
+            _trackers.Add(new MagnetShrineTracker(2.0f));
+            _trackers.Add(new MicrowaveTracker(2.0f));
+            _trackers.Add(new ChallengeShrineTracker(2.0f));
             
-            _router = new ApiRouter(logger, _trackers, _minimapStreamer, _actionHandler);
-            _server = new HttpServer(logger, _router);
+            _router = new ApiRouter(_trackers, _minimapStreamer, _actionHandler);
+            _server = new HttpServer(_router);
             _server.Start();
             
-            _logger.LogInfo("ModManager initialized.");
+            ModLogger.LogDebug("ModManager initialized.");
 
             SceneManager.activeSceneChanged += new Action<Scene, Scene>(OnSceneChanged);
             SetInitialSceneState(SceneManager.GetActiveScene());
@@ -139,7 +138,7 @@ namespace MegaBonkPlusMod.Core
                         catch (Exception ex)
                         {
                             _captureState = CaptureState.Idle;
-                            _logger.LogError($"Error hiding Icons: {ex.Message}");
+                            ModLogger.LogDebug($"Error hiding Icons: {ex.Message}");
                         }
                     }
 
@@ -156,7 +155,7 @@ namespace MegaBonkPlusMod.Core
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"Error creating the MinimapImage: {ex.Message}");
+                        ModLogger.LogDebug($"Error creating the MinimapImage: {ex.Message}");
                     }
                     finally
                     {
@@ -185,7 +184,7 @@ namespace MegaBonkPlusMod.Core
 
         private void OnDestroy()
         {
-            _logger.LogInfo("Stopping WebServer...");
+            ModLogger.LogDebug("Stopping WebServer...");
             _server?.Stop();
             SceneManager.activeSceneChanged -= new Action<Scene, Scene>(OnSceneChanged);
         }

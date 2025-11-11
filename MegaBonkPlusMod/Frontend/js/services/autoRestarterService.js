@@ -1,230 +1,132 @@
-﻿import { postData } from './apiService.js';
-import { ALL_ITEMS } from '../itemConfig.js';
+import {postData} from './apiService.js';
+import {openItemModal} from "./modalService.js";
 
-const MAX_SLOTS = 10;
+
+let minEmptySlots = 0;
 let selectedItems = [];
 let masterToggleState = false;
 
 let itemListContainer = null;
-let modalBackdrop = null;
-let modal = null;
-let modalCloseBtn = null;
-let modalItemList = null;
-let modalSearchInput = null;
 let masterToggle = null;
 
+let allItems = [];
 
-export function setupAutoRestarter() {
+
+export async function setupAutoRestarter(items) {
+    allItems = items;
+
     itemListContainer = document.getElementById('restarter-item-list');
-    modalBackdrop = document.getElementById('item-modal-backdrop');
-    modal = document.getElementById('item-modal');
-    modalCloseBtn = document.getElementById('modal-close-btn');
-    modalItemList = document.getElementById('modal-item-list');
-    modalSearchInput = document.getElementById('modal-search-input');
     masterToggle = document.getElementById('restarter-master-toggle');
 
-    if (!itemListContainer || !modalBackdrop || !modal || !modalCloseBtn || !modalItemList || !modalSearchInput || !masterToggle) {
+
+    if (!itemListContainer || !masterToggle) {
         console.error("AutoRestarter konnte nicht alle DOM-Elemente finden.");
         return;
     }
 
-    // --- Event Listeners registrieren ---
+    try {
+        const containerWidth = itemListContainer.clientWidth;
+        const slotWidth = 70;
+        const slotGap = 16;
+        minEmptySlots = Math.floor((containerWidth + 1 + slotGap) / (slotWidth + slotGap));
+        if (minEmptySlots < 1) minEmptySlots = 1;
+    } catch (e) {
+        console.warn("Konnte Mindest-Slots nicht berechnen, setze auf 5:", e);
+        minEmptySlots = 5;
+    }
 
-    // Klicks auf die Item-Slots (Event Delegation)
     itemListContainer.addEventListener('click', (event) => {
         const slot = event.target.closest('.restarter-item-slot');
         if (!slot) return;
 
         if (slot.classList.contains('item-slot-empty')) {
-            // Auf '+' geklickt -> Modal öffnen
-            openItemModal();
-        }
-
-        const removeBtn = event.target.closest('.remove-item-btn');
-        if (removeBtn) {
-            // Auf 'x' geklickt -> Item entfernen
-            const itemIndex = parseInt(removeBtn.dataset.index, 10);
-            removeItem(itemIndex);
+            openItemModal(
+                (itemId) => selectItem(itemId),
+                () => selectedItems
+            );
+        } else if (event.target.classList.contains('remove-item-btn')) {
+            const index = parseInt(event.target.dataset.index, 10);
+            removeItem(index);
         }
     });
 
-    // Master-Toggle
-    masterToggle.addEventListener('change', (event) => {
-        masterToggleState = event.target.checked;
+    masterToggle.addEventListener('change', () => {
+        masterToggleState = masterToggle.checked;
         sendStateToBackend();
     });
 
-    // Modal-Steuerung
-    modalCloseBtn.addEventListener('click', closeItemModal);
-    modalBackdrop.addEventListener('click', (event) => {
-        if (event.target === modalBackdrop) {
-            closeItemModal();
-        }
-    });
-
-    // Modal-Suche
-    modalSearchInput.addEventListener('input', filterModalList);
-
-    // --- Initiales Rendern ---
-    buildModalList();
     renderItemSlots();
 }
 
-// --- 3. Slot-Rendering ---
-
-/**
- * Zeichnet die 10 Item-Slots (gefüllt + leer) neu.
- */
 function renderItemSlots() {
     if (!itemListContainer) return;
 
-    itemListContainer.innerHTML = ''; // Liste leeren
+    const totalFilled = selectedItems.length;
+    const numEmptySlots = Math.max(1, minEmptySlots - totalFilled);
 
-    // 1. Gefüllte Slots
+    let html = '';
+
     selectedItems.forEach((itemId, index) => {
-        const item = ALL_ITEMS.find(i => i.id === itemId);
-        if (item) {
-            itemListContainer.innerHTML += `
-                <div class="restarter-item-slot item-slot-filled" title="${item.name}\n${item.description}">
-                    <img src="${item.icon}" alt="${item.name}">
-                    <button class="remove-item-btn" data-index="${index}">&times;</button>
-                </div>
-            `;
-        }
-    });
+        const item = allItems.find(a => a.id === itemId);
+        const itemName = item ? item.name : 'Unbekanntes Item';
 
-    // 2. Leere Slots für den Rest (bis MAX_SLOTS) rendern
-    const emptySlots = MAX_SLOTS - selectedItems.length;
-    for (let i = 0; i < emptySlots; i++) {
-        // Der erste leere Slot ist der "Hinzufügen"-Button
-        if (i === 0) {
-            itemListContainer.innerHTML += `
-                <div class="restarter-item-slot item-slot-empty">
-                    <span>+</span>
-                </div>
-            `;
-        } else {
-            // Die restlichen 9 (oder weniger) sind nur Platzhalter
-            itemListContainer.innerHTML += `
-                <div class="restarter-item-slot item-slot-empty" style="opacity: 0.3; cursor: default; user-select: none;">
-                    <span>+</span>
-                </div>
-            `;
-        }
-    }
-}
-
-// --- 4. Modal-Logik ---
-
-/**
- * Baut die Item-Liste im Modal einmalig auf.
- */
-function buildModalList() {
-    if (!modalItemList) return;
-
-    modalItemList.innerHTML = '';
-    ALL_ITEMS.forEach(item => {
-        // Wir fügen jedem Listeneintrag eine data-id hinzu
-        const li = document.createElement('li');
-        li.className = 'modal-item';
-        li.dataset.itemId = item.id;
-        li.innerHTML = `
-            <img src="${item.icon}" alt="${item.name}" class="modal-item-icon">
-            <div class="modal-item-info">
-                <span class="modal-item-name">${item.name}</span>
-                <span class="modal-item-desc">${item.description}</span>
+        html += `
+            <div class="restarter-item-slot item-slot-filled" data-tooltip="${itemName}">
+                <img src="images/items/${item.id}.png" alt="${itemName}">
+                <button class="remove-item-btn" data-index="${index}">&times;</button>
             </div>
         `;
-
-        // Klick-Listener, um das Item auszuwählen
-        li.addEventListener('click', () => {
-            selectItem(item.id);
-        });
-
-        modalItemList.appendChild(li);
-    });
-}
-
-/**
- * Filtert die Item-Liste im Modal basierend auf der Sucheingabe.
- */
-function filterModalList() {
-    const searchTerm = modalSearchInput.value.toLowerCase();
-    const items = modalItemList.querySelectorAll('.modal-item');
-
-    items.forEach(item => {
-        const name = item.querySelector('.modal-item-name').textContent.toLowerCase();
-        const desc = item.querySelector('.modal-item-desc').textContent.toLowerCase();
-
-        if (name.includes(searchTerm) || desc.includes(searchTerm)) {
-            item.classList.remove('is-filtered');
-        } else {
-            item.classList.add('is-filtered');
-        }
-    });
-}
-
-function openItemModal() {
-    // Setzt die Suche zurück und entfernt alle Filter
-    modalSearchInput.value = '';
-    filterModalList();
-
-    // Versteckt Items, die bereits ausgewählt sind
-    const itemsInList = modalItemList.querySelectorAll('.modal-item');
-    itemsInList.forEach(li => {
-        if (selectedItems.includes(li.dataset.itemId)) {
-            li.style.display = 'none';
-        } else {
-            li.style.display = 'flex';
-        }
     });
 
-    modalBackdrop.classList.remove('is-hidden');
-}
-
-function closeItemModal() {
-    modalBackdrop.classList.add('is-hidden');
-}
-
-// --- 5. State-Änderungen (Items hinzufügen/entfernen) ---
-
-/**
- * Fügt ein Item zur Liste hinzu und schließt das Modal.
- */
-function selectItem(itemId) {
-    if (selectedItems.length < MAX_SLOTS && !selectedItems.includes(itemId)) {
-        selectedItems.push(itemId);
-        renderItemSlots(); // Slots neu zeichnen
-        sendStateToBackend(); // Backend aktualisieren
+    for (let i = 0; i < numEmptySlots; i++) {
+        html += `
+            <div class="restarter-item-slot item-slot-empty">
+                <span>+</span>
+            </div>
+        `;
     }
-    closeItemModal();
+
+    itemListContainer.innerHTML = html;
 }
 
-/**
- * Entfernt ein Item aus der Liste.
- */
+function selectItem(itemId) {
+    if (!selectedItems.includes(itemId)) {
+        selectedItems.push(itemId);
+        renderItemSlots();
+        sendStateToBackend();
+    }
+}
+
 function removeItem(index) {
     if (index >= 0 && index < selectedItems.length) {
         selectedItems.splice(index, 1);
-        renderItemSlots(); // Slots neu zeichnen
-        sendStateToBackend(); // Backend aktualisieren
+        renderItemSlots();
+        sendStateToBackend();
     }
 }
 
-// --- 6. Backend-Kommunikation ---
-
-/**
- * Sendet den aktuellen Status (Toggle + Item-Liste) an das Backend.
- */
 function sendStateToBackend() {
-    console.log("Sende Auto-Restarter-Status an Backend:", {
-        enabled: masterToggleState,
-        items: selectedItems
-    });
-
     postData('/api/action', {
         action: 'set_auto_restart_config',
         enabled: masterToggleState,
         itemIds: selectedItems
     });
+}
+
+export function applyBackendState(state) {
+    if (!state || !masterToggle) {
+        return;
+    }
+
+    const newToggleState = state.enabled === true;
+    if (masterToggleState !== newToggleState) {
+        masterToggleState = newToggleState;
+        masterToggle.checked = newToggleState;
+    }
+
+    const newItemList = state.itemIds || [];
+    if (JSON.stringify(selectedItems) !== JSON.stringify(newItemList)) {
+        selectedItems = newItemList;
+        renderItemSlots();
+    }
 }

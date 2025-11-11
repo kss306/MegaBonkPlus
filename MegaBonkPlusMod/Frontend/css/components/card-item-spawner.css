@@ -1,0 +1,59 @@
+﻿.item-spawner-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.item-spawner-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.item-spawner-footer .button-primary {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+}
+
+/* Styling für den neuen Quantity-Input */
+.restarter-item-slot .quantity-selector {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    right: 2px;
+
+    /* Standardmäßig versteckt */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+/* Beim Hovern über den Slot anzeigen */
+.restarter-item-slot.item-slot-filled:hover .quantity-selector {
+    opacity: 1;
+    visibility: visible;
+}
+
+.restarter-item-slot .quantity-input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    background: var(--bg-light);
+    color: var(--text-primary);
+    text-align: center;
+    border-radius: 4px;
+    font-size: 12px;
+    padding: 2px;
+
+    /* Versteckt die Standard-Pfeile in Chrome/Safari/Edge */
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+/* Versteckt die Standard-Pfeile in Firefox */
+.restarter-item-slot .quantity-input::-webkit-outer-spin-button,
+.restarter-item-slot .quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

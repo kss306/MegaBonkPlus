@@ -3,15 +3,15 @@ using System.Text.Json.Serialization;
 
 namespace MegaBonkPlusMod.Models;
 
-public class ApiListResponse<T>
+public class ApiListResponseModel<T>
 {
-    public ApiListResponse(List<T> items)
+    public ApiListResponseModel(List<T> items)
     {
         Items = items;
         Count = items.Count;
     }
 
-    public ApiListResponse()
+    public ApiListResponseModel()
     {
         Items = new List<T>();
         Count = 0;

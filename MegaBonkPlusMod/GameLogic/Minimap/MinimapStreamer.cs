@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using BepInEx.Logging;
 using MegaBonkPlusMod.GameLogic.Common;
 using MegaBonkPlusMod.Models;
+using MegaBonkPlusMod.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityObject = UnityEngine.Object;
@@ -25,14 +26,7 @@ namespace MegaBonkPlusMod.GameLogic.Minimap
         };
 
         private volatile string _lastJsonData = "{\"count\":0,\"items\":[]}";
-        private readonly ManualLogSource _logger;
         private RawImage _minimapImageComponent;
-
-        public MinimapStreamer(ManualLogSource logger)
-        {
-            _logger = logger;
-            _logger.LogInfo($"MinimapStreamer (Ereignis-gesteuert, SKALIERT) initialisiert.");
-        }
 
         public string GetJsonData() { return _lastJsonData; }
         public void ClearData() { _lastJsonData = "{\"count\":0,\"items\":[]}"; }
@@ -48,45 +42,45 @@ namespace MegaBonkPlusMod.GameLogic.Minimap
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[MinimapStreamer] SCHWERER FEHLER in TriggerMinimapUpdate: {ex.Message}\n{ex.StackTrace}");
+                ModLogger.LogError($"[MinimapStreamer] FATAL ERROR in TriggerMinimapUpdate: {ex.Message}\n{ex.StackTrace}");
                 _lastJsonData = "{\"count\":0,\"items\":[]}";
                 OnError(ex);
             }
             finally
             {
-                if (readableTex != null) UnityObject.Destroy(readableTex);
+                if (readableTex) UnityObject.Destroy(readableTex);
             }
         }
 
         private object BuildDataPayload(out Texture2D readableTex)
         {
             readableTex = null; 
-            var trackedObjects = new List<TrackedObjectData>();
+            var trackedObjects = new List<TrackedObjectDataModel>();
 
-            if (_minimapImageComponent == null)
+            if (!_minimapImageComponent)
             {
                 var go = GameObject.Find(MINIMAP_PATH);
-                if (go != null) _minimapImageComponent = go.GetComponent<RawImage>();
+                if (go) _minimapImageComponent = go.GetComponent<RawImage>();
                 else
                 {
-                    _logger.LogWarning($"[MinimapStreamer] Minimap-GameObject auf '{MINIMAP_PATH}' NICHT gefunden.");
-                    return new ApiListResponse<TrackedObjectData>();
+                    ModLogger.LogWarning($"[MinimapStreamer] Minimap-GameObject at '{MINIMAP_PATH}' NOT found");
+                    return new ApiListResponseModel<TrackedObjectDataModel>();
                 }
             }
 
             if (_minimapImageComponent.mainTexture == null)
-                return new ApiListResponse<TrackedObjectData>();
+                return new ApiListResponseModel<TrackedObjectDataModel>();
             
             readableTex = GetReadableAndScaledTexture(_minimapImageComponent.mainTexture);
-            if (readableTex == null)
-                return new ApiListResponse<TrackedObjectData>();
+            if (!readableTex)
+                return new ApiListResponseModel<TrackedObjectDataModel>();
 
             var rawData = GetRawDataFromPixels32(readableTex);
             if (rawData == null || rawData.Length == 0)
-                return new ApiListResponse<TrackedObjectData>();
+                return new ApiListResponseModel<TrackedObjectDataModel>();
 
             var base64PixelData = Convert.ToBase64String(rawData);
-            var imageData = new TrackedObjectData { Position = PositionData.FromVector3(_minimapImageComponent.transform.position) };
+            var imageData = new TrackedObjectDataModel { Position = PositionDataModel.FromVector3(_minimapImageComponent.transform.position) };
             
             imageData.CustomProperties["width"] = readableTex.width;
             imageData.CustomProperties["height"] = readableTex.height;
@@ -94,7 +88,7 @@ namespace MegaBonkPlusMod.GameLogic.Minimap
             imageData.CustomProperties["rawPixelData"] = base64PixelData;
             trackedObjects.Add(imageData);
 
-            return new ApiListResponse<TrackedObjectData>(trackedObjects);
+            return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
         }
         
         private Texture2D GetReadableAndScaledTexture(Texture mainTexture)
@@ -116,9 +110,9 @@ namespace MegaBonkPlusMod.GameLogic.Minimap
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[GetReadableTexture] GPU-Read/Skalierungs-Fehler: {ex.Message}");
-                if (rt != null) RenderTexture.ReleaseTemporary(rt);
-                if (readableTexture != null) UnityObject.Destroy(readableTexture);
+                ModLogger.LogDebug($"[GetReadableTexture] GPU-Read/Scaling error: {ex.Message}");
+                if (rt) RenderTexture.ReleaseTemporary(rt);
+                if (readableTexture) UnityObject.Destroy(readableTexture);
                 return null;
             }
         }
@@ -141,7 +135,7 @@ namespace MegaBonkPlusMod.GameLogic.Minimap
             }
             catch (Exception ex)
             {
-                _logger.LogError($"[GetRawDataFromPixels32] Fehler: {ex.Message}");
+                ModLogger.LogDebug($"[GetRawDataFromPixels32] Error: {ex.Message}");
                 return null;
             }
         }

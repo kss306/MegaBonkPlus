@@ -3,30 +3,26 @@ using System.Linq;
 using Assets.Scripts.Actors.Enemies;
 using Assets.Scripts.Inventory__Items__Pickups.Chests;
 using Assets.Scripts.Inventory__Items__Pickups.Interactables;
-using Assets.Scripts.Inventory__Items__Pickups.Items;
 using Assets.Scripts.Managers;
-using BepInEx.Logging;
 using BonkersLib.Core;
+using BonkersLib.Utils;
 using UnityEngine;
 
 namespace BonkersLib.Services;
 
 public class WorldService
 {
-    private readonly ManualLogSource _log;
-
-    internal WorldService(ManualLogSource log)
-    {
-        _log = log;
-    }
-
-    internal void Update()
+    internal WorldService()
     {
     }
 
     private EnemyManager _enemyManager => BonkersAPI.Game.EnemyManagerInstance;
-    
+
     public bool AreEnemiesSpawning => _enemyManager?.enabledWaves ?? false;
+
+    internal void Update()
+    {
+    }
 
     public IEnumerable<T> FindInteractables<T>() where T : Component
     {
@@ -101,17 +97,16 @@ public class WorldService
         var allEnemies = Object.FindObjectsOfType<Enemy>();
 
         foreach (var enemy in allEnemies)
-        {
             if (enemy)
-            {
                 enemy.DiedNextFrame();
-            }
-        }
+
+        ModLogger.LogDebug("Killed all enemies");
     }
 
     public void ToggleEnemySpawns()
     {
         _enemyManager.enabledWaves = !AreEnemiesSpawning;
+        ModLogger.LogDebug($"Toggeld Enemyspawner to {AreEnemiesSpawning}");
     }
 
     public List<ItemData> GetEveryShadyItem()
@@ -119,12 +114,9 @@ public class WorldService
         var shadyGuys = GetShadyGuys();
         var items = new List<ItemData>();
         foreach (var shadyGuy in shadyGuys)
-        {
-            foreach (var item in shadyGuy.items)
-            {
-                items.Add(item);
-            }
-        }
+        foreach (var item in shadyGuy.items)
+            items.Add(item);
+
         return items;
     }
 }

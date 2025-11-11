@@ -5,32 +5,32 @@ using BepInEx.Logging;
 using BonkersLib.Core;
 using BonkersLib.Services;
 using MegaBonkPlusMod.Models;
+using MegaBonkPlusMod.Utils;
 
 namespace MegaBonkPlusMod.GameLogic.Trackers
 {
     public class PlayerTracker : BaseTracker
     {
-        public PlayerTracker(ManualLogSource logger, float scanIntervalInSeconds) : base(logger, scanIntervalInSeconds)
+        public PlayerTracker(float scanIntervalInSeconds) : base(scanIntervalInSeconds)
         {
-            Logger.LogInfo("PlayerTracker (Echtzeit, Super-Slim) initialisiert.");
         }
 
         public override string ApiRoute => "/api/tracker/player";
 
         protected override object BuildDataPayload()
         {
-            var trackedObjects = new List<TrackedObjectData>();
+            var trackedObjects = new List<TrackedObjectDataModel>();
 
             if (!BonkersAPI.Game.IsInGame || !BonkersAPI.Game.PlayerController)
-                return new ApiListResponse<TrackedObjectData>(trackedObjects);
+                return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
 
             PlayerService player = BonkersAPI.Player;
             GameStateService gameState = BonkersAPI.Game;
 
-            var playerData = new TrackedObjectData
+            var playerData = new TrackedObjectDataModel
             {
                 InstanceId = player.InstanceId,
-                Position = PositionData.FromVector3(player.Position)
+                Position = PositionDataModel.FromVector3(player.Position)
             };
 
             playerData.CustomProperties["character"] = player.CharacterName;
@@ -87,12 +87,12 @@ namespace MegaBonkPlusMod.GameLogic.Trackers
 
             trackedObjects.Add(playerData);
 
-            return new ApiListResponse<TrackedObjectData>(trackedObjects);
+            return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
         }
 
         protected override void OnTrackerError(Exception ex)
         {
-            Logger.LogWarning($"PlayerTracker-Fehler: {ex.Message}");
+            ModLogger.LogDebug($"[PlayerTracker] Error: {ex.Message}");
         }
 
         private static string AddPercentStat(float value, float multiplier = 100)

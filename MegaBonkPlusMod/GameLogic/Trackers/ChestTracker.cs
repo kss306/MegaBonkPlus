@@ -12,19 +12,18 @@ namespace MegaBonkPlusMod.GameLogic.Trackers;
 
 public class ChestTracker : BaseTracker
 {
-    public ChestTracker(ManualLogSource logger, float scanIntervalInSeconds) : base(logger, scanIntervalInSeconds)
+    public ChestTracker(float scanIntervalInSeconds) : base(scanIntervalInSeconds)
     {
-        Logger.LogInfo("ChestTracker (Intervall: 2s, Super-Slim) initialisiert.");
     }
 
     public override string ApiRoute => "/api/tracker/chests";
 
     protected override object BuildDataPayload()
     {
-        var trackedObjects = new List<TrackedObjectData>();
+        var trackedObjects = new List<TrackedObjectDataModel>();
         
         if (!BonkersAPI.Game.IsInGame)
-            return new ApiListResponse<TrackedObjectData>(trackedObjects);
+            return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
         
         WorldService world = BonkersAPI.World;
         
@@ -34,9 +33,9 @@ public class ChestTracker : BaseTracker
         foreach (var chest in allChests)
         {
             CacheIconsForObject(GameObjectUtils.FindMinimapIcon(chest.transform));
-            var chestData = new TrackedObjectData
+            var chestData = new TrackedObjectDataModel
             {
-                Position = PositionData.FromVector3(chest.transform.position),
+                Position = PositionDataModel.FromVector3(chest.transform.position),
                 InstanceId = chest.gameObject.GetInstanceID()
             };
             chestData.CustomProperties["type"] = chest.chestType.ToString();
@@ -46,15 +45,15 @@ public class ChestTracker : BaseTracker
         foreach (var chest in allOpenChests)
         {
             CacheIconsForObject(GameObjectUtils.FindMinimapIcon(chest.transform));
-            var chestData = new TrackedObjectData
+            var chestData = new TrackedObjectDataModel
             {
-                Position = PositionData.FromVector3(chest.transform.position),
+                Position = PositionDataModel.FromVector3(chest.transform.position),
                 InstanceId = chest.gameObject.GetInstanceID()
             };
             chestData.CustomProperties["type"] = "Open";
             trackedObjects.Add(chestData);
         }
 
-        return new ApiListResponse<TrackedObjectData>(trackedObjects);
+        return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
     }
 }

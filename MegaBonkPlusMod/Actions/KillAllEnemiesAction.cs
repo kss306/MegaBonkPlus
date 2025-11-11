@@ -10,16 +10,13 @@ namespace MegaBonkPlusMod.Actions;
 
 public class KillAllEnemiesAction : IAction, IUpdatableAction
 {
-    private ManualLogSource _logger;
     private bool _looping;
     private bool _isRegistered;
     
     public bool IsLooping => _looping;
 
-    public void Execute(JsonElement payload, MyPlayer player, ManualLogSource logger, ActionHandler handler)
+    public void Execute(JsonElement payload, ActionHandler handler)
     {
-        _logger = logger;
-
         bool newLoopingState = _looping;
         if (payload.TryGetProperty("looping", out var loopingElement))
         {

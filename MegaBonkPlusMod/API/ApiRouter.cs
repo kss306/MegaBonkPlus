@@ -5,11 +5,15 @@ using MegaBonkPlusMod.GameLogic.Trackers;
 using MegaBonkPlusMod.GameLogic.Minimap;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text.Json;
 
 using Assets.Scripts.Actors.Player;
+using BonkersLib.Core;
 using MegaBonkPlusMod.Actions;
+using MegaBonkPlusMod.Models;
+using MegaBonkPlusMod.Utils;
 using Object = UnityEngine.Object;
 
 
@@ -17,43 +21,64 @@ namespace MegaBonkPlusMod.API
 {
     public class ApiRouter
     {
-        private readonly ManualLogSource _logger;
+
         private readonly Dictionary<string, BaseTracker> _routeRegistry;
         private readonly MinimapStreamer _minimapStreamer; 
         private readonly ActionHandler _actionHandler;
 
-        public ApiRouter(ManualLogSource logger, List<BaseTracker> allTrackers, MinimapStreamer minimapStreamer, ActionHandler actionHandler)
+        public ApiRouter(List<BaseTracker> allTrackers, MinimapStreamer minimapStreamer, ActionHandler actionHandler)
         {
-            _logger = logger;
             _routeRegistry = new Dictionary<string, BaseTracker>();
             _minimapStreamer = minimapStreamer; 
             _actionHandler = actionHandler;
 
-            _logger.LogInfo("ApiRouter registering Tracker-Routes...");
+            ModLogger.LogDebug("ApiRouter registering Tracker-Routes...");
             foreach (var tracker in allTrackers)
             {
                 if (string.IsNullOrEmpty(tracker.ApiRoute)) continue;
                 _routeRegistry[tracker.ApiRoute] = tracker;
-                _logger.LogInfo($"  -> Tracker-Route '{tracker.ApiRoute}' registered.");
+                ModLogger.LogDebug($"  -> Tracker-Route '{tracker.ApiRoute}' registered.");
             }
             if (_minimapStreamer != null)
             {
-                _logger.LogInfo("  -> MinimapStreamer for API registered");
+                ModLogger.LogDebug("  -> MinimapStreamer for API registered");
             }
         }
         
         public bool HandleApiGetRequest(HttpListenerContext context)
         {
             string path = context.Request.Url.AbsolutePath;
+            
+            if (path.Equals("/api/items/all", StringComparison.OrdinalIgnoreCase))
+            {
+                var rawItems = BonkersAPI.Item.GetAllRawItems();
+                var frontendItems = rawItems.Select(itemData =>
+                {
+                    string itemId = itemData.eItem.ToString().ToLowerInvariant();
+                    return new ItemViewModel
+                    {
+                        id = itemId,
+                        name = itemData.name, 
+                        description = itemData.description,
+                        inItemPool = itemData.inItemPool,
+                        rarity = itemData.rarity.ToString()
+                    };
+                }).ToList();
+                
+                ModLogger.LogDebug($"[ApiRouter] Sending {frontendItems.Count} items to client");
+                
+                JsonResponse.Send(context, JsonSerializer.Serialize(frontendItems));
+                return true;
+            }
 
-            if (path == "/api/stream/minimap" && _minimapStreamer != null)
+            if (path.Equals("/api/stream/minimap", StringComparison.OrdinalIgnoreCase) && _minimapStreamer != null)
             {
                 string jsonData = _minimapStreamer.GetJsonData();
                 JsonResponse.Send(context, jsonData);
                 return true;
             }
             
-            if (path == "/api/actions/state")
+            if (path.Equals("/api/actions/state", StringComparison.OrdinalIgnoreCase))
             {
                 var states = _actionHandler.GetActionStates();
                 string jsonData = JsonSerializer.Serialize(states);
@@ -96,22 +121,15 @@ namespace MegaBonkPlusMod.API
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Fehler bei POST-Anfrage: {ex.Message}");
+                ModLogger.LogDebug($"Error in POST request: {ex.Message}");
                 JsonResponse.Send(context, "{\"status\":\"error\"}", 500, "application/json");
             }
         }
         
         private void ExecuteAction(string actionName, JsonElement payload)
         {
-            var player = Object.FindObjectOfType<MyPlayer>();
-            if (!player)
-            {
-                _logger.LogWarning($"Action '{actionName}' failed: Player not found.");
-                return;
-            }
-
-            _logger.LogInfo($"Routing action '{actionName}' to the ActionHandler...");
-            _actionHandler.HandleAction(actionName, payload, player);
+            ModLogger.LogDebug($"Routing action '{actionName}' to the ActionHandler...");
+            _actionHandler.HandleAction(actionName, payload);
         }
     }
 }

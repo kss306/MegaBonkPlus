@@ -1,32 +1,32 @@
 ﻿using BonkersLib.Services;
-using BepInEx.Logging;
 using UnityEngine.SceneManagement;
 
-namespace BonkersLib.Core
+namespace BonkersLib.Core;
+
+public static class BonkersAPI
 {
-    public static class BonkersAPI
+    public static GameStateService Game { get; private set; }
+    public static WorldService World { get; private set; }
+    public static PlayerService Player { get; private set; }
+    public static ItemService Item { get; private set; }
+
+    internal static void Initialize()
     {
-        public static GameStateService Game { get; private set; }
-        public static WorldService World { get; private set; }
-        public static PlayerService Player { get; private set; }
+        Game = new GameStateService();
+        World = new WorldService();
+        Player = new PlayerService();
+        Item = new ItemService();
+    }
 
-        internal static void Initialize(ManualLogSource log)
-        {
-            Game = new GameStateService(log);
-            World = new WorldService(log);
-            Player = new PlayerService(log);
-        }
+    internal static void Update()
+    {
+        Game.Update();
+        World.Update();
+        Player.Update();
+    }
 
-        internal static void Update()
-        {
-            Game.Update();
-            World.Update();
-            Player.Update();
-        }
-        
-        internal static void Internal_OnSceneChanged(Scene oldScene, Scene newScene)
-        {
-            Game?.OnSceneChanged(newScene);
-        }
+    internal static void Internal_OnSceneChanged(Scene oldScene, Scene newScene)
+    {
+        Game?.OnSceneChanged(newScene);
     }
 }

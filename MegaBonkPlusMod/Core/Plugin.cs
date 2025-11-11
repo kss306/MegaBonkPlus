@@ -1,26 +1,33 @@
-﻿using BepInEx;
+﻿using System.IO;
+using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
 using Il2CppInterop.Runtime.Injection;
+using MegaBonkPlusMod.Utils;
 using UnityEngine;
 
-namespace MegaBonkPlusMod.Core
+namespace MegaBonkPlusMod.Core;
+
+[BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+[BepInDependency("com.kss.bonkerslib")]
+public class Plugin : BasePlugin
 {
-    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInDependency("com.kss.bonkerslib")]
-    public class Plugin : BasePlugin
+    public override void Load()
     {
-        public override void Load()
-        {
-            Log.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} wird geladen...");
+        var configPath = Path.Combine(Paths.ConfigPath, $"{PluginInfo.PLUGIN_GUID}.cfg");
+        var sharedConfig = new ConfigFile(configPath, true);
+        ModConfig.Initialize(sharedConfig);
 
-            ClassInjector.RegisterTypeInIl2Cpp<ModManager>();
+        ModLogger.InitLog(Log);
 
-            var managerGameObject = new GameObject("MegaBonkPlus");
+        ClassInjector.RegisterTypeInIl2Cpp<ModManager>();
 
-            var managerComponent = managerGameObject.AddComponent<ModManager>();
-            managerComponent.Initialize(Log);
+        var managerGameObject = new GameObject("MegaBonkPlus");
+        var managerComponent = managerGameObject.AddComponent<ModManager>();
+        managerComponent.Initialize();
+        Object.DontDestroyOnLoad(managerGameObject);
 
-            Object.DontDestroyOnLoad(managerGameObject);
-        }
+        ModLogger.LogInfo($"{PluginInfo.PLUGIN_NAME} Initialized");
+        ModLogger.LogInfo($"Debug-Logging: {(ModConfig.IsDebugLoggingEnabled.Value ? "ENABLED" : "DISABLED")}");
     }
 }

@@ -3,16 +3,17 @@ using System.Text.Json;
 using Assets.Scripts.Actors.Player;
 using BepInEx.Logging;
 using BonkersLib.Core;
+using MegaBonkPlusMod.Utils;
 using UnityEngine;
 
 namespace MegaBonkPlusMod.Actions;
 public class TeleportAction : IAction
 {
-    public void Execute(JsonElement payload, MyPlayer player, ManualLogSource logger, ActionHandler handler)
+    public void Execute(JsonElement payload, ActionHandler handler)
     {
         if (!payload.TryGetProperty("instanceId", out var idElement) || idElement.ValueKind != JsonValueKind.Number)
         {
-            logger.LogWarning("[TeleportAction] failed: 'instanceId' missing in Payload");
+            ModLogger.LogDebug("[TeleportAction] failed: 'instanceId' missing in Payload");
             return;
         }
 
@@ -21,13 +22,13 @@ public class TeleportAction : IAction
         var allGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
         GameObject target = allGameObjects.FirstOrDefault(g => g.GetInstanceID() == instanceId);
 
-        if (target == null)
+        if (!target)
         {
-            logger.LogWarning($"[TeleportAction] failed: ObjectID {instanceId} not found");
+            ModLogger.LogDebug($"[TeleportAction] failed: ObjectID {instanceId} not found");
             return;
         }
 
-        logger.LogInfo($"[TeleportAction] Starting Teleport-Job to {target.name}...");
+        ModLogger.LogDebug($"[TeleportAction] Starting Teleport-Job to {target.name}...");
         
         Vector3 targetPosition = target.transform.position;
         

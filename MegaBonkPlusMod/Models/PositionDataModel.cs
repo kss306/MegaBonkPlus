@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MegaBonkPlusMod.Models;
 
-public struct PositionData
+public struct PositionDataModel
 {
     [JsonPropertyName("x")] public float X { get; set; }
 
@@ -12,9 +12,9 @@ public struct PositionData
 
     [JsonPropertyName("z")] public float Z { get; set; }
 
-    public static PositionData FromVector3(Vector3 vector)
+    public static PositionDataModel FromVector3(Vector3 vector)
     {
-        return new PositionData
+        return new PositionDataModel
         {
             X = (float)Math.Round(vector.x, 2),
             Y = (float)Math.Round(vector.y, 2),

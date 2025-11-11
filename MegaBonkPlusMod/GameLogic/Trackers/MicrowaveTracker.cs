@@ -10,8 +10,7 @@ namespace MegaBonkPlusMod.GameLogic.Trackers;
 
 public class MicrowaveTracker : BaseTracker
 {
-    public MicrowaveTracker(ManualLogSource logger, float scanIntervalInSeconds) : base(logger,
-        scanIntervalInSeconds)
+    public MicrowaveTracker(float scanIntervalInSeconds) : base(scanIntervalInSeconds)
     {
     }
 
@@ -19,10 +18,10 @@ public class MicrowaveTracker : BaseTracker
 
     protected override object BuildDataPayload()
     {
-        var trackedObjects = new List<TrackedObjectData>();
+        var trackedObjects = new List<TrackedObjectDataModel>();
         
         if (!BonkersAPI.Game.IsInGame)
-            return new ApiListResponse<TrackedObjectData>(trackedObjects);
+            return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
         
         WorldService world = BonkersAPI.World;
         
@@ -31,15 +30,15 @@ public class MicrowaveTracker : BaseTracker
         foreach (var trackedObject in allObjects)   
         {
             CacheIconsForObject(GameObjectUtils.FindMinimapIcon(trackedObject.transform));
-            var objectData = new TrackedObjectData
+            var objectData = new TrackedObjectDataModel
             {
-                Position = PositionData.FromVector3(trackedObject.transform.position),
+                Position = PositionDataModel.FromVector3(trackedObject.transform.position),
                 InstanceId = trackedObject.gameObject.GetInstanceID()
             };
             objectData.CustomProperties["rarity"] = trackedObject.rarity.ToString();
             trackedObjects.Add(objectData);
         }
 
-        return new ApiListResponse<TrackedObjectData>(trackedObjects);
+        return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
     }
 }

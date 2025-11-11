@@ -5,6 +5,7 @@ using Assets.Scripts.Actors.Player;
 using BepInEx.Logging;
 using BonkersLib.Core;
 using System.Linq;
+using MegaBonkPlusMod.Utils;
 using UnityEngine;
 
 namespace MegaBonkPlusMod.Actions;
@@ -13,17 +14,16 @@ public class AutoRestartAction : IAction, IUpdatableAction
 {
     private bool _enabled;
     private bool _isRegistered;
-    private List<string> _itemIds = new();
-    private ManualLogSource _logger;
+    private readonly List<string> _itemIds = new();
     
     private float _restartCooldown;
     private const float RESTART_DELAY_SECONDS = 3.0f;
 
     public bool IsEnabled => _enabled;
+    public List<string> ItemIds => _itemIds;
 
-    public void Execute(JsonElement payload, MyPlayer player, ManualLogSource logger, ActionHandler handler)
+    public void Execute(JsonElement payload, ActionHandler handler)
     {
-        _logger = logger;
         _restartCooldown = 0;
         
         try
@@ -41,7 +41,7 @@ public class AutoRestartAction : IAction, IUpdatableAction
                 {
                     _itemIds.Add(item.GetString().ToLowerInvariant());
                 }
-                logger.LogInfo($"[AutoRestartAction] {itemIdsElement.GetArrayLength()} Item-IDs registriert.");
+                ModLogger.LogDebug($"[AutoRestartAction] {itemIdsElement.GetArrayLength()} Item-IDs registered");
             }
 
             if (newEnabledState)
@@ -52,29 +52,22 @@ public class AutoRestartAction : IAction, IUpdatableAction
                     handler.RegisterUpdatable(this);
                     _isRegistered = true;
                 }
-                logger.LogInfo("[AutoRestartAction] Aktiviert.");
+                ModLogger.LogDebug("[AutoRestartAction] activated");
             }
             else
             {
                 _enabled = false; 
-                logger.LogInfo("[AutoRestartAction] Deaktiviert.");
+                ModLogger.LogDebug("[AutoRestartAction] deactivated");
             }
         }
         catch (Exception ex)
         {
-            logger.LogError($"[AutoRestartAction] Fehler beim Verarbeiten: {ex.Message}");
+            ModLogger.LogDebug($"[AutoRestartAction] Error processing: {ex.Message}");
         }
     }
     
     private void AutoRestart()
     {
-        var shadyGuys = BonkersAPI.World.GetShadyGuys();
-        if (!shadyGuys.Any())
-        {
-            _logger?.LogInfo("[AutoRestartAction] Warten auf ShadyGuy-Spawn...");
-            return;
-        }
-        
         var shadyItems = BonkersAPI.World.GetEveryShadyItem();
         
         var shadyItemIds = shadyItems
@@ -85,12 +78,12 @@ public class AutoRestartAction : IAction, IUpdatableAction
 
         if (allItemsFound)
         {
-            _logger?.LogInfo("[AutoRestartAction] Alle gewünschten Items gefunden. Auto-Restart wird deaktiviert.");
+            ModLogger.LogDebug("[AutoRestartAction] Wishlist items all found. Stopping autorestart");
             _enabled = false;
         }
         else
         {
-            _logger?.LogInfo("[AutoRestartAction] Nicht alle Items gefunden. Starte Run neu...");
+            ModLogger.LogDebug("[AutoRestartAction] Not all Wishlist items found. Restarting run");
             BonkersAPI.Game.RestartRun();
             
             _restartCooldown = RESTART_DELAY_SECONDS;

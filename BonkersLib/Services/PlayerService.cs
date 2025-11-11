@@ -1,13 +1,14 @@
-﻿using Assets.Scripts.Actors.Player;
+﻿using System;
+using System.Linq;
+using Assets.Scripts.Actors.Player;
 using Assets.Scripts.Inventory__Items__Pickups;
 using Assets.Scripts.Inventory__Items__Pickups.Stats;
 using Assets.Scripts.Menu.Shop;
-using BepInEx.Logging;
 using BonkersLib.Core;
-using UnityEngine;
 using BonkersLib.Utils;
 using Il2CppSystem.Collections.Generic;
 using Inventory__Items__Pickups.Xp_and_Levels;
+using UnityEngine;
 
 namespace BonkersLib.Services;
 
@@ -15,26 +16,16 @@ public class PlayerService
 {
     private const float SAFE_RANGE = 15.0f;
     private const float Y_OFFSET = 10.0f;
-    
-    private readonly ManualLogSource _log;
-
-    private MyPlayer _player => BonkersAPI.Game.PlayerController;
-    
-    //Teleport Actions
-    private bool _tryingToTeleport;
     private Vector3 _teleportTarget;
 
-    internal PlayerService(ManualLogSource log)
+    //Teleport Actions
+    private bool _tryingToTeleport;
+
+    internal PlayerService()
     {
-        _log = log;
     }
 
-    internal void Update()
-    {
-        if (!BonkersAPI.Game.IsInGame) return;
-
-        if(_tryingToTeleport) TryToTeleport();
-    }
+    private MyPlayer _player => BonkersAPI.Game.PlayerController;
 
     public string CharacterName => _player?.character.ToString() ?? "N/A";
     public Vector3 Position => _player?.feet.transform.position ?? Vector3.zero;
@@ -56,24 +47,50 @@ public class PlayerService
     public float Gold => Inventory?.gold ?? 0;
     public int Level => Inventory?.GetCharacterLevel() ?? 0;
 
+    internal void Update()
+    {
+        if (!BonkersAPI.Game.IsInGame) return;
+
+        if (_tryingToTeleport) TryToTeleport();
+    }
+
     public void GiveGold(int amount)
     {
         if (!BonkersAPI.Game.IsInGame) return;
         Inventory?.ChangeGold(amount);
+        ModLogger.LogDebug($"Gave {amount} gold to player");
     }
 
     public void SetGold(int amount)
     {
         if (!BonkersAPI.Game.IsInGame || Inventory == null) return;
         Inventory.gold = amount;
+        ModLogger.LogDebug($"Set gold to {amount}");
     }
 
     public void AddLevel(int amount)
     {
         if (!BonkersAPI.Game.IsInGame) return;
-        for (int i = 0; i < amount; i++)
+        for (var i = 0; i < amount; i++) Inventory?.AddLevel();
+        ModLogger.LogDebug($"Added {amount} Levels to player");
+    }
+    
+    public void GiveItem(string itemId, int quantity)
+    {
+        if (!BonkersAPI.Game.IsInGame || Inventory == null) return;
+
+        var rawItemData = BonkersAPI.Item.GetAllRawItems()
+            .FirstOrDefault(item => 
+                item.eItem.ToString().Equals(itemId, StringComparison.OrdinalIgnoreCase));
+
+        if (rawItemData)
         {
-            Inventory?.AddLevel();
+            Inventory.itemInventory.AddItem(rawItemData.eItem, quantity);
+            ModLogger.LogDebug($"Gave Player Item: {quantity}x {itemId}");
+        }
+        else
+        {
+            ModLogger.LogDebug($"[PlayerService] Item-ID '{itemId}' could not be found");
         }
     }
 
@@ -82,17 +99,21 @@ public class PlayerService
         if (!BonkersAPI.Game.IsInGame) return;
         _teleportTarget = targetPosition + new Vector3(0, Y_OFFSET, 0);
         _tryingToTeleport = true;
+        ModLogger.LogDebug($"Teleporting to {_teleportTarget} from {_player.transform.position}");
     }
-    
+
     private void TryToTeleport()
     {
         if (!_player) return;
-        
-        float distance = Vector3.Distance(_player.transform.position, _teleportTarget);
-            
+
+        var distance = Vector3.Distance(_player.transform.position, _teleportTarget);
+
         if (distance <= SAFE_RANGE)
+        {
             _tryingToTeleport = false;
-            
+            ModLogger.LogDebug("Teleport completed");
+        }
+
         _player.transform.position = _teleportTarget;
     }
 }

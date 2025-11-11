@@ -10,8 +10,7 @@ namespace MegaBonkPlusMod.GameLogic.Trackers;
 
 public class ChargeShrineTracker : BaseTracker
 {
-    public ChargeShrineTracker(ManualLogSource logger, float scanIntervalInSeconds) : base(logger,
-        scanIntervalInSeconds)
+    public ChargeShrineTracker(float scanIntervalInSeconds) : base(scanIntervalInSeconds)
     {
     }
 
@@ -19,10 +18,10 @@ public class ChargeShrineTracker : BaseTracker
 
     protected override object BuildDataPayload()
     {
-        var trackedObjects = new List<TrackedObjectData>();
+        var trackedObjects = new List<TrackedObjectDataModel>();
         
         if (!BonkersAPI.Game.IsInGame)
-            return new ApiListResponse<TrackedObjectData>(trackedObjects);
+            return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
         
         WorldService world = BonkersAPI.World;
         
@@ -31,9 +30,9 @@ public class ChargeShrineTracker : BaseTracker
         foreach (var trackedObject in allObjects)
         {
             CacheIconsForObject(GameObjectUtils.FindMinimapIcon(trackedObject.transform));
-            var shrineData = new TrackedObjectData
+            var shrineData = new TrackedObjectDataModel
             {
-                Position = PositionData.FromVector3(trackedObject.transform.position),
+                Position = PositionDataModel.FromVector3(trackedObject.transform.position),
                 InstanceId = trackedObject.gameObject.GetInstanceID(), 
             };
             shrineData.CustomProperties["completed"] = trackedObject.completed;
@@ -41,6 +40,6 @@ public class ChargeShrineTracker : BaseTracker
             trackedObjects.Add(shrineData);
         }
 
-        return new ApiListResponse<TrackedObjectData>(trackedObjects);
+        return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
     }
 }

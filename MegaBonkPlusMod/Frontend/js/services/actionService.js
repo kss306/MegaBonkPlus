@@ -1,4 +1,5 @@
 ﻿import { postData } from './apiService.js';
+import {applyBackendState} from "./autoRestarterService.js";
 
 export function applyActionStates(states) {
     const killAllLoopingCheckbox = document.getElementById('kill-all-looping-checkbox');
@@ -8,6 +9,10 @@ export function applyActionStates(states) {
         killAllLoopingCheckbox.checked = states.kill_all_enemies.looping;
     } else {
         killAllLoopingCheckbox.checked = false;
+    }
+
+    if (states.set_auto_restart_config) {
+        applyBackendState(states.set_auto_restart_config);
     }
 }
 

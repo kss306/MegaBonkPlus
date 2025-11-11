@@ -10,7 +10,7 @@ namespace MegaBonkPlusMod.GameLogic.Trackers;
 
 public class ShadyGuyTracker : BaseTracker
 {
-    public ShadyGuyTracker(ManualLogSource logger, float scanIntervalInSeconds) : base(logger, scanIntervalInSeconds)
+    public ShadyGuyTracker(float scanIntervalInSeconds) : base(scanIntervalInSeconds)
     {
     }
 
@@ -18,37 +18,42 @@ public class ShadyGuyTracker : BaseTracker
 
     protected override object BuildDataPayload()
     {
-        var trackedObjects = new List<TrackedObjectData>();
-        
+        var trackedObjects = new List<TrackedObjectDataModel>();
+
         if (!BonkersAPI.Game.IsInGame)
-            return new ApiListResponse<TrackedObjectData>(trackedObjects);
-        
+            return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
+
         WorldService world = BonkersAPI.World;
-        
-        var allObjects = Object.FindObjectsOfType<InteractableShadyGuy>();
-        
+
+        var allObjects = world.GetShadyGuys();
+
         foreach (var trackedObject in allObjects)
         {
             CacheIconsForObject(GameObjectUtils.FindMinimapIcon(trackedObject.transform));
-            var guyData = new TrackedObjectData
+            var guyData = new TrackedObjectDataModel
             {
-                Position = PositionData.FromVector3(trackedObject.transform.position),
+                Position = PositionDataModel.FromVector3(trackedObject.transform.position),
                 InstanceId = trackedObject.gameObject.GetInstanceID()
             };
 
             var itemNames = new List<string>();
-
-            foreach (var item in trackedObject.items) itemNames.Add(item.name);
             var itemPrices = new List<int>();
+            var itemIds = new List<string>();
 
             foreach (var price in trackedObject.prices) itemPrices.Add(price);
+            foreach (var item in trackedObject.items)
+            {
+                itemNames.Add(item.name);
+                itemIds.Add(item.eItem.ToString().ToLowerInvariant());
+            }
 
             guyData.CustomProperties["itemNames"] = itemNames;
+            guyData.CustomProperties["itemIds"] = itemIds;
             guyData.CustomProperties["itemPrices"] = itemPrices;
             guyData.CustomProperties["rarity"] = trackedObject.rarity.ToString();
             trackedObjects.Add(guyData);
         }
 
-        return new ApiListResponse<TrackedObjectData>(trackedObjects);
+        return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
     }
 }

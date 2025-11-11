@@ -4,23 +4,22 @@ using System.Reflection;
 using System.Threading.Tasks;
 using BepInEx.Logging;
 using MegaBonkPlusMod.API;
+using MegaBonkPlusMod.Utils;
 
 namespace MegaBonkPlusMod.Core
 {
     public class HttpServer
     {
         private readonly HttpListener _listener;
-        private readonly ManualLogSource _logger;
         private readonly ApiRouter _router;
         private bool _isRunning;
         private readonly Assembly _pluginAssembly; 
 
-        public HttpServer(ManualLogSource logger, ApiRouter router)
+        public HttpServer(ApiRouter router)
         {
-            _logger = logger;
             _router = router;
             _listener = new HttpListener();
-            _listener.Prefixes.Add("http://localhost:8080/");
+            _listener.Prefixes.Add($"http://localhost:{ModConfig.WebServerPort.Value}/");
             _pluginAssembly = Assembly.GetExecutingAssembly(); 
         }
 
@@ -30,7 +29,7 @@ namespace MegaBonkPlusMod.Core
 
             _isRunning = true;
             Task.Run(RunServerLoop);
-            _logger.LogInfo("HttpServer started at http://localhost:8080/");
+            ModLogger.LogDebug("HttpServer started at http://localhost:8080/");
         }
 
         public void Stop()
@@ -74,7 +73,7 @@ namespace MegaBonkPlusMod.Core
             catch (Exception ex)
             {
                 if (_isRunning && ex is not ObjectDisposedException) 
-                    _logger.LogError($"HttpServer-Loop-Error: {ex.Message}");
+                    ModLogger.LogDebug($"HttpServer-Loop-Error: {ex.Message}");
             }
         }
         
@@ -92,7 +91,7 @@ namespace MegaBonkPlusMod.Core
                 {
                     if (resourceStream == null)
                     {
-                        _logger.LogWarning($"Frontend-Ressource not found: {resourcePath}");
+                        ModLogger.LogDebug($"Frontend-Ressource not found: {resourcePath}");
                         JsonResponse.Send(context, "404 Not Found", 404, "text/plain");
                         return;
                     }
@@ -103,7 +102,7 @@ namespace MegaBonkPlusMod.Core
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error sending Fronted-File: {ex.Message}");
+                ModLogger.LogDebug($"Error sending Fronted-File: {ex.Message}");
                 JsonResponse.Send(context, "500 Internal Error", 500, "text/plain");
             }
             finally

@@ -1,6 +1,6 @@
 ﻿namespace BonkersLib.Enums;
 
-public enum GameState
+public enum GameStateEnum
 {
     MainMenu,
     Loading,

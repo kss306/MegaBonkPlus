@@ -5,6 +5,7 @@
     --text-primary: #f8f8f8;
     --text-secondary: #a0aec0;
     --border-color: #4a5568;
+    --card-gap: 24px;
 }
 
 body {
@@ -29,4 +30,12 @@ body {
     max-width: 1400px;
     margin: 0 auto;
     align-items: stretch;
+}
+
+.sub-map-grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--card-gap);
+    align-items: start;
 }

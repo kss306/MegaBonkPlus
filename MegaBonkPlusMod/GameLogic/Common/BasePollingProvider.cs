@@ -2,13 +2,13 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using MegaBonkPlusMod.Utils;
 using UnityEngine;
 
 namespace MegaBonkPlusMod.GameLogic.Common
 {
     public abstract class BasePollingProvider
     {
-        protected ManualLogSource Logger;
         protected static readonly JsonSerializerOptions JsonOptions = new()
         {
             WriteIndented = false,
@@ -20,9 +20,8 @@ namespace MegaBonkPlusMod.GameLogic.Common
         private readonly float _scanInterval;
         private float _nextScanTime = 0f;
 
-        public BasePollingProvider(ManualLogSource logger, float scanIntervalInSeconds)
+        public BasePollingProvider(float scanIntervalInSeconds)
         {
-            Logger = logger;
             _scanInterval = scanIntervalInSeconds;
         }
 
@@ -50,7 +49,7 @@ namespace MegaBonkPlusMod.GameLogic.Common
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Error updating '{GetType().Name}': {ex.Message}");
+                ModLogger.LogDebug($"Error updating '{GetType().Name}': {ex.Message}");
                 _lastJsonData = "{\"count\":0,\"items\":[]}";
                 OnError(ex);
             }

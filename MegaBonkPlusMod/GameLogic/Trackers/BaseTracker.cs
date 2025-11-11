@@ -13,8 +13,8 @@ namespace MegaBonkPlusMod.GameLogic.Trackers
         
         public int LastKnownCacheCount { get; private set; } = 0;
 
-        public BaseTracker(ManualLogSource logger, float scanIntervalInSeconds = 2.0f) 
-            : base(logger, scanIntervalInSeconds)
+        public BaseTracker(float scanIntervalInSeconds = 2.0f) 
+            : base(scanIntervalInSeconds)
         {
         }
         

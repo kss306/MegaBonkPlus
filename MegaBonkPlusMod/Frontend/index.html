@@ -71,31 +71,54 @@
         </nav>
     </section>
 
-    <section class="card auto-restarter-card">
+    <div class="sub-map-grid">
 
-        <div class="restarter-header">
-            <div class="restarter-title-group">
-                <h3>Auto Restarter</h3>
+        <section class="card item-spawner-card">
+            <div class="restarter-header"> <div class="restarter-title-group">
+                <h3>Item Spawner</h3>
                 <div class="info-tooltip"
-                     data-tooltip="Startet das Spiel automatisch neu, wenn eines der ausgewählten Items gefunden wird.">
+                     data-tooltip="Select items from the list and spawn them directly.">
                     ?
                 </div>
             </div>
-
-            <div class="restarter-controls">
-                <label class="toggle-switch">
-                    <input type="checkbox" id="restarter-master-toggle">
-                    <span class="slider"></span>
-                </label>
             </div>
-        </div>
 
-        <div class="restarter-item-list-container">
-            <div id="restarter-item-list" class="restarter-item-list">
+            <div class="restarter-item-list-container">
+                <div id="item-spawner-list" class="restarter-item-list">
+                </div>
             </div>
-        </div>
 
-    </section>
+            <div class="item-spawner-footer">
+                <button id="spawn-items-btn" class="button-primary">Get Items</button>
+            </div>
+        </section>
+
+        <section class="card auto-restarter-card" id="auto-restarter-card">
+            <div class="restarter-header">
+                <div class="restarter-title-group">
+                    <h3>Auto Restarter</h3>
+                    <div class="info-tooltip"
+                         data-tooltip="Restarts the round until all of your wishlist items are found in ShadyGuys">
+                        ?
+                    </div>
+                </div>
+                <div class="restarter-controls">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="restarter-master-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="restarter-item-list-container">
+                <div id="restarter-item-list" class="restarter-item-list">
+                </div>
+            </div>
+        </section>
+
+        <section class="card placeholder-card">
+        </section>
+
+    </div>
 
 </div>
 
@@ -103,17 +126,17 @@
 
 <div id="item-modal-backdrop" class="modal-backdrop is-hidden">
     <div id="item-modal" class="modal-content card">
-
+        
         <div class="modal-header">
-            <h3>Item auswählen</h3>
+            <h3>Select Item</h3>
             <button id="modal-close-btn" class="modal-close-btn">&times;</button>
         </div>
 
         <div class="modal-search">
-            <input type="text" id="modal-search-input" placeholder="Item suchen...">
+            <label for="modal-search-input"></label><input type="text" id="modal-search-input" placeholder="Search items...">
         </div>
 
-        <ul id="modal-item-list" class="modal-item-list">
+        <ul id="modal-item-list" class="modal-item-list modal-item-list-container">
         </ul>
 
     </div>

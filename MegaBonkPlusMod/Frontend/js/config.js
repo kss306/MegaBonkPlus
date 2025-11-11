@@ -293,13 +293,10 @@ export const ENDPOINTS_TO_TRACK = {
             const rarity = props.rarity ?? 'Common';
             const names = Array.isArray(props.itemNames) ? props.itemNames : [];
             const prices = Array.isArray(props.itemPrices) ? props.itemPrices : [];
+            const ids = Array.isArray(props.itemIds) ? props.itemIds : [];
 
             const offersHtml = names.slice(0, 3).map((rawName, i) => {
-                const id = rawName.toString().trim()
-                    .toLowerCase()
-                    .replace(/\s+/g, ' ')
-                    .replace(/[^a-z0-9 ]/g, '')
-                    .replace(/\s+/g, '');
+                const id = ids[i] != null ? ids[i] : '-';
                 const price = prices[i] != null ? prices[i] : '-';
                 const displayName = rawName;
                 const icon = `/images/items/${id}.png`;

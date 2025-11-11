@@ -9,7 +9,7 @@ namespace MegaBonkPlusMod.Actions;
 
 public class InteractAction : IAction
 {
-    public void Execute(JsonElement payload, MyPlayer player, ManualLogSource logger, ActionHandler handler)
+    public void Execute(JsonElement payload, ActionHandler handler)
     {
         
         if (!payload.TryGetProperty("instanceId", out var idElement) || idElement.ValueKind != JsonValueKind.Number) return;

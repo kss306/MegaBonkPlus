@@ -6,6 +6,6 @@ namespace MegaBonkPlusMod.Actions;
 
 public interface IAction
 {
-    void Execute(JsonElement payload, MyPlayer player, ManualLogSource logger, ActionHandler actionHandler);
+    void Execute(JsonElement payload, ActionHandler actionHandler);
     
 }

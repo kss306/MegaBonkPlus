@@ -4,51 +4,50 @@ using System.Linq;
 using System.Text.Json;
 using BepInEx.Logging;
 using Assets.Scripts.Actors.Player;
+using MegaBonkPlusMod.Utils;
 
 namespace MegaBonkPlusMod.Actions;
 
 public class ActionHandler
 {
     private readonly Dictionary<string, IAction> _actions;
-    private readonly ManualLogSource _logger;
-    
     private readonly List<IUpdatableAction> _updatableActions = new();
 
-    public ActionHandler(ManualLogSource logger)
+    public ActionHandler()
     {
-        _logger = logger;
         _actions = new Dictionary<string, IAction>(StringComparer.OrdinalIgnoreCase);
         RegisterActions();
     }
     
     private void RegisterActions()
     {
-        _logger.LogInfo("Register actions...");
+        ModLogger.LogDebug("Register actions...");
         
         _actions["teleport"] = new TeleportAction();
         _actions["interact"] = new InteractAction();
         _actions["kill_all_enemies"] = new KillAllEnemiesAction();
         _actions["set_auto_restart_config"] = new AutoRestartAction();
+        _actions["spawn_items"] = new SpawnItemsAction();
         
-        _logger.LogInfo($"{_actions.Count} actions registered.");
+        ModLogger.LogDebug($"{_actions.Count} actions registered.");
     }
     
-    public void HandleAction(string actionName, JsonElement payload, MyPlayer player)
+    public void HandleAction(string actionName, JsonElement payload)
     {
         if (_actions.TryGetValue(actionName, out IAction action))
         {
             try
             {
-                action.Execute(payload, player, _logger, this);
+                action.Execute(payload, this);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error executing action '{actionName}': {ex.Message}\n{ex.StackTrace}");
+                ModLogger.LogDebug($"Error executing action '{actionName}': {ex.Message}\n{ex.StackTrace}");
             }
         }
         else
         {
-            _logger.LogWarning($"Unknown action received: '{actionName}'");
+            ModLogger.LogDebug($"Unknown action received: '{actionName}'");
         }
     }
     
@@ -71,7 +70,11 @@ public class ActionHandler
         
         if (_actions.TryGetValue("set_auto_restart_config", out IAction action2) && action2 is AutoRestartAction restartAction)
         {
-            states["set_auto_restart_config"] = new { enabled = restartAction.IsEnabled };
+            states["set_auto_restart_config"] = new
+            {
+                enabled = restartAction.IsEnabled,
+                itemIds = restartAction.ItemIds
+            };
         }
 
         return states;
@@ -93,7 +96,7 @@ public class ActionHandler
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error in 'UpdateActions': {ex.Message}");
+                ModLogger.LogDebug($"Error in 'UpdateActions': {ex.Message}");
                 _updatableActions.Remove(action);
             }
         }
