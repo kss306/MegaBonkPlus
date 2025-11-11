@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Mod-Dashboard</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
 
@@ -17,7 +17,7 @@
             <span id="char-level">Level ?</span>
             <span id="char-times">0:00 / 0:00</span>
         </div>
-        
+
         <div class="char-bars">
             <div class="bar bar-shield">
                 <div class="bar-fill" id="bar-shield-fill"></div>
@@ -34,6 +34,25 @@
     </section>
 
     <section class="card map-container">
+
+        <div class="quick-actions-bar">
+            <div class="split-button-container">
+                <button id="action-kill-all" class="quick-action-button split-left">
+                    KILL ALL
+                </button>
+                <button id="action-kill-all-menu" class="quick-action-button split-right">
+                    &#x22EE;
+                </button>
+
+                <div id="kill-all-dropdown" class="dropdown-menu">
+                    <label class="dropdown-item">
+                        <input type="checkbox" id="kill-all-looping-checkbox">
+                        Looping
+                    </label>
+                </div>
+            </div>
+        </div>
+
         <div id="minimap-wrapper">
             <canvas id="minimap-canvas"></canvas>
             <div id="minimap-icons"></div>
@@ -44,38 +63,61 @@
         </div>
     </section>
 
-    <aside class="card filter-sidebar">
+    <section class="card filter-sidebar">
         <h3>Filter</h3>
         <nav class="filter-list">
-            <ul>
-                <li>
-                    <span class="filter-icon">📦</span> <span class="filter-name">Chests</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="filter-chests" data-filter-key="chests" checked>
-                        <span class="slider"></span>
-                    </label>
-                </li>
-                <li>
-                    <span class="filter-icon">🕵️</span>
-                    <span class="filter-name">Shady Guys</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="filter-shadyGuys" data-filter-key="shadyGuys" checked>
-                        <span class="slider"></span>
-                    </label>
-                </li>
-                <li>
-                    <span class="filter-icon">🏛️</span>
-                    <span class="filter-name">Shrines</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="filter-shrines" data-filter-key="allShrines" checked>
-                        <span class="slider"></span>
-                    </label>
-                </li>
+            <ul id="filter-list-container">
             </ul>
         </nav>
-    </aside>
+    </section>
 
-</div> <div id="map-tooltip" class="map-tooltip" style="display: none;"></div>
+    <section class="card auto-restarter-card">
+
+        <div class="restarter-header">
+            <div class="restarter-title-group">
+                <h3>Auto Restarter</h3>
+                <div class="info-tooltip"
+                     data-tooltip="Startet das Spiel automatisch neu, wenn eines der ausgewählten Items gefunden wird.">
+                    ?
+                </div>
+            </div>
+
+            <div class="restarter-controls">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="restarter-master-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="restarter-item-list-container">
+            <div id="restarter-item-list" class="restarter-item-list">
+            </div>
+        </div>
+
+    </section>
+
+</div>
+
+<div id="map-tooltip" class="map-tooltip" style="display: none;"></div>
+
+<div id="item-modal-backdrop" class="modal-backdrop is-hidden">
+    <div id="item-modal" class="modal-content card">
+
+        <div class="modal-header">
+            <h3>Item auswählen</h3>
+            <button id="modal-close-btn" class="modal-close-btn">&times;</button>
+        </div>
+
+        <div class="modal-search">
+            <input type="text" id="modal-search-input" placeholder="Item suchen...">
+        </div>
+
+        <ul id="modal-item-list" class="modal-item-list">
+        </ul>
+
+    </div>
+</div>
 
 <script src="js/app.js" type="module"></script>
 </body>

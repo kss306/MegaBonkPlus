@@ -1,0 +1,95 @@
+﻿.quick-actions-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 12px 0 12px;
+}
+
+.quick-action-button {
+    background: #2f3642;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease, transform .05s ease;
+}
+
+.quick-action-button:hover {
+    background: #3a4250;
+    border-color: var(--accent);
+}
+
+.quick-action-button:active {
+    transform: translateY(1px);
+}
+
+.quick-action-button:disabled {
+    background: #555;
+    color: var(--text-secondary);
+    cursor: not-allowed;
+    border-color: var(--border-color);
+}
+
+.split-button-container {
+    position: relative;
+    display: flex;
+}
+
+.split-button-container .quick-action-button {
+    border-radius: 0;
+}
+
+.split-button-container .quick-action-button.split-left {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border-right: none;
+    padding-right: 12px;
+}
+
+.split-button-container .quick-action-button.split-right {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding: 8px 10px;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 75%;
+    z-index: 10;
+    background: #2f3642;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    min-width: 75px;
+    padding: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    display: none;
+    white-space: nowrap;
+}
+
+.dropdown-menu.active {
+    display: block;
+}
+
+.dropdown-menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    font-size: 13px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background .15s ease;
+    border-radius: 4px;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background: #3a4250;
+}
+
+.dropdown-menu .dropdown-item input[type="checkbox"] {
+    margin-right: 8px;
+    accent-color: var(--accent);
+}

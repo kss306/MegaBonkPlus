@@ -1,0 +1,133 @@
+﻿.char-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    min-height: 0;
+    height: 95%;
+}
+
+.char-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    margin-bottom: 16px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.char-info h2 {
+    margin: 0 0 12px 0;
+    color: var(--text-primary);
+    flex-shrink: 0;
+}
+
+.char-topline {
+    width: 115%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 0 0 8px 0;
+    box-sizing: border-box;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.char-topline #char-level {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.char-topline #char-times {
+    font-variant-numeric: tabular-nums;
+}
+
+.char-bars {
+    width: 120%;
+    box-sizing: border-box;
+    padding-bottom: 12px;
+}
+
+.bar {
+    position: relative;
+    height: 16px;
+    background: #2a2f3a;
+    border: 1px solid var(--border-color);
+    border-radius: 1px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.bar-fill {
+    height: 100%;
+    width: 0;
+    transition: width .2s ease;
+}
+
+.bar-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--text-primary);
+    pointer-events: none;
+}
+
+.bar-shield .bar-fill {
+    background: #2aa7ff;
+}
+
+.bar-hp .bar-fill {
+    background: #e05353;
+}
+
+.char-stats {
+    width: 120%;
+    list-style: none;
+    margin: 0;
+    padding: 0 12px 0 0;
+    box-sizing: border-box;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+}
+
+.char-stats::-webkit-scrollbar {
+    width: 10px;
+}
+
+.char-stats::-webkit-scrollbar-thumb {
+    background: #596174;
+    border-radius: 8px;
+}
+
+.char-stats::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.char-stats li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.char-stats li:last-child {
+    border-bottom: none;
+}
+
+.char-stats span {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.char-stats strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}

@@ -5,13 +5,11 @@ using MegaBonkPlusMod.GameLogic.Trackers;
 using MegaBonkPlusMod.GameLogic.Minimap;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text.Json;
-using UnityEngine;
 
 using Assets.Scripts.Actors.Player;
-using Assets.Scripts.Inventory__Items__Pickups.Chests;
+using MegaBonkPlusMod.Actions;
 using Object = UnityEngine.Object;
 
 
@@ -22,23 +20,25 @@ namespace MegaBonkPlusMod.API
         private readonly ManualLogSource _logger;
         private readonly Dictionary<string, BaseTracker> _routeRegistry;
         private readonly MinimapStreamer _minimapStreamer; 
+        private readonly ActionHandler _actionHandler;
 
-        public ApiRouter(ManualLogSource logger, List<BaseTracker> allTrackers, MinimapStreamer minimapStreamer)
+        public ApiRouter(ManualLogSource logger, List<BaseTracker> allTrackers, MinimapStreamer minimapStreamer, ActionHandler actionHandler)
         {
             _logger = logger;
             _routeRegistry = new Dictionary<string, BaseTracker>();
             _minimapStreamer = minimapStreamer; 
+            _actionHandler = actionHandler;
 
-            _logger.LogInfo("ApiRouter registriert Tracker-Routen...");
+            _logger.LogInfo("ApiRouter registering Tracker-Routes...");
             foreach (var tracker in allTrackers)
             {
                 if (string.IsNullOrEmpty(tracker.ApiRoute)) continue;
                 _routeRegistry[tracker.ApiRoute] = tracker;
-                _logger.LogInfo($"  -> Tracker-Route '{tracker.ApiRoute}' registriert.");
+                _logger.LogInfo($"  -> Tracker-Route '{tracker.ApiRoute}' registered.");
             }
             if (_minimapStreamer != null)
             {
-                _logger.LogInfo("  -> MinimapStreamer für API registriert.");
+                _logger.LogInfo("  -> MinimapStreamer for API registered");
             }
         }
         
@@ -49,6 +49,14 @@ namespace MegaBonkPlusMod.API
             if (path == "/api/stream/minimap" && _minimapStreamer != null)
             {
                 string jsonData = _minimapStreamer.GetJsonData();
+                JsonResponse.Send(context, jsonData);
+                return true;
+            }
+            
+            if (path == "/api/actions/state")
+            {
+                var states = _actionHandler.GetActionStates();
+                string jsonData = JsonSerializer.Serialize(states);
                 JsonResponse.Send(context, jsonData);
                 return true;
             }
@@ -68,22 +76,22 @@ namespace MegaBonkPlusMod.API
             string jsonPayload;
             try
             {
-                using (var reader = new StreamReader(context.Request.InputStream, context.Request.ContentEncoding))
-                {
+                using (var reader = new StreamReader(context.Request.InputStream, context.Request.ContentEncoding)) {
                     jsonPayload = reader.ReadToEnd();
                 }
                 
                 var doc = JsonDocument.Parse(jsonPayload);
                 var root = doc.RootElement;
                 
-                string action = root.GetProperty("action").GetString();
-                int instanceId = root.GetProperty("instanceId").GetInt32();
-
-                MainThreadActionQueue.QueueAction(() =>
+                if (!root.TryGetProperty("action", out var actionElement))
                 {
-                    ExecuteAction(action, instanceId);
-                });
+                    throw new Exception("Payload is missing the 'action' property.");
+                }
+                string action = actionElement.GetString();
 
+                MainThreadActionQueue.QueueAction(() => {
+                    ExecuteAction(action, root);
+                });
                 JsonResponse.Send(context, "{\"status\":\"ok\"}", 200, "application/json");
             }
             catch (Exception ex)
@@ -93,53 +101,17 @@ namespace MegaBonkPlusMod.API
             }
         }
         
-        private void ExecuteAction(string action, int instanceId)
+        private void ExecuteAction(string actionName, JsonElement payload)
         {
-            var allGameObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-            GameObject target = allGameObjects.FirstOrDefault(g => g.GetInstanceID() == instanceId);
-
-            if (!target) return;
-            
             var player = Object.FindObjectOfType<MyPlayer>();
-            if (!player) return;
-            
-            switch (action)
+            if (!player)
             {
-                case "teleport":
-                    TeleportService.StartTeleport(player.gameObject, target);
-                    break;
-                
-                case "interact":
-                    
-                    var chest = target.GetComponent<InteractableChest>();
-                    if (chest) { chest.Interact(); return; }
-
-                    var maoiShrine = target.GetComponent<InteractableShrineMoai>();
-                    if (maoiShrine) { maoiShrine.Interact(); return; }
-
-                    var bossSpawner = target.GetComponent<InteractableBossSpawner>();
-                    if (bossSpawner) { bossSpawner.Interact(); return; }
-                    
-                    var challengeShrine = target.GetComponent<InteractableShrineChallenge>();
-                    if (challengeShrine) { challengeShrine.Interact(); return; }
-                    
-                    var cursedShrine = target.GetComponent<InteractableShrineCursed>();
-                    if (cursedShrine) { cursedShrine.Interact(); return; }
-                    
-                    var greedShrine = target.GetComponent<InteractableShrineGreed>();
-                    if (greedShrine) { greedShrine.Interact(); return; }
-                    
-                    var magnetShrine = target.GetComponent<InteractableShrineMagnet>();
-                    if (magnetShrine) { magnetShrine.Interact(); return; }
-                    
-                    var microwave = target.GetComponent<InteractableMicrowave>();
-                    if (microwave) { microwave.Interact(); return; }
-                    
-                    var shadyGuy = target.GetComponent<InteractableShadyGuy>();
-                    if (shadyGuy) { shadyGuy.Interact(); return; }
-                    
-                    break;
+                _logger.LogWarning($"Action '{actionName}' failed: Player not found.");
+                return;
             }
+
+            _logger.LogInfo($"Routing action '{actionName}' to the ActionHandler...");
+            _actionHandler.HandleAction(actionName, payload, player);
         }
     }
 }

@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using BepInEx.Logging;
+using BonkersLib.Core;
+using BonkersLib.Services;
+using BonkersLib.Utils;
 using MegaBonkPlusMod.Models;
 using Object = UnityEngine.Object;
 
@@ -15,31 +18,37 @@ public class ShadyGuyTracker : BaseTracker
 
     protected override object BuildDataPayload()
     {
-        var trackedShadyGuys = new List<TrackedObjectData>();
-        var allShadyGuys = Object.FindObjectsOfType<InteractableShadyGuy>();
+        var trackedObjects = new List<TrackedObjectData>();
         
-        foreach (var shadyGuy in allShadyGuys)
+        if (!BonkersAPI.Game.IsInGame)
+            return new ApiListResponse<TrackedObjectData>(trackedObjects);
+        
+        WorldService world = BonkersAPI.World;
+        
+        var allObjects = Object.FindObjectsOfType<InteractableShadyGuy>();
+        
+        foreach (var trackedObject in allObjects)
         {
-            CacheIconsForObject(shadyGuy.transform.parent);
+            CacheIconsForObject(GameObjectUtils.FindMinimapIcon(trackedObject.transform));
             var guyData = new TrackedObjectData
             {
-                Position = PositionData.FromVector3(shadyGuy.transform.position),
-                InstanceId = shadyGuy.gameObject.GetInstanceID()
+                Position = PositionData.FromVector3(trackedObject.transform.position),
+                InstanceId = trackedObject.gameObject.GetInstanceID()
             };
 
             var itemNames = new List<string>();
 
-            foreach (var item in shadyGuy.items) itemNames.Add(item.name);
+            foreach (var item in trackedObject.items) itemNames.Add(item.name);
             var itemPrices = new List<int>();
 
-            foreach (var price in shadyGuy.prices) itemPrices.Add(price);
+            foreach (var price in trackedObject.prices) itemPrices.Add(price);
 
             guyData.CustomProperties["itemNames"] = itemNames;
             guyData.CustomProperties["itemPrices"] = itemPrices;
-            guyData.CustomProperties["rarity"] = shadyGuy.rarity.ToString();
-            trackedShadyGuys.Add(guyData);
+            guyData.CustomProperties["rarity"] = trackedObject.rarity.ToString();
+            trackedObjects.Add(guyData);
         }
 
-        return new ApiListResponse<TrackedObjectData>(trackedShadyGuys);
+        return new ApiListResponse<TrackedObjectData>(trackedObjects);
     }
 }

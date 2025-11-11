@@ -59,8 +59,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Frontend\css\style.css"/>
-        <EmbeddedResource Include="Frontend\css\style.css"/>
         <None Remove="Frontend\js\app.js"/>
         <EmbeddedResource Include="Frontend\js\app.js"/>
         <None Remove="Frontend\index.html"/>
@@ -315,6 +313,37 @@
         <EmbeddedResource Include="Frontend\images\items\glovesbloody.png" />
         <None Remove="Frontend\images\characters\placeholder.png" />
         <EmbeddedResource Include="Frontend\images\characters\placeholder.png" />
+        <None Remove="Frontend\css\components\card-char-info.css" />
+        <EmbeddedResource Include="Frontend\css\components\card-char-info.css" />
+        <None Remove="Frontend\css\components\card-filter.css" />
+        <EmbeddedResource Include="Frontend\css\components\card-filter.css" />
+        <None Remove="Frontend\css\components\card-map.css" />
+        <EmbeddedResource Include="Frontend\css\components\card-map.css" />
+        <None Remove="Frontend\css\components\media-queries.css" />
+        <EmbeddedResource Include="Frontend\css\components\media-queries.css" />
+        <None Remove="Frontend\css\components\quick-actions.css" />
+        <EmbeddedResource Include="Frontend\css\components\quick-actions.css" />
+        <None Remove="Frontend\css\components\tooltip.css" />
+        <EmbeddedResource Include="Frontend\css\components\tooltip.css" />
+        <EmbeddedResource Include="Frontend\css\globals.css" />
+        <None Remove="Frontend\js\services\actionService.js" />
+        <EmbeddedResource Include="Frontend\js\services\actionService.js" />
+        <None Remove="Frontend\js\services\dashboardService.js" />
+        <EmbeddedResource Include="Frontend\js\services\dashboardService.js" />
+        <None Remove="Frontend\js\services\filterService.js" />
+        <EmbeddedResource Include="Frontend\js\services\filterService.js" />
+        <None Remove="Frontend\css\main.css" />
+        <EmbeddedResource Include="Frontend\css\main.css" />
+        <None Remove="Frontend\js\filterConfig.js" />
+        <EmbeddedResource Include="Frontend\js\filterConfig.js" />
+        <None Remove="Frontend\js\services\autoRestarterService.js" />
+        <EmbeddedResource Include="Frontend\js\services\autoRestarterService.js" />
+        <None Remove="Frontend\js\itemConfig.js" />
+        <EmbeddedResource Include="Frontend\js\itemConfig.js" />
+        <None Remove="Frontend\css\components\card-auto-restarter.css" />
+        <EmbeddedResource Include="Frontend\css\components\card-auto-restarter.css" />
+        <None Remove="Frontend\css\components\modal.css" />
+        <EmbeddedResource Include="Frontend\css\components\modal.css" />
     </ItemGroup>
 
     <ItemGroup>
@@ -323,6 +352,10 @@
 
     <ItemGroup>
       <Folder Include="Frontend\images\items\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\BonkersLib\BonkersLib.csproj" />
     </ItemGroup>
 
 </Project>

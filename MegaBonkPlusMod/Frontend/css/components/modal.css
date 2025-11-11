@@ -1,0 +1,138 @@
+﻿/* * 1. Modal Backdrop (der dunkle Hintergrund)
+ */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 1;
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* Versteckter Zustand */
+.modal-backdrop.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* * 2. Modal Inhalt (die 'card')
+ */
+.modal-content {
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+}
+
+/* * 3. Modal Header
+ */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+}
+.modal-close-btn:hover {
+    color: var(--text-primary);
+}
+
+/* * 4. Modal Suchleiste
+ */
+.modal-search {
+    margin-bottom: 12px;
+}
+
+.modal-search input {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.modal-search input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* * 5. Modal Item-Liste
+ */
+.modal-item-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+/* Einzelnes Item in der Liste */
+.modal-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.modal-item:hover {
+    background: var(--bg-dark);
+}
+
+/* Versteckt Items, die nicht dem Suchfilter entsprechen */
+.modal-item.is-filtered {
+    display: none;
+}
+
+.modal-item-icon {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.modal-item-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-item-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.modal-item-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}

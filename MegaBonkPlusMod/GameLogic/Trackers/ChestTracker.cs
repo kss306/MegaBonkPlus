@@ -2,6 +2,9 @@
 using Assets.Scripts.Inventory__Items__Pickups.Chests;
 using Assets.Scripts.Inventory__Items__Pickups.Interactables;
 using BepInEx.Logging;
+using BonkersLib.Core;
+using BonkersLib.Services;
+using BonkersLib.Utils;
 using MegaBonkPlusMod.Models;
 using UnityEngine;
 
@@ -18,34 +21,40 @@ public class ChestTracker : BaseTracker
 
     protected override object BuildDataPayload()
     {
-        var trackedChests = new List<TrackedObjectData>();
-        var allChests = Object.FindObjectsOfType<InteractableChest>();
-        var allOpenChests = Object.FindObjectsOfType<OpenChest>();
+        var trackedObjects = new List<TrackedObjectData>();
+        
+        if (!BonkersAPI.Game.IsInGame)
+            return new ApiListResponse<TrackedObjectData>(trackedObjects);
+        
+        WorldService world = BonkersAPI.World;
+        
+        var allChests = world.GetChests();
+        var allOpenChests = world.GetOpenChests();
         
         foreach (var chest in allChests)
         {
-            CacheIconsForObject(chest.transform);
+            CacheIconsForObject(GameObjectUtils.FindMinimapIcon(chest.transform));
             var chestData = new TrackedObjectData
             {
                 Position = PositionData.FromVector3(chest.transform.position),
                 InstanceId = chest.gameObject.GetInstanceID()
             };
             chestData.CustomProperties["type"] = chest.chestType.ToString();
-            trackedChests.Add(chestData);
+            trackedObjects.Add(chestData);
         }
         
         foreach (var chest in allOpenChests)
         {
-            CacheIconsForObject(chest.transform);
+            CacheIconsForObject(GameObjectUtils.FindMinimapIcon(chest.transform));
             var chestData = new TrackedObjectData
             {
                 Position = PositionData.FromVector3(chest.transform.position),
                 InstanceId = chest.gameObject.GetInstanceID()
             };
             chestData.CustomProperties["type"] = "Open";
-            trackedChests.Add(chestData);
+            trackedObjects.Add(chestData);
         }
 
-        return new ApiListResponse<TrackedObjectData>(trackedChests);
+        return new ApiListResponse<TrackedObjectData>(trackedObjects);
     }
 }

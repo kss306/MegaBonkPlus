@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using BepInEx.Logging;
+using BonkersLib.Core;
+using BonkersLib.Services;
+using BonkersLib.Utils;
 using MegaBonkPlusMod.Models;
-using Object = UnityEngine.Object;
 
 namespace MegaBonkPlusMod.GameLogic.Trackers;
 
@@ -17,11 +19,17 @@ public class CursedShrineTracker : BaseTracker
     protected override object BuildDataPayload()
     {
         var trackedObjects = new List<TrackedObjectData>();
-        var allObjects = Object.FindObjectsOfType<InteractableShrineCursed>();
+        
+        if (!BonkersAPI.Game.IsInGame)
+            return new ApiListResponse<TrackedObjectData>(trackedObjects);
+        
+        WorldService world = BonkersAPI.World;
+        
+        var allObjects = world.GetCursedShrines();
         
         foreach (var trackedObject in allObjects)
         {
-            CacheIconsForObject(trackedObject.transform);
+            CacheIconsForObject(GameObjectUtils.FindMinimapIcon(trackedObject.transform));
             var objectData = new TrackedObjectData
             {
                 Position = PositionData.FromVector3(trackedObject.transform.position),

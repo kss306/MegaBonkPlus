@@ -18,19 +18,9 @@ namespace MegaBonkPlusMod.GameLogic.Trackers
         {
         }
         
-        protected void CacheIconsForObject(Transform parentTransform)
+        protected void CacheIconsForObject(GameObject minimapIcon)
         {
-            if (parentTransform == null) return;
-
-            var allChildren = parentTransform.GetComponentsInChildren<Transform>(true); 
-
-            foreach (var childTransform in allChildren)
-            {
-                if (childTransform.name.StartsWith("MinimapIcon"))
-                {
-                    _cachedMinimapIcons.Add(childTransform.gameObject);
-                }
-            }
+            _cachedMinimapIcons.Add(minimapIcon);
         }
         
         public override void ForceUpdatePayload()

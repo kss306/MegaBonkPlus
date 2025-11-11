@@ -1,0 +1,71 @@
+﻿.map-container {
+    padding: 0;
+}
+
+#minimap-wrapper {
+    margin: 12px;
+    border: 1px solid var(--border-color);
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    position: relative;
+    width: calc(100% - 24px);
+    height: auto;
+    transform: scaleY(-1);
+}
+
+#minimap-canvas,
+#minimap-icons,
+#minimap-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#minimap-canvas {
+    display: block;
+    image-rendering: pixelated;
+}
+
+/* --- 6. Loader --- */
+#minimap-loader {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-secondary, #a0aec0);
+    transform: scaleY(-1);
+}
+
+.loader-spinner {
+    border: 4px solid #333;
+    border-top: 4px solid var(--accent, #00bcd4);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+#minimap-wrapper:not(.is-loading) #minimap-loader {
+    display: none;
+}
+
+#minimap-wrapper.is-loading #minimap-canvas,
+#minimap-wrapper.is-loading #minimap-icons {
+    display: none;
+}
+
+#minimap-wrapper.is-loading #minimap-loader {
+    display: flex;
+}

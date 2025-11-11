@@ -1,0 +1,131 @@
+﻿.filter-sidebar h3 {
+    margin-top: 0;
+    color: var(--text-primary);
+}
+
+.filter-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    width: 115%;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.filter-item {
+    display: grid;
+    grid-template-columns: 30px 1fr auto;
+    align-items: center;
+    padding: 12px 0;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background 0.15s ease;
+    user-select: none;
+    color: var(--text-secondary);
+}
+
+.filter-item:last-child {
+    border-bottom: none;
+}
+
+.filter-item:hover {
+    background: var(--bg-dark);
+}
+
+.filter-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-icon img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.filter-rarity-container {
+}
+
+.filter-rarity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+}
+
+.filter-rarity-list.is-open {
+    max-height: 500px;
+}
+
+
+.filter-rarity-item {
+    display: grid;
+    grid-template-columns: 0px 1fr auto;
+    align-items: center;
+    padding: 12px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-color);
+    cursor: default;
+}
+
+.filter-rarity-item > .rarity-name {
+    padding-left: 30px;
+}
+
+.filter-item.is-disabled + .filter-rarity-container .filter-rarity-list {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #555;
+    transition: .2s;
+    border-radius: 7px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .2s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--accent);
+}
+
+input:checked + .slider:before {
+    transform: translateX(16px);
+}

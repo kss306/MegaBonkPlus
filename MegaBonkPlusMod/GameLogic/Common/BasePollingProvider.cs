@@ -50,7 +50,7 @@ namespace MegaBonkPlusMod.GameLogic.Common
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Fehler im Update von '{GetType().Name}': {ex.Message}");
+                Logger.LogError($"Error updating '{GetType().Name}': {ex.Message}");
                 _lastJsonData = "{\"count\":0,\"items\":[]}";
                 OnError(ex);
             }

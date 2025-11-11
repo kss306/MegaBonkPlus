@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BepInEx.Logging;
+using MegaBonkPlusMod.Actions;
 using MegaBonkPlusMod.API;
 using MegaBonkPlusMod.GameLogic.Common;
 using MegaBonkPlusMod.GameLogic.Minimap;
@@ -18,8 +19,9 @@ namespace MegaBonkPlusMod.Core
         private HttpServer _server;
         private ApiRouter _router;
 
-        private List<BaseTracker> _trackers = new List<BaseTracker>();
+        private readonly List<BaseTracker> _trackers = new List<BaseTracker>();
         private MinimapStreamer _minimapStreamer;
+        private ActionHandler _actionHandler;
 
         private enum CaptureState
         {
@@ -39,11 +41,12 @@ namespace MegaBonkPlusMod.Core
         public void Initialize(ManualLogSource logger)
         {
             _logger = logger;
-            _logger.LogInfo("ModManager wird initialisiert...");
+            _logger.LogInfo("ModManager initializing...");
 
-            _logger.LogInfo("Erstelle alle Datenanbieter...");
+            _logger.LogInfo("Creating API-Router and Trackers...");
 
             _minimapStreamer = new MinimapStreamer(logger);
+            _actionHandler = new ActionHandler(logger);
 
             _trackers.Add(new PlayerTracker(logger, 0.1f));
             _trackers.Add(new BossSpawnerTracker(logger, 5.0f));
@@ -57,9 +60,11 @@ namespace MegaBonkPlusMod.Core
             _trackers.Add(new MicrowaveTracker(logger, 2.0f));
             _trackers.Add(new ChallengeShrineTracker(logger, 2.0f));
             
-            _router = new ApiRouter(logger, _trackers, _minimapStreamer);
+            _router = new ApiRouter(logger, _trackers, _minimapStreamer, _actionHandler);
             _server = new HttpServer(logger, _router);
             _server.Start();
+            
+            _logger.LogInfo("ModManager initialized.");
 
             SceneManager.activeSceneChanged += new Action<Scene, Scene>(OnSceneChanged);
             SetInitialSceneState(SceneManager.GetActiveScene());
@@ -95,7 +100,7 @@ namespace MegaBonkPlusMod.Core
         {
             
             MainThreadActionQueue.ExecuteAll();
-            TeleportService.Update();
+            _actionHandler.UpdateActions();
             
             switch (_captureState)
             {
@@ -134,7 +139,7 @@ namespace MegaBonkPlusMod.Core
                         catch (Exception ex)
                         {
                             _captureState = CaptureState.Idle;
-                            _logger.LogError($"Fehler beim Ausblenden der Icons: {ex.Message}");
+                            _logger.LogError($"Error hiding Icons: {ex.Message}");
                         }
                     }
 
@@ -151,7 +156,7 @@ namespace MegaBonkPlusMod.Core
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"Fehler beim Aufnehmen des Minimap-Bildes: {ex.Message}");
+                        _logger.LogError($"Error creating the MinimapImage: {ex.Message}");
                     }
                     finally
                     {

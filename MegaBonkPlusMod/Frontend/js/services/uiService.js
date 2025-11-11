@@ -19,6 +19,7 @@ export function renderPlayer(data) {
     if (data.count === 0) {
         nameElem.textContent = "No Player";
         statsListElem.innerHTML = '';
+        if (avatarElem) avatarElem.src = '/images/characters/placeholder.png';
         if (hpFill) hpFill.style.width = '0%';
         if (shieldFill) shieldFill.style.width = '0%';
         if (hpLabel) hpLabel.textContent = '';

@@ -75,15 +75,26 @@ export function updateMapIcons(dataMap, configMap, filterStates) {
 
         const data = dataMap[key];
         const config = configMap[key];
-
-        const filterId = config.filterToggleId;
-        if (filterId && filterStates[filterId] === false) {
+        
+        const filter = filterStates[key];
+        
+        if (!filter || !filter.main) {
             continue;
         }
+
+        const hasRarities = Object.keys(filter).some(k => k !== 'main');
 
         if (data.count === 0) continue;
 
         data.items.forEach(item => {
+            if (hasRarities) {
+                const itemRarity = (item.customProperties?.rarity || 'common').toLowerCase();
+
+                if (filter[itemRarity] === false) {
+                    return;
+                }
+            }
+
             const renderInfo = config.renderConfigSelector(item);
             if (renderInfo.type === 'none') return;
 

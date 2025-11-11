@@ -6,6 +6,7 @@ using UnityEngine;
 namespace MegaBonkPlusMod.Core
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInDependency("com.kss.bonkerslib")]
     public class Plugin : BasePlugin
     {
         public override void Load()

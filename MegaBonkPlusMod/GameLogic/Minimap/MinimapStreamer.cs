@@ -43,8 +43,6 @@ namespace MegaBonkPlusMod.GameLogic.Minimap
             Texture2D readableTex = null;
             try
             { 
-                MinimapCaptureController.TriggerCaptureStart();
-                
                 var payload = BuildDataPayload(out readableTex);
                 _lastJsonData = JsonSerializer.Serialize(payload, JsonOptions);
             }

@@ -1,0 +1,189 @@
+﻿/* * 1. Haupt-Container (die lange Karte)
+ */
+.auto-restarter-card {
+    /* Spannt über alle 3 Spalten des Dashboard-Layouts */
+    grid-column: 1 / -1;
+    padding-bottom: 16px;
+}
+
+/* * 2. Kopfzeile (Titel, ?, Toggle)
+ */
+.restarter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    /* Passt zum 115% / zentrierten Look der Filter-Liste */
+    width: 115%;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.restarter-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Abstand zwischen Titel und '?' */
+}
+
+.restarter-title-group h3 {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+/* * 3. Das '?' Icon und sein Tooltip
+ */
+.info-tooltip {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--border-color);
+    color: var(--bg-dark);
+    font-size: 12px;
+    font-weight: bold;
+    cursor: help;
+    user-select: none;
+}
+
+/* Das Tooltip-Textfeld (standardmäßig versteckt) */
+.info-tooltip::after {
+    content: attr(data-tooltip); /* Holt Text aus dem data-tooltip Attribut */
+    position: absolute;
+    bottom: 120%; /* Positioniert es über dem '?' */
+    left: 50%;
+    transform: translateX(-50%);
+
+    background: var(--bg-dark);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: normal;
+    white-space: nowrap; /* Hält den Tooltip in einer Zeile */
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    z-index: 100;
+}
+
+/* Zeigt das Tooltip beim Hovern über das '?' */
+.info-tooltip:hover::after {
+    opacity: 1;
+}
+
+
+/* * 4. Die horizontal scrollbare Item-Liste
+ */
+.restarter-item-list-container {
+    overflow-x: auto; /* Aktiviert horizontales Scrollen */
+    overflow-y: hidden;
+    padding: 8px 0; /* Etwas Innenabstand */
+}
+
+.restarter-item-list {
+    display: flex;
+    gap: 12px;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+/* Versteckt die Scrollbar (optional, aber schöner) */
+.restarter-item-list-container::-webkit-scrollbar {
+    height: 8px;
+}
+.restarter-item-list-container::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+.restarter-item-list-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+
+/* * 5. Die einzelnen Item-Slots (Kästchen)
+ */
+.restarter-item-slot {
+    position: relative;
+    width: 70px;  /* Etwas kleiner für mehr Sichtbarkeit */
+    height: 70px;
+    border-radius: 12px;
+    border: 2px dashed var(--border-color);
+    flex-shrink: 0; /* Verhindert, dass Slots schrumpfen */
+    transition: border-color 0.15s ease, background 0.15s ease;
+    box-sizing: border-box;
+}
+
+/* * 6. Der leere Slot (+)
+ */
+.item-slot-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.item-slot-empty span {
+    font-size: 32px;
+    color: var(--border-color);
+    font-weight: 300;
+    transition: color 0.15s ease;
+    user-select: none;
+}
+
+.item-slot-empty:hover {
+    border-color: var(--accent);
+    background: rgba(0, 188, 212, 0.1);
+}
+.item-slot-empty:hover span {
+    color: var(--accent);
+}
+
+/* * 7. Der gefüllte Slot (Bild + X)
+ */
+.item-slot-filled {
+    border-style: solid;
+    border-color: var(--border-color);
+    padding: 8px; /* Innenabstand für das Bild */
+}
+
+.item-slot-filled img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.remove-item-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #e05353; /* Rote Farbe für "Löschen" */
+    color: var(--text-primary);
+    border: 2px solid var(--bg-light);
+
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 20px;
+    text-align: center;
+    padding: 0;
+
+    cursor: pointer;
+    opacity: 0; /* Standardmäßig versteckt */
+    transform: scale(0.5);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+/* Zeigt den 'X'-Button beim Hovern über den Slot */
+.item-slot-filled:hover .remove-item-btn {
+    opacity: 1;
+    transform: scale(1);
+}

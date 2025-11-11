@@ -1,0 +1,10 @@
+﻿@media (max-width: 900px) {
+    .dashboard-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 520px) {
+    #map-tooltip { min-width: 320px; max-width: 520px; }
+    .tooltip-content { grid-template-columns: 130px 1fr; }
+}
