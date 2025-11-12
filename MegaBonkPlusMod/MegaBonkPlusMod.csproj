@@ -378,6 +378,8 @@
       <EmbeddedResource Include="Frontend\css\components\card-hotkey-modal.css" />
       <None Remove="Frontend\js\configs\actionConfig.js" />
       <EmbeddedResource Include="Frontend\js\configs\actionConfig.js" />
+      <None Remove="Frontend\js\configs\quickActionConfig.js" />
+      <EmbeddedResource Include="Frontend\js\configs\quickActionConfig.js" />
     </ItemGroup>
 
 </Project>

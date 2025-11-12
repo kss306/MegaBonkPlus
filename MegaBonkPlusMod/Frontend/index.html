@@ -35,22 +35,7 @@
 
     <section class="card map-container">
 
-        <div class="quick-actions-bar">
-            <div class="split-button-container">
-                <button id="action-kill-all" class="quick-action-button split-left">
-                    KILL ALL
-                </button>
-                <button id="action-kill-all-menu" class="quick-action-button split-right">
-                    &#x22EE;
-                </button>
-
-                <div id="kill-all-dropdown" class="dropdown-menu">
-                    <label class="dropdown-item">
-                        <input type="checkbox" id="kill-all-looping-checkbox">
-                        Looping
-                    </label>
-                </div>
-            </div>
+        <div class="quick-actions-bar disabled-when-not-in-game" id="quick-actions-container">
         </div>
 
         <div id="minimap-wrapper">

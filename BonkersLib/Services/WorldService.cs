@@ -24,10 +24,24 @@ public class WorldService
     {
     }
 
-    public IEnumerable<T> FindInteractables<T>() where T : Component
+    private IEnumerable<T> FindInteractables<T>() where T : Component
     {
         if (!BonkersAPI.Game.IsInGame) return Enumerable.Empty<T>();
         return Object.FindObjectsOfType<T>();
+    }
+
+    private T FindNearestGameObject<T>() where T : Component
+    {
+        Vector3 playerPosition = BonkersAPI.Player.Position;
+        var allObjects = Object.FindObjectsOfType<T>();
+
+        if (allObjects.Count == 0) return null;
+
+        T nearestObject = allObjects
+            .OrderBy(obj => Vector3.Distance(playerPosition, obj.transform.position))
+            .FirstOrDefault();
+
+        return nearestObject;
     }
 
     public IEnumerable<InteractableChest> GetChests()
@@ -90,17 +104,92 @@ public class WorldService
         return FindInteractables<OpenChest>();
     }
     
+    public Vector3? GetNearestChargeShrine()
+    {
+        var nearestShrine = FindNearestGameObject<ChargeShrine>(); 
+        return nearestShrine?.transform.position;
+    }
+    
+    public Vector3? GetNearestShadyGuy()
+    {
+        var nearestShadyGuy = FindNearestGameObject<InteractableShadyGuy>(); 
+        return nearestShadyGuy?.transform.position;
+    }
+    
+    public Vector3? GetNearestBossSpawner()
+    {
+        var nearestBossSpawner = FindNearestGameObject<InteractableBossSpawner>(); 
+        return nearestBossSpawner?.transform.position;
+    }
+
+    public Vector3? GetNearestBossSpawnerFinal()
+    {
+        var nearestBossSpawner = FindNearestGameObject<InteractableBossSpawnerFinal>(); 
+        return nearestBossSpawner?.transform.position;
+    }
+    
+    public Vector3? GetNearestMoaiShrine()
+    {
+        var nearestShrine = FindNearestGameObject<InteractableShrineMoai>(); 
+        return nearestShrine?.transform.position;
+    }
+    
+    public Vector3? GetNearestChest()
+    {
+        var nearestChest = FindNearestGameObject<InteractableChest>(); 
+        return nearestChest?.transform.position;
+    }
+
+    public Vector3? GetNearestChallengeShrine()
+    {
+        var nearestShrine = FindNearestGameObject<InteractableShrineChallenge>(); 
+        return nearestShrine?.transform.position;
+    }
+    
+    public Vector3? GetNearestCursedShrine()
+    {
+        var nearestShrine = FindNearestGameObject<InteractableShrineCursed>();
+        return nearestShrine?.transform.position;
+    }
+    
+    public Vector3? GetNearestGreedShrine()
+    {
+        var nearestShrine = FindNearestGameObject<InteractableShrineGreed>(); 
+        return nearestShrine?.transform.position;
+    }
+
+    public Vector3? GetNearestMagnetShrine()
+    {
+        var nearestShrine = FindNearestGameObject<InteractableShrineMagnet>(); 
+        return nearestShrine?.transform.position;
+    }
+    
+    public Vector3? GetNearestMicrowave()
+    {
+        var nearestShrine = FindNearestGameObject<InteractableMicrowave>();
+        return nearestShrine?.transform.position;
+    }
+    
+    public Vector3? GetNearestOpenChest()
+    {
+        var nearestChest = FindNearestGameObject<OpenChest>(); 
+        return nearestChest?.transform.position;
+    }
+    
+    
+    
+
     public IEnumerable<Enemy> GetBosses()
     {
-        if (!BonkersAPI.Game.IsInGame) 
+        if (!BonkersAPI.Game.IsInGame)
             return Enumerable.Empty<Enemy>();
 
         var allEnemies = Object.FindObjectsOfType<Enemy>();
-        return allEnemies.Where(enemy => 
-            enemy.GetComponentsInChildren<Transform>(true).Any(t => t.name == "isBoss")
+        return allEnemies.Where(enemy =>
+            enemy.IsBoss()
         );
     }
-    
+
     public void KillAllEnemies()
     {
         if (!BonkersAPI.Game.IsInGame) return;

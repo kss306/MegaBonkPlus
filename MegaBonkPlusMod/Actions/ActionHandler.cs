@@ -28,6 +28,8 @@ public class ActionHandler
         _actions["set_auto_restart_config"] = new AutoRestartAction();
         _actions["spawn_items"] = new SpawnItemsAction();
         _actions["edit_gold"] = new GoldAction();
+        _actions["teleport_to_nearest"] = new TeleportToNearestAction();
+        _actions["add_levels"] = new LevelAction();
         
         _actions["set_hotkey_config"] = new SetHotkeyConfigAction();
         ModLogger.LogDebug($"{_actions.Count} actions registered.");

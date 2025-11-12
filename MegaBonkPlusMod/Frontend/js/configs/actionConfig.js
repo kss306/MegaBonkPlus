@@ -5,9 +5,19 @@
         modifiers: []
     },
     {
-        id: 'toggle_auto_restart',
-        name: 'Toggle Auto-Restarter',
-        modifiers: []
+        id: 'add_levels',
+        name: 'Add Levels',
+        modifiers: [
+            {
+                id: 'level_amount_input',
+                name: 'Amount',
+                type: 'number',
+                payloadKey: 'amount',
+                defaultValue: 1,
+                min: 1,
+                max: 9999
+            }
+        ]
     },
     {
         id: 'edit_gold',
@@ -53,6 +63,32 @@
                 defaultValue: 1,
                 min: 0,
                 max: 99
+            }
+        ]
+    },
+    {
+        id: 'teleport_to_nearest',
+        name: 'Teleport to Nearest',
+        modifiers: [
+            {
+                id: 'teleport_to_select',
+                name: 'Teleport To',
+                type: 'select',
+                payloadKey: 'object',
+                defaultValue: 'charge_shrine',
+                options: [
+                    { value: 'charge_shrine', name: 'Charge Shrine' },
+                    { value: 'chest', name: 'Chest' },
+                    { value: 'boss_spawner', name: 'Boss Spawner' },
+                    { value: 'shady_guy', name: 'Shady Guy' },
+                    { value: 'microwave', name: 'Microwave' },
+                    { value: 'moai_shrine', name: 'Moai Shrine' },
+                    { value: 'greed_shrine', name: 'Greed Shrine' },
+                    { value: 'challenge_shrine', name: 'Challenge Shrine' },
+                    { value: 'magnet_shrine', name: 'Magnet Shrine' },
+                    { value: 'cursed_shrine', name: 'Cursed Shrine' },
+                    { value: 'open_chest', name: 'Open Chest' }
+                ]
             }
         ]
     }
