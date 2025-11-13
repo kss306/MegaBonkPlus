@@ -16,9 +16,12 @@ public class Plugin : BasePlugin
     {
         var configPath = Path.Combine(Paths.ConfigPath, $"{PluginInfo.PLUGIN_GUID}.cfg");
         var sharedConfig = new ConfigFile(configPath, true);
+        
         ModConfig.Initialize(sharedConfig);
 
         ModLogger.InitLog(Log);
+        
+        HotkeyManager.Initialize(sharedConfig);
 
         ClassInjector.RegisterTypeInIl2Cpp<ModManager>();
 
@@ -28,6 +31,6 @@ public class Plugin : BasePlugin
         Object.DontDestroyOnLoad(managerGameObject);
 
         ModLogger.LogInfo($"{PluginInfo.PLUGIN_NAME} Initialized");
-        ModLogger.LogInfo($"Debug-Logging: {(ModConfig.IsDebugLoggingEnabled.Value ? "ENABLED" : "DISABLED")}");
+        ModLogger.LogInfo($"Logging-Level: {ModConfig.LogLevel.Value}");
     }
 }

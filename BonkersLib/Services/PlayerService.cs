@@ -18,7 +18,6 @@ public class PlayerService
     private const float Y_OFFSET = 10.0f;
     private Vector3 _teleportTarget;
 
-    //Teleport Actions
     private bool _tryingToTeleport;
 
     internal PlayerService()

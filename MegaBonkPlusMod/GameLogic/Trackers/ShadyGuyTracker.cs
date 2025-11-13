@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using BepInEx.Logging;
 using BonkersLib.Core;
 using BonkersLib.Services;
 using BonkersLib.Utils;
+using MegaBonkPlusMod.GameLogic.Trackers.Base;
 using MegaBonkPlusMod.Models;
-using Object = UnityEngine.Object;
 
 namespace MegaBonkPlusMod.GameLogic.Trackers;
 
@@ -13,9 +12,7 @@ public class ShadyGuyTracker : BaseTracker
     public ShadyGuyTracker(float scanIntervalInSeconds) : base(scanIntervalInSeconds)
     {
     }
-
-    public override string ApiRoute => "/api/tracker/shadyguys";
-
+    
     protected override object BuildDataPayload()
     {
         var trackedObjects = new List<TrackedObjectDataModel>();

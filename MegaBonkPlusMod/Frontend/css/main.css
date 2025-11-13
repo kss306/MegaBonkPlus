@@ -15,6 +15,7 @@
 @import url("components/modal.css");
 @import url("components/tooltip.css");
 @import url("components/card-hotkey-modal.css");
-
+@import url("components/toast.css");
 @import url("components/quick-actions.css");
+
 @import url("components/media-queries.css");

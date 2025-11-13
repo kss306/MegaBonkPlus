@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Assets.Scripts.Actors.Enemies;
 using Assets.Scripts.Inventory__Items__Pickups.Chests;
 using Assets.Scripts.Inventory__Items__Pickups.Interactables;
 using Assets.Scripts.Managers;
 using BonkersLib.Core;
+using BonkersLib.Enums;
+using BonkersLib.Services.World;
 using BonkersLib.Utils;
 using UnityEngine;
 
@@ -12,211 +13,153 @@ namespace BonkersLib.Services;
 
 public class WorldService
 {
+    private readonly WorldObjectCache _cache;
+
     internal WorldService()
     {
+        _cache = new WorldObjectCache();
     }
 
     private EnemyManager _enemyManager => BonkersAPI.Game.EnemyManagerInstance;
-
     public bool AreEnemiesSpawning => _enemyManager?.enabledWaves ?? false;
 
     internal void Update()
     {
+        if (BonkersAPI.Game.IsInGame && _cache.IsValid)
+        {
+            _cache.UpdateDynamicObjects();
+            _cache.CleanupCompleted();
+        }
     }
 
-    private IEnumerable<T> FindInteractables<T>() where T : Component
+    internal void OnSceneChanged()
     {
-        if (!BonkersAPI.Game.IsInGame) return Enumerable.Empty<T>();
-        return Object.FindObjectsOfType<T>();
+        ModLogger.LogDebug("[WorldService] Scene changed, invalidating cache");
+        _cache.Invalidate();
     }
 
-    private T FindNearestGameObject<T>() where T : Component
+    internal void OnGameStarted()
     {
-        Vector3 playerPosition = BonkersAPI.Player.Position;
-        var allObjects = Object.FindObjectsOfType<T>();
-
-        if (allObjects.Count == 0) return null;
-
-        T nearestObject = allObjects
-            .OrderBy(obj => Vector3.Distance(playerPosition, obj.transform.position))
-            .FirstOrDefault();
-
-        return nearestObject;
+        ModLogger.LogDebug("[WorldService] Game started, building cache");
+        _cache.BuildCache();
     }
 
-    public IEnumerable<InteractableChest> GetChests()
+    public T GetComponentByInstanceId<T>(int instanceId) where T : Component
     {
-        return FindInteractables<InteractableChest>();
-    }
-
-    public IEnumerable<InteractableBossSpawner> GetBossSpawner()
-    {
-        return FindInteractables<InteractableBossSpawner>();
-    }
-
-    public IEnumerable<InteractableBossSpawnerFinal> GetBossSpawnerFinal()
-    {
-        return FindInteractables<InteractableBossSpawnerFinal>();
-    }
-
-    public IEnumerable<InteractableShrineChallenge> GetChallengeShrines()
-    {
-        return FindInteractables<InteractableShrineChallenge>();
-    }
-
-    public IEnumerable<InteractableShrineCursed> GetCursedShrines()
-    {
-        return FindInteractables<InteractableShrineCursed>();
-    }
-
-    public IEnumerable<InteractableShrineGreed> GetGreedShrines()
-    {
-        return FindInteractables<InteractableShrineGreed>();
-    }
-
-    public IEnumerable<InteractableShrineMagnet> GetMagnetShrines()
-    {
-        return FindInteractables<InteractableShrineMagnet>();
-    }
-
-    public IEnumerable<InteractableMicrowave> GetMicrowaves()
-    {
-        return FindInteractables<InteractableMicrowave>();
-    }
-
-    public IEnumerable<InteractableShadyGuy> GetShadyGuys()
-    {
-        return FindInteractables<InteractableShadyGuy>();
-    }
-
-    public IEnumerable<InteractableShrineMoai> GetMoaiShrines()
-    {
-        return FindInteractables<InteractableShrineMoai>();
+        EnsureCacheValid();
+        return _cache.GetComponentByInstanceId<T>(instanceId);
     }
 
     public IEnumerable<ChargeShrine> GetChargeShrines()
-    {
-        return FindInteractables<ChargeShrine>();
-    }
+        => GetCachedObjects<ChargeShrine>(WorldObjectTypeEnum.ChargeShrine);
+
+    public IEnumerable<InteractableShrineMoai> GetMoaiShrines()
+        => GetCachedObjects<InteractableShrineMoai>(WorldObjectTypeEnum.MoaiShrine);
+
+    public IEnumerable<InteractableShrineCursed> GetCursedShrines()
+        => GetCachedObjects<InteractableShrineCursed>(WorldObjectTypeEnum.CursedShrine);
+
+    public IEnumerable<InteractableShrineGreed> GetGreedShrines()
+        => GetCachedObjects<InteractableShrineGreed>(WorldObjectTypeEnum.GreedShrine);
+
+    public IEnumerable<InteractableShrineMagnet> GetMagnetShrines()
+        => GetCachedObjects<InteractableShrineMagnet>(WorldObjectTypeEnum.MagnetShrine);
+
+    public IEnumerable<InteractableShrineChallenge> GetChallengeShrines()
+        => GetCachedObjects<InteractableShrineChallenge>(WorldObjectTypeEnum.ChallengeShrine);
+
+    public IEnumerable<InteractableChest> GetChests()
+        => GetCachedObjects<InteractableChest>(WorldObjectTypeEnum.Chest);
 
     public IEnumerable<OpenChest> GetOpenChests()
-    {
-        return FindInteractables<OpenChest>();
-    }
-    
-    public Vector3? GetNearestChargeShrine()
-    {
-        var nearestShrine = FindNearestGameObject<ChargeShrine>(); 
-        return nearestShrine?.transform.position;
-    }
-    
-    public Vector3? GetNearestShadyGuy()
-    {
-        var nearestShadyGuy = FindNearestGameObject<InteractableShadyGuy>(); 
-        return nearestShadyGuy?.transform.position;
-    }
-    
-    public Vector3? GetNearestBossSpawner()
-    {
-        var nearestBossSpawner = FindNearestGameObject<InteractableBossSpawner>(); 
-        return nearestBossSpawner?.transform.position;
-    }
+        => GetCachedObjects<OpenChest>(WorldObjectTypeEnum.OpenChest);
 
-    public Vector3? GetNearestBossSpawnerFinal()
-    {
-        var nearestBossSpawner = FindNearestGameObject<InteractableBossSpawnerFinal>(); 
-        return nearestBossSpawner?.transform.position;
-    }
-    
-    public Vector3? GetNearestMoaiShrine()
-    {
-        var nearestShrine = FindNearestGameObject<InteractableShrineMoai>(); 
-        return nearestShrine?.transform.position;
-    }
-    
-    public Vector3? GetNearestChest()
-    {
-        var nearestChest = FindNearestGameObject<InteractableChest>(); 
-        return nearestChest?.transform.position;
-    }
+    public IEnumerable<InteractableShadyGuy> GetShadyGuys()
+        => GetCachedObjects<InteractableShadyGuy>(WorldObjectTypeEnum.ShadyGuy);
 
-    public Vector3? GetNearestChallengeShrine()
-    {
-        var nearestShrine = FindNearestGameObject<InteractableShrineChallenge>(); 
-        return nearestShrine?.transform.position;
-    }
-    
-    public Vector3? GetNearestCursedShrine()
-    {
-        var nearestShrine = FindNearestGameObject<InteractableShrineCursed>();
-        return nearestShrine?.transform.position;
-    }
-    
-    public Vector3? GetNearestGreedShrine()
-    {
-        var nearestShrine = FindNearestGameObject<InteractableShrineGreed>(); 
-        return nearestShrine?.transform.position;
-    }
+    public IEnumerable<InteractableMicrowave> GetMicrowaves()
+        => GetCachedObjects<InteractableMicrowave>(WorldObjectTypeEnum.Microwave);
 
-    public Vector3? GetNearestMagnetShrine()
-    {
-        var nearestShrine = FindNearestGameObject<InteractableShrineMagnet>(); 
-        return nearestShrine?.transform.position;
-    }
-    
-    public Vector3? GetNearestMicrowave()
-    {
-        var nearestShrine = FindNearestGameObject<InteractableMicrowave>();
-        return nearestShrine?.transform.position;
-    }
-    
-    public Vector3? GetNearestOpenChest()
-    {
-        var nearestChest = FindNearestGameObject<OpenChest>(); 
-        return nearestChest?.transform.position;
-    }
-    
-    
-    
+    public IEnumerable<InteractableBossSpawner> GetBossSpawner()
+        => GetCachedObjects<InteractableBossSpawner>(WorldObjectTypeEnum.BossSpawner);
+
+    public IEnumerable<InteractableBossSpawnerFinal> GetBossSpawnerFinal()
+        => GetCachedObjects<InteractableBossSpawnerFinal>(WorldObjectTypeEnum.BossSpawnerFinal);
 
     public IEnumerable<Enemy> GetBosses()
-    {
-        if (!BonkersAPI.Game.IsInGame)
-            return Enumerable.Empty<Enemy>();
+        => GetCachedObjects<Enemy>(WorldObjectTypeEnum.Boss);
 
-        var allEnemies = Object.FindObjectsOfType<Enemy>();
-        return allEnemies.Where(enemy =>
-            enemy.IsBoss()
-        );
-    }
+    public Vector3? GetNearestChargeShrine() => GetNearestObject(WorldObjectTypeEnum.ChargeShrine);
+    public Vector3? GetNearestMoaiShrine() => GetNearestObject(WorldObjectTypeEnum.MoaiShrine);
+    public Vector3? GetNearestCursedShrine() => GetNearestObject(WorldObjectTypeEnum.CursedShrine);
+    public Vector3? GetNearestGreedShrine() => GetNearestObject(WorldObjectTypeEnum.GreedShrine);
+    public Vector3? GetNearestMagnetShrine() => GetNearestObject(WorldObjectTypeEnum.MagnetShrine);
+    public Vector3? GetNearestChallengeShrine() => GetNearestObject(WorldObjectTypeEnum.ChallengeShrine);
+    public Vector3? GetNearestChest() => GetNearestObject(WorldObjectTypeEnum.Chest);
+    public Vector3? GetNearestOpenChest() => GetNearestObject(WorldObjectTypeEnum.OpenChest);
+    public Vector3? GetNearestShadyGuy() => GetNearestObject(WorldObjectTypeEnum.ShadyGuy);
+    public Vector3? GetNearestMicrowave() => GetNearestObject(WorldObjectTypeEnum.Microwave);
+    public Vector3? GetNearestBossSpawner() => GetNearestObject(WorldObjectTypeEnum.BossSpawner);
+    public Vector3? GetNearestBossSpawnerFinal() => GetNearestObject(WorldObjectTypeEnum.BossSpawnerFinal);
 
     public void KillAllEnemies()
     {
         if (!BonkersAPI.Game.IsInGame) return;
 
-        var allEnemies = Object.FindObjectsOfType<Enemy>();
-
+        var allEnemies = GetCachedObjects<Enemy>(WorldObjectTypeEnum.Enemy);
         foreach (var enemy in allEnemies)
-            if (enemy)
-                enemy.DiedNextFrame();
+        {
+            if (enemy) enemy.DiedNextFrame();
+        }
 
-        ModLogger.LogDebug("Killed all enemies");
+        ModLogger.LogDebug("[WorldService] Killed all enemies");
     }
 
     public void ToggleEnemySpawns()
     {
+        if (!_enemyManager) return;
+
         _enemyManager.enabledWaves = !AreEnemiesSpawning;
-        ModLogger.LogDebug($"Toggeld Enemyspawner to {AreEnemiesSpawning}");
+        ModLogger.LogDebug($"[WorldService] Toggled enemy spawns to {AreEnemiesSpawning}");
     }
 
     public List<ItemData> GetEveryShadyItem()
     {
         var shadyGuys = GetShadyGuys();
         var items = new List<ItemData>();
+
         foreach (var shadyGuy in shadyGuys)
-        foreach (var item in shadyGuy.items)
-            items.Add(item);
+        {
+            if (shadyGuy && shadyGuy.items != null)
+            {
+                foreach (var item in shadyGuy.items)
+                {
+                    if (item) items.Add(item);
+                }
+            }
+        }
 
         return items;
+    }
+
+    public IEnumerable<T> GetCachedObjects<T>(WorldObjectTypeEnum objectType) where T : Component
+    {
+        EnsureCacheValid();
+        return _cache.GetCachedObjects<T>(objectType);
+    }
+
+    private Vector3? GetNearestObject(WorldObjectTypeEnum objectType)
+    {
+        EnsureCacheValid();
+        return _cache.GetNearestObject(objectType, BonkersAPI.Player.Position);
+    }
+
+    private void EnsureCacheValid()
+    {
+        if (!_cache.IsValid && BonkersAPI.Game.IsInGame)
+        {
+            ModLogger.LogDebug("[WorldService] Cache invalid, rebuilding...");
+            _cache.BuildCache();
+        }
     }
 }

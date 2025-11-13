@@ -11,6 +11,9 @@ namespace BonkersLib.Services;
 
 public class GameStateService
 {
+    private const float WORLD_LOAD_DELAY = 0.5f;
+    private float _worldLoadTimer = 0f;
+
     public GameStateService()
     {
         CurrentStateEnum = GameStateEnum.MainMenu;
@@ -36,44 +39,66 @@ public class GameStateService
 
     internal void Update()
     {
-        if (CurrentStateEnum == GameStateEnum.Loading)
+        switch (CurrentStateEnum)
         {
-            if (!GameManagerInstance) GameManagerInstance = Object.FindObjectOfType<GameManager>();
+            case GameStateEnum.Loading:
+                HandleLoadingState();
+                break;
 
-            if (GameManagerInstance && GameManagerInstance.player)
-            {
-                CurrentStateEnum = GameStateEnum.InGame;
+            case GameStateEnum.WaitingForWorldLoad:
+                HandleWaitingForWorldLoadState();
+                break;
+        }
+    }
 
-                EnemyManagerInstance = Object.FindObjectOfType<EnemyManager>();
-                CurrentRunConfig = MapController.runConfig;
-                ModLogger.LogDebug("Loaded Managers and RunConfig");
-                ;
-            }
+    private void HandleLoadingState()
+    {
+        if (!GameManagerInstance)
+            GameManagerInstance = Object.FindObjectOfType<GameManager>();
+
+        if (GameManagerInstance && GameManagerInstance.player)
+        {
+            ModLogger.LogDebug(
+                "[GameStateService] Found GameManager and Player, waiting for world objects to spawn...");
+
+            EnemyManagerInstance = Object.FindObjectOfType<EnemyManager>();
+            CurrentRunConfig = MapController.runConfig;
+
+            CurrentStateEnum = GameStateEnum.WaitingForWorldLoad;
+            _worldLoadTimer = WORLD_LOAD_DELAY;
+        }
+    }
+
+    private void HandleWaitingForWorldLoadState()
+    {
+        _worldLoadTimer -= Time.unscaledDeltaTime;
+
+        if (_worldLoadTimer <= 0f)
+        {
+            ModLogger.LogDebug("[GameStateService] World load delay complete, switching to InGame state");
+            CurrentStateEnum = GameStateEnum.InGame;
+
+            BonkersAPI.World.OnGameStarted();
         }
     }
 
     internal void OnSceneChanged(Scene scene)
     {
-        ModLogger.LogDebug($"Scene changed: {scene.name}");
+        ModLogger.LogDebug($"[GameStateService] Scene changed: {scene.name}");
 
         if (scene.name is "MainMenu")
         {
             CurrentStateEnum = GameStateEnum.MainMenu;
             ClearGameInstances();
             BonkersAPI.Item.CacheAllRawItems();
+            BonkersAPI.World.OnSceneChanged();
         }
         else
         {
             CurrentStateEnum = GameStateEnum.Loading;
             ClearGameInstances();
+            BonkersAPI.World.OnSceneChanged();
         }
-    }
-
-    private void FindGameInstances()
-    {
-        GameManagerInstance = Object.FindObjectOfType<GameManager>();
-        EnemyManagerInstance = Object.FindObjectOfType<EnemyManager>();
-        CurrentRunConfig = MapController.runConfig;
     }
 
     private void ClearGameInstances()
@@ -81,5 +106,6 @@ public class GameStateService
         GameManagerInstance = null;
         EnemyManagerInstance = null;
         CurrentRunConfig = null;
+        _worldLoadTimer = 0f;
     }
 }

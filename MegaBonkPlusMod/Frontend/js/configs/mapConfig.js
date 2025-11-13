@@ -1,4 +1,4 @@
-import {renderMinimap} from '../services/mapService.js';
+import {renderMinimap} from '../features/map/mapRenderer.js';
 
 export const MAP_SCALE = 2.35;
 export const WORLD_OFFSET_X = 0;
@@ -6,16 +6,11 @@ export const WORLD_OFFSET_Z = 0.0;
 
 export const ENDPOINTS_TO_TRACK = {
     minimap: {
-        endpoint: '/api/stream/minimap',
         mapRenderer: renderMinimap
     },
 
     greedShrines: {
-        endpoint: '/api/tracker/shrines/greed',
         renderConfigSelector: (item, isHovered) => {
-            if (item.customProperties.done) {
-                return {type: 'none'};
-            }
             return {
                 type: 'dot',
                 color: '#e96228',
@@ -31,7 +26,7 @@ export const ENDPOINTS_TO_TRACK = {
                     <div class="tooltip-right">
                         <div class="tooltip-header">
                             <div class="tooltip-title">Greed Shrine</div>
-                            <div class="tooltip-meta">Items</div>
+                            <div class="tooltip-meta">Enemys</div>
                         </div>
                         <div class="tooltip-body">
                             Increases the Difficulty by 5%
@@ -47,7 +42,6 @@ export const ENDPOINTS_TO_TRACK = {
     },
 
     chests: {
-        endpoint: '/api/tracker/chests',
         renderConfigSelector: (item, isHovered) => {
             const type = item.customProperties.type?.toLowerCase() ?? 'normal';
             return {
@@ -82,7 +76,6 @@ export const ENDPOINTS_TO_TRACK = {
     },
 
     cursedShrines: {
-        endpoint: '/api/tracker/shrines/cursed',
         renderConfigSelector: (item, isHovered) => ({
             type: 'image',
             path: '/images/map_objects/cursed.png',
@@ -113,7 +106,6 @@ export const ENDPOINTS_TO_TRACK = {
     },
 
     challengeShrines: {
-        endpoint: '/api/tracker/shrines/challenge',
         renderConfigSelector: (item, isHovered) => ({
             type: 'image',
             path: '/images/map_objects/challenge.png',
@@ -144,7 +136,6 @@ export const ENDPOINTS_TO_TRACK = {
     },
 
     magnetShrines: {
-        endpoint: '/api/tracker/shrines/magnet',
         renderConfigSelector: (item, isHovered) => ({
             type: 'image',
             path: '/images/map_objects/magnet.png',
@@ -175,7 +166,6 @@ export const ENDPOINTS_TO_TRACK = {
     },
 
     microwaves: {
-        endpoint: '/api/tracker/microwave',
         renderConfigSelector: (item, isHovered) => {
             const rarity = item.customProperties.rarity?.toLowerCase() ?? 'common';
             return {
@@ -210,7 +200,6 @@ export const ENDPOINTS_TO_TRACK = {
     },
 
     moaiShrines: {
-        endpoint: '/api/tracker/shrines/maoi',
         renderConfigSelector: (item, isHovered) => ({
             type: 'image',
             path: '/images/map_objects/maoi.png',
@@ -241,11 +230,7 @@ export const ENDPOINTS_TO_TRACK = {
     },
 
     chargeShrines: {
-        endpoint: '/api/tracker/shrines/charge',
         renderConfigSelector: (item, isHovered) => {
-            if (item.customProperties.completed) {
-                return {type: 'none'};
-            }
             const baseName = item.customProperties.isGolden ? 'charge_gold' : 'charge_normal';
             return {
                 type: 'image',
@@ -272,6 +257,7 @@ export const ENDPOINTS_TO_TRACK = {
                     </div>
                     <div class="tooltip-actions">
                         <button class="tooltip-button primary" data-action="teleport">Teleport</button>
+                        <button class="tooltip-button" data-action="interact">Complete</button>
                     </div>
                 </div>
             `;
@@ -279,7 +265,6 @@ export const ENDPOINTS_TO_TRACK = {
     },
 
     shadyGuys: {
-        endpoint: '/api/tracker/shadyguys',
         renderConfigSelector: (item, isHovered) => {
             const rarity = item.customProperties.rarity?.toLowerCase() ?? 'common';
             return {
@@ -348,7 +333,6 @@ export const ENDPOINTS_TO_TRACK = {
     },
 
     bosses: {
-        endpoint: '/api/tracker/bosses',
         renderConfigSelector: (item, isHovered) => ({
             type: 'image',
             path: '/images/characters/boss.png',
@@ -375,7 +359,6 @@ export const ENDPOINTS_TO_TRACK = {
     },
 
     bossSpawner: {
-        endpoint: '/api/tracker/bossspawner',
         renderConfigSelector: (item, isHovered) => ({
             type: 'image',
             path: '/images/map_objects/bossspawner.png',
@@ -406,7 +389,6 @@ export const ENDPOINTS_TO_TRACK = {
     },
 
     player: {
-        endpoint: '/api/tracker/player',
         textRenderer: 'renderPlayer',
         renderConfigSelector: (item, isHovered) => ({
             type: 'image',
@@ -417,7 +399,7 @@ export const ENDPOINTS_TO_TRACK = {
             const props = item.customProperties || {};
             const ch = props.character ?? 'Unknown';
             const slug = typeof ch === 'string' ? ch.toLowerCase() : 'placeholder';
-            const lvl = item.level ?? 0;
+            const lvl = props.level ?? 0;
             return `
                     <div class="tooltip-content">
                         <div class="tooltip-icon">
@@ -428,7 +410,7 @@ export const ENDPOINTS_TO_TRACK = {
                                 <div class="tooltip-title">${ch} (You)</div>
                                 <div class="tooltip-meta">Level ${lvl}</div>
                             </div>
-   
+
                         </div>
                     </div>
                 `;

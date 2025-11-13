@@ -1,37 +1,31 @@
-import { updateDashboard } from './services/dashboardService.js';
-import { setupTooltipListeners } from './services/mapService.js';
-import { setupQuickActions } from './services/actionService.js';
-import { initializeFilters } from './services/filterService.js';
-import { setupAutoRestarter } from "./services/autoRestarterService.js";
-import { setupItemSpawner } from "./services/itemSpawnerService.js";
-import { setupModal } from "./services/modalService.js";
-import { fetchData } from "./services/apiService.js";
-import {setupHotkeys} from "./services/hotkeyService.js";
+import {setupDashboard} from './core/dashboard.js';
+import {setupTooltipListeners} from './features/map/mapTooltips.js';
+import {setupQuickActions} from './features/ui/quickActions.js';
+import {initializeFilters} from './features/ui/filters.js';
+import {setupModal} from './features/ui/modalService.js';
+import {setupItemSpawner} from './features/items/itemSpawner.js';
+import {setupAutoRestarter} from './features/items/autoRestarter.js';
+import {setupHotkeys} from './features/hotkeys/hotkeyManager.js';
+import {getAllItems} from './hooks/actions/itemHook.js';
 
-console.log("Dashboard wird initialisiert...");
+async function initializeApp() {
+    console.log('Initializing MegaBonkPlus Frontend...');
 
-document.addEventListener('DOMContentLoaded', async () => {
+    const allItems = await getAllItems();
 
-    let allItems = [];
-    try {
-        const itemsFromBackend = await fetchData('/api/items/all');
-        if (itemsFromBackend && Array.isArray(itemsFromBackend) && itemsFromBackend.length > 0) {
-            allItems = itemsFromBackend;
-        }
-    } catch (e) {
-        console.error("Konnte Item-Liste in app.js nicht laden:", e);
-    }
-
-    setupQuickActions();
-    setupTooltipListeners();
-    initializeFilters(updateDashboard);
     setupModal(allItems);
-    setupAutoRestarter(allItems);
+    setupTooltipListeners();
+    setupQuickActions();
+    initializeFilters();
     setupItemSpawner(allItems);
+    setupAutoRestarter(allItems);
     setupHotkeys(allItems);
 
-    setInterval(updateDashboard, 1000);
-    updateDashboard();
+    setupDashboard();
+}
 
-    console.log("Dashboard initialisiert.");
-});
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+    initializeApp();
+}

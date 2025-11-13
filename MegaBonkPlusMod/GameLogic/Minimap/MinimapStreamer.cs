@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using BepInEx.Logging;
-using MegaBonkPlusMod.GameLogic.Common;
 using MegaBonkPlusMod.Models;
 using MegaBonkPlusMod.Utils;
 using UnityEngine;
@@ -21,7 +20,7 @@ namespace MegaBonkPlusMod.GameLogic.Minimap
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
             WriteIndented = false,
-            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
         };
 
@@ -68,7 +67,7 @@ namespace MegaBonkPlusMod.GameLogic.Minimap
                 }
             }
 
-            if (_minimapImageComponent.mainTexture == null)
+            if (!_minimapImageComponent.mainTexture)
                 return new ApiListResponseModel<TrackedObjectDataModel>();
             
             readableTex = GetReadableAndScaledTexture(_minimapImageComponent.mainTexture);
@@ -138,6 +137,22 @@ namespace MegaBonkPlusMod.GameLogic.Minimap
                 ModLogger.LogDebug($"[GetRawDataFromPixels32] Error: {ex.Message}");
                 return null;
             }
+        }
+        
+        public object GetData()
+        {
+            if (!string.IsNullOrEmpty(_lastJsonData) && _lastJsonData != "{\"count\":0,\"items\":[]}")
+            {
+                try
+                {
+                    return JsonSerializer.Deserialize<object>(_lastJsonData);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            return null;
         }
     }
 }

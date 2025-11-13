@@ -4,5 +4,6 @@ public enum GameStateEnum
 {
     MainMenu,
     Loading,
+    WaitingForWorldLoad,
     InGame
 }

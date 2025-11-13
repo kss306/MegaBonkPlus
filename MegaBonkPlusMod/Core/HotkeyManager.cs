@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
+using BepInEx.Configuration;
 using BonkersLib.Core;
-using MegaBonkPlusMod.Actions;
+using MegaBonkPlusMod.Actions.Base;
+using MegaBonkPlusMod.Config;
 using MegaBonkPlusMod.Utils;
 using UnityEngine;
 
@@ -19,6 +22,63 @@ public static class HotkeyManager
 
     public static bool IsEnabled { get; private set; } = true;
     private static readonly List<HotkeyDefinition> Hotkeys = new();
+    private static ConfigEntry<string> _hotkeyConfigEntry;
+    
+    public static void Initialize(ConfigFile config)
+    {
+        _hotkeyConfigEntry = config.Bind(
+            "Hotkeys",
+            "Configuration",
+            "[]",
+            "Stores the hotkey configuration as a JSON string. Do not edit manually unless you know what you are doing.");
+        
+        LoadConfig();
+    }
+
+    private static void LoadConfig()
+    {
+        try
+        {
+            var configJson = _hotkeyConfigEntry.Value;
+            if (string.IsNullOrWhiteSpace(configJson) || configJson == "[]")
+            {
+                ModLogger.LogDebug("[HotkeyManager] No hotkey config found or config is empty, using defaults.");
+                IsEnabled = true;
+                Hotkeys.Clear();
+                return;
+            }
+
+            var storedConfig = JsonSerializer.Deserialize<StoredHotkeyConfig>(configJson);
+            if (storedConfig != null)
+            {
+                IsEnabled = storedConfig.Enabled;
+                Hotkeys.Clear();
+                Hotkeys.AddRange(storedConfig.Hotkeys ?? new List<HotkeyDefinition>());
+                ModLogger.LogDebug($"[HotkeyManager] Loaded {Hotkeys.Count} hotkeys from config file.");
+            }
+        }
+        catch (Exception ex)
+        {
+            ModLogger.LogDebug($"[HotkeyManager] Error loading hotkey config, resetting to default: {ex.Message}");
+            IsEnabled = true;
+            Hotkeys.Clear();
+        }
+    }
+    
+    private static void SaveConfig()
+    {
+        try
+        {
+            var configToStore = new StoredHotkeyConfig { Enabled = IsEnabled, Hotkeys = Hotkeys };
+            var configJson = JsonSerializer.Serialize(configToStore);
+            _hotkeyConfigEntry.Value = configJson;
+            ModLogger.LogDebug("[HotkeyManager] Hotkey config saved.");
+        }
+        catch (Exception ex)
+        {
+            ModLogger.LogDebug($"[HotkeyManager] Error saving hotkey config: {ex.Message}");
+        }
+    }
 
     public static void UpdateConfig(JsonElement payload)
     {
@@ -50,7 +110,7 @@ public static class HotkeyManager
 
                 string key = keyElement.GetString();
                 string actionId = actionElement.GetProperty("id").GetString();
-                JsonElement actionPayload = actionElement.GetProperty("payload").Clone(); // Wichtig: clonen
+                JsonElement actionPayload = actionElement.GetProperty("payload").Clone();
 
                 Hotkeys.Add(new HotkeyDefinition
                 {
@@ -61,6 +121,7 @@ public static class HotkeyManager
             }
 
             ModLogger.LogDebug($"[HotkeyManager] Config updated. {Hotkeys.Count} hotkeys registered.");
+            SaveConfig();
         }
         catch (Exception ex)
         {
@@ -81,10 +142,10 @@ public static class HotkeyManager
                 try
                 {
                     JsonElement payloadToExecute = hotkey.Payload.Clone();
-                    
+
                     if (hotkey.ActionId.Equals("spawn_items", StringComparison.OrdinalIgnoreCase))
                         payloadToExecute = TransformSpawnItemPayload(hotkey.Payload);
-                    
+
                     actionHandler.HandleAction(hotkey.ActionId, payloadToExecute);
                 }
                 catch (Exception ex)
@@ -124,7 +185,7 @@ public static class HotkeyManager
         ModLogger.LogDebug($"[HotkeyManager] Unmapped key: {jsCode}");
         return KeyCode.None;
     }
-    
+
     private static JsonElement TransformSpawnItemPayload(JsonElement flatPayload)
     {
         try
@@ -141,7 +202,7 @@ public static class HotkeyManager
                     }}
                 ]
             }}";
-            
+
             using (JsonDocument doc = JsonDocument.Parse(newJson))
             {
                 return doc.RootElement.Clone();
@@ -152,5 +213,24 @@ public static class HotkeyManager
             ModLogger.LogDebug($"[HotkeyManager] Failed to transform spawn_items payload: {ex.Message}");
             return JsonDocument.Parse("{}").RootElement;
         }
+    }
+
+    public static object GetCurrentConfig()
+    {
+        var hotkeysForFrontend = Hotkeys.Select(h => new
+        {
+            key = h.Key,
+            action = new
+            {
+                id = h.ActionId,
+                payload = h.Payload
+            }
+        }).ToList();
+        
+        return new
+        {
+            enabled = IsEnabled,
+            hotkeys = hotkeysForFrontend
+        };
     }
 }
