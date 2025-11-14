@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using MegaBonkPlusMod.Actions.Base;
 using MegaBonkPlusMod.Core;
 using MegaBonkPlusMod.Infrastructure.Http.Attributes;
 
@@ -7,6 +8,13 @@ namespace MegaBonkPlusMod.Infrastructure.Http.Controllers;
 [ApiController("/api/hotkeys")]
 public class HotkeyController : ApiControllerBase
 {
+    private readonly ActionHandler _actionHandler;
+
+    public HotkeyController(ActionHandler actionHandler)
+    {
+        _actionHandler = actionHandler;
+    }
+
     [HttpGet("")]
     public ApiResponse<object> GetHotkeyConfig()
     {
@@ -26,7 +34,10 @@ public class HotkeyController : ApiControllerBase
     {
         try
         {
-            HotkeyManager.UpdateConfig(payload);
+            var removedToggleActions = HotkeyManager.UpdateConfig(payload);
+
+            _actionHandler.StopLoopingActions(removedToggleActions);
+
             return Ok("Hotkeys updated");
         }
         catch (System.Exception ex)

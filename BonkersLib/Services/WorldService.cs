@@ -111,8 +111,6 @@ public class WorldService
         {
             if (enemy) enemy.DiedNextFrame();
         }
-
-        ModLogger.LogDebug("[WorldService] Killed all enemies");
     }
 
     public void ToggleEnemySpawns()

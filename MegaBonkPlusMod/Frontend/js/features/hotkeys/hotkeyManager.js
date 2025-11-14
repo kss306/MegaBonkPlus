@@ -1,6 +1,6 @@
-﻿import { getElem, createElement, on } from '../../utils/dom.js';
-import { getHotkeyConfig, updateHotkeyConfig } from '../../hooks/hotkeyHook.js';
-import { ACTIONS_CONFIG } from '../../configs/actionConfig.js';
+﻿import {createElement, getElem, on} from '../../utils/dom.js';
+import {getHotkeyConfig, updateHotkeyConfig} from '../../hooks/hotkeyHook.js';
+import {ACTIONS_CONFIG} from '../../configs/actionConfig.js';
 
 let hotkeyList = [];
 let masterToggleEnabled = true;
@@ -126,7 +126,8 @@ function renderUI() {
 function createHotkeyRow(hotkey, index) {
     const li = createElement('li', { class: 'hotkey-slot hotkey-slot-configured' });
 
-    const keyInput = createElement('button', { class: 'hotkey-input' }, hotkey.key || 'Press Key...');
+    const keyLabel = hotkey.key ? formatKeyLabel(hotkey.key) : 'Press Key...';
+    const keyInput = createElement('button', { class: 'hotkey-input' }, keyLabel);
 
     on(keyInput, 'click', () => {
         keyInput.textContent = 'Waiting...';
@@ -136,7 +137,7 @@ function createHotkeyRow(hotkey, index) {
 
     on(keyInput, 'blur', () => {
         keyInput.classList.remove('is-waiting');
-        keyInput.textContent = hotkey.key || 'Press Key...';
+        keyInput.textContent = hotkey.key ? formatKeyLabel(hotkey.key) : 'Press Key...';
 
         if (hotkey.key && hotkey.action && hotkey.action.id) {
             isLocallyEditing = false;
@@ -149,11 +150,11 @@ function createHotkeyRow(hotkey, index) {
 
         hotkey.key = e.code;
         hotkeyList[index].key = e.code;
-        keyInput.textContent = e.code;
+        keyInput.textContent = formatKeyLabel(e.code);
         keyInput.classList.remove('is-waiting');
 
         keyInput.blur();
-        
+
         if (hotkey.action && hotkey.action.id) {
             saveHotkeys();
         }
@@ -176,6 +177,34 @@ function createHotkeyRow(hotkey, index) {
     return li;
 }
 
+
+function formatKeyLabel(code) {
+    if (!code) return '';
+
+    if (code.startsWith('Key') && code.length > 3) {
+        return code.substring(3);
+    }
+
+    if (code.startsWith('Digit') && code.length > 5) {
+        return code.substring(5);
+    }
+
+    if (code.startsWith('Numpad') && code.length > 6) {
+        return 'Num' + code.substring(6);
+    }
+
+    if (code === 'ArrowUp') return '↑';
+    if (code === 'ArrowDown') return '↓';
+    if (code === 'ArrowLeft') return '←';
+    if (code === 'ArrowRight') return '→';
+
+    if (code === 'Space') return 'Space';
+
+    if (/^F\d+$/.test(code)) return code;
+
+    return code;
+}
+
 function createEmptySlot() {
     const li = createElement('li', { class: 'hotkey-slot hotkey-slot-empty' });
     const span = createElement('span', {}, '+ New Hotkey');
@@ -194,16 +223,43 @@ function formatActionForButton(action) {
     const config = ACTIONS_CONFIG.find(a => a.id === action.id);
     if (!config) return 'Set Action...';
 
+    const payload = action.payload || {};
+    let label = config.name;
     let details = '';
-    if (action.id === 'give_gold' && action.payload?.amount) {
-        details = `(${action.payload.amount})`;
-    } else if (action.id === 'spawn_item' && action.payload?.itemId) {
-        const item = allItemsList.find(i => i.id === action.payload.itemId);
-        const itemName = item ? item.name : action.payload.itemId;
-        const qty = action.payload.quantity || 1;
-        details = `(${itemName} x${qty})`;
+
+    if ((action.id === 'kill_all_enemies' || action.id === 'pick_up_all_xp') && payload.mode === 'toggle') {
+        label = `${config.name} | Toggle`;
     }
-    return `${config.name} ${details}`;
+
+    if (action.id === 'spawn_items' && payload.itemId) {
+        const item = allItemsList.find(i => i.id === payload.itemId);
+        const itemName = item ? item.name : payload.itemId;
+        const qty = payload.quantity || 1;
+        details = `${itemName} x${qty}`;
+        label = `${config.name}: ${details}`;
+        return label;
+    }
+
+    if (action.id === 'teleport_to_nearest' && payload.object) {
+        const mod = config.modifiers.find(m => m.payloadKey === 'object');
+        const option = mod?.options?.find(o => o.value === payload.object);
+        const targetName = option ? option.name : payload.object;
+        label = `${config.name} ${targetName}`;
+        return label;
+    }
+    
+    if (action.id === 'add_levels' && typeof payload.amount === 'number') {
+        label = `${config.name}: x${payload.amount}`;
+        return label;
+    }
+
+    if (action.id === 'edit_gold' && typeof payload.amount === 'number') {
+        const mode = payload.changeMode === 'set' ? 'Set' : 'Add';
+        label = `${config.name}: ${mode} ${payload.amount}`;
+        return label;
+    }
+    
+    return label;
 }
 
 function openActionModal(index) {

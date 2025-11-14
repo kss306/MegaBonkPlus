@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Text.Json;
-using Assets.Scripts.Actors.Enemies;
-using Assets.Scripts.Actors.Player;
-using BepInEx.Logging;
 using BonkersLib.Core;
 using MegaBonkPlusMod.Actions.Base;
-using Object = UnityEngine.Object;
 
 namespace MegaBonkPlusMod.Actions.Gameplay;
 
-public class KillAllEnemiesAction : IAction, IUpdatableAction
+public class PickUpAllXpAction : IAction, IUpdatableAction
 {
     private bool _looping;
     private bool _isRegistered;
-    
+    private DateTime _nextAllowedPickup = DateTime.MinValue;
+
     public bool IsLooping => _looping;
 
     public string Execute(JsonElement payload, ActionHandler handler)
@@ -62,20 +59,27 @@ public class KillAllEnemiesAction : IAction, IUpdatableAction
                 handler.RegisterUpdatable(this);
                 _isRegistered = true;
             }
-            return "Started Kill loop";
+
+            _nextAllowedPickup = DateTime.UtcNow;
+            return "Started Pick Up loop";
         }
         else
         {
             if (_looping)
             {
                 _looping = false;
-                return "Stopped Kill loop";
+                return "Stopped Pick Up loop";
             }
-            else
+
+            var now = DateTime.UtcNow;
+            if (now < _nextAllowedPickup)
             {
-                BonkersAPI.World.KillAllEnemies();
-                return "Killed all enemies";
+                return "Pick up XP is on cooldown";
             }
+
+            BonkersAPI.Player.PickUpAllXp();
+            _nextAllowedPickup = now.AddSeconds(2);
+            return "Picked up all XP";
         }
     }
 
@@ -87,7 +91,14 @@ public class KillAllEnemiesAction : IAction, IUpdatableAction
             return false;
         }
 
-        BonkersAPI.World.KillAllEnemies();
+        var now = DateTime.UtcNow;
+        if (now < _nextAllowedPickup)
+        {
+            return true;
+        }
+
+        BonkersAPI.Player.PickUpAllXp();
+        _nextAllowedPickup = now.AddSeconds(5);
         return true;
     }
 }

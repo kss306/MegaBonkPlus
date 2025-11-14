@@ -32,6 +32,7 @@ public class ActionHandler
         _actions["edit_gold"] = new GoldAction();
         _actions["teleport_to_nearest"] = new TeleportToNearestAction();
         _actions["add_levels"] = new LevelAction();
+        _actions["pick_up_all_xp"] = new PickUpAllXpAction();
         
         ModLogger.LogDebug($"{_actions.Count} actions registered.");
     }
@@ -69,12 +70,20 @@ public class ActionHandler
     {
         var states = new Dictionary<string, object>();
 
-        if (_actions.TryGetValue("kill_all_enemies", out IAction action1) && action1 is KillAllEnemiesAction killAction)
+        var killAction = GetAction<KillAllEnemiesAction>("kill_all_enemies");
+        if (killAction != null)
         {
             states["kill_all_enemies"] = new { looping = killAction.IsLooping };
         }
-        
-        if (_actions.TryGetValue("set_auto_restart_config", out IAction action2) && action2 is AutoRestartAction restartAction)
+
+        var pickUpAction = GetAction<PickUpAllXpAction>("pick_up_all_xp");
+        if (pickUpAction != null)
+        {
+            states["pick_up_all_xp"] = new { looping = pickUpAction.IsLooping };
+        }
+
+        var restartAction = GetAction<AutoRestartAction>("set_auto_restart_config");
+        if (restartAction != null)
         {
             states["set_auto_restart_config"] = new
             {
@@ -106,6 +115,51 @@ public class ActionHandler
                 ModLogger.LogDebug($"Error in 'UpdateActions': {ex.Message}");
                 _updatableActions.Remove(action);
             }
+        }
+    }
+    
+    private TAction GetAction<TAction>(string name) where TAction : class, IAction
+    {
+        return _actions.TryGetValue(name, out var action) ? action as TAction : null;
+    }
+
+
+    public void StopLoopingActions(IEnumerable<string> actionNames)
+    {
+        if (actionNames == null) return;
+
+        foreach (var name in actionNames)
+        {
+            StopLoopingForAction(name);
+        }
+    }
+    
+    public void StopAllLoopingActions()
+    {
+        StopLoopingForAction("kill_all_enemies");
+        StopLoopingForAction("pick_up_all_xp");
+    }
+
+    private void StopLoopingForAction(string actionName)
+    {
+        if (!_actions.TryGetValue(actionName, out var action))
+            return;
+
+        bool isLooping =
+            (action as KillAllEnemiesAction)?.IsLooping == true ||
+            (action as PickUpAllXpAction)?.IsLooping == true;
+
+        if (!isLooping)
+            return;
+
+        using var doc = JsonDocument.Parse("{\"looping\": false}");
+        try
+        {
+            action.Execute(doc.RootElement, this);
+        }
+        catch (Exception ex)
+        {
+            ModLogger.LogDebug($"Error stopping looping action '{actionName}': {ex.Message}");
         }
     }
 }

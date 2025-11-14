@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using BonkersLib.Utils;
 
-namespace BonkersLib.Services;
+namespace BonkersLib.Services.World;
 
 public class ItemService
 {

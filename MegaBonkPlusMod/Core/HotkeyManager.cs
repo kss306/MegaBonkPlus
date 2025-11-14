@@ -80,10 +80,14 @@ public static class HotkeyManager
         }
     }
 
-    public static void UpdateConfig(JsonElement payload)
+    public static List<string> UpdateConfig(JsonElement payload)
     {
+        var removedToggleActions = new List<string>();
+
         try
         {
+            var hadToggleBefore = GetToggleActionsSnapshot(Hotkeys);
+
             IsEnabled = !payload.TryGetProperty("enabled", out var enabledElement) || enabledElement.GetBoolean();
 
             Hotkeys.Clear();
@@ -92,7 +96,8 @@ public static class HotkeyManager
                 hotkeysElement.ValueKind != JsonValueKind.Array)
             {
                 ModLogger.LogDebug("[HotkeyManager] No hotkeys array in payload.");
-                return;
+                SaveConfig();
+                return removedToggleActions;
             }
 
             foreach (var hotkeyJson in hotkeysElement.EnumerateArray())
@@ -120,13 +125,73 @@ public static class HotkeyManager
                 });
             }
 
+            var hasToggleAfter = GetToggleActionsSnapshot(Hotkeys);
+
+            foreach (var kvp in hadToggleBefore)
+            {
+                var actionId = kvp.Key;
+                var hadToggle = kvp.Value;
+                hasToggleAfter.TryGetValue(actionId, out var hasToggleNow);
+
+                if (hadToggle && !hasToggleNow)
+                {
+                    removedToggleActions.Add(actionId);
+                }
+            }
+
             ModLogger.LogDebug($"[HotkeyManager] Config updated. {Hotkeys.Count} hotkeys registered.");
             SaveConfig();
         }
         catch (Exception ex)
         {
             ModLogger.LogDebug($"[HotkeyManager] Error updating config: {ex.Message}");
+            IsEnabled = true;
+            Hotkeys.Clear();
         }
+
+        return removedToggleActions;
+    }
+    
+    private static Dictionary<string, bool> GetToggleActionsSnapshot(IEnumerable<HotkeyDefinition> hotkeys)
+    {
+        var result = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var h in hotkeys)
+        {
+            if (string.IsNullOrEmpty(h.ActionId))
+                continue;
+
+            bool isToggle = false;
+
+            try
+            {
+                if (h.Payload.ValueKind == JsonValueKind.Object &&
+                    h.Payload.TryGetProperty("mode", out var modeElement) &&
+                    modeElement.ValueKind == JsonValueKind.String)
+                {
+                    var mode = modeElement.GetString();
+                    if (string.Equals(mode, "toggle", StringComparison.OrdinalIgnoreCase))
+                    {
+                        isToggle = true;
+                    }
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+
+            if (!result.ContainsKey(h.ActionId))
+            {
+                result[h.ActionId] = isToggle;
+            }
+            else
+            {
+                result[h.ActionId] = result[h.ActionId] || isToggle;
+            }
+        }
+
+        return result;
     }
 
     public static void CheckKeys(ActionHandler actionHandler)

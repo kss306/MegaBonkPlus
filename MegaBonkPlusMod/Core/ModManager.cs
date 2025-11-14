@@ -16,7 +16,6 @@ namespace MegaBonkPlusMod.Core
         private TrackerRegistryService _trackerRegistry;
         private MinimapCaptureService _minimapCaptureService;
         private ActionHandler _actionHandler;
-        private bool _wasInGame = false;
 
         public void Initialize()
         {
@@ -33,7 +32,7 @@ namespace MegaBonkPlusMod.Core
             var controllerRouter = new ControllerRouter();
             controllerRouter.RegisterControllers(
                 new ItemController(),
-                new HotkeyController(),
+                new HotkeyController(_actionHandler),
                 new ActionController(_actionHandler),
                 new TrackerController(_trackerRegistry.TrackersDictionary),
                 new MinimapController(minimapStreamer),
@@ -42,7 +41,9 @@ namespace MegaBonkPlusMod.Core
 
             _server = new HttpServer(controllerRouter);
             _server.Start();
-
+            
+            BonkersAPI.Game.GameStarted += OnGameStarted;
+            
             ModLogger.LogDebug("ModManager initialized.");
         }
 
@@ -51,28 +52,27 @@ namespace MegaBonkPlusMod.Core
             MainThreadActionQueue.ExecuteAll();
             _trackerRegistry.UpdateAll();
             _actionHandler.UpdateActions();
-
-            bool isNowInGame = BonkersAPI.Game.IsInGame;
-            if (isNowInGame && !_wasInGame)
-            {
-                ModLogger.LogDebug("New run detected, starting minimap capture...");
-                _minimapCaptureService.StartCapture();
-            }
-
-            _wasInGame = isNowInGame;
-
             _minimapCaptureService.Update();
+        }
+        
+        private void OnGameStarted()
+        {
+            ModLogger.LogDebug("New run detected, starting minimap capture...");
+            _minimapCaptureService.StartCapture();
+            _actionHandler.StopAllLoopingActions();
         }
 
         private void OnDestroy()
         {
             ModLogger.LogDebug("Object destroyed, stopping HttpServer…");
+            BonkersAPI.Game.GameStarted -= OnGameStarted;
             _server?.Stop();
         }
         
         private void OnApplicationQuit()
         {
             ModLogger.LogDebug("Application quitting, stopping HttpServer…");
+            BonkersAPI.Game.GameStarted -= OnGameStarted;
             _server?.Stop();
         }
     }

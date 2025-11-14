@@ -423,6 +423,8 @@
       <EmbeddedResource Include="Frontend\css\main.css" />
       <None Remove="Frontend\css\components\toast.css" />
       <EmbeddedResource Include="Frontend\css\components\toast.css" />
+      <None Remove="Frontend\js\hooks\actions\pickUpAllXpHook.js" />
+      <EmbeddedResource Include="Frontend\js\hooks\actions\pickUpAllXpHook.js" />
     </ItemGroup>
 
 </Project>

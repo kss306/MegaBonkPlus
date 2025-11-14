@@ -1,6 +1,8 @@
-﻿import { QUICK_ACTIONS_CONFIG } from '../../configs/quickActionConfig.js';
-import { executeAction } from '../../configs/actionHooksConfig.js';
-import { getElem, createElement, on } from '../../utils/dom.js';
+﻿import {QUICK_ACTIONS_CONFIG} from '../../configs/quickActionConfig.js';
+import {executeAction} from '../../configs/actionHooksConfig.js';
+import {getKillEnemiesState} from '../../hooks/actions/enemyHook.js';
+import {getPickUpAllXpState} from '../../hooks/actions/pickUpAllXpHook.js';
+import {createElement, getElem, on} from '../../utils/dom.js';
 
 export function setupQuickActions() {
     const container = getElem('quick-actions-container');
@@ -112,12 +114,36 @@ async function handleAction(actionId, payload, button) {
 
     try {
         await executeAction(actionId, payload);
+
+        await syncQuickActionStateFromServer(actionId);
     } finally {
         if (button) {
             setTimeout(() => {
                 button.disabled = false;
             }, 1000);
         }
+    }
+}
+
+async function syncQuickActionStateFromServer(actionId) {
+    try {
+        if (actionId === 'kill_all_enemies') {
+            const state = await getKillEnemiesState();
+            const checkbox = getElem('kill_all_looping_checkbox');
+            if (checkbox) {
+                checkbox.checked = !!state.looping;
+            }
+        }
+
+        if (actionId === 'pick_up_all_xp') {
+            const state = await getPickUpAllXpState();
+            const checkbox = getElem('pick_up_all_xp_looping_checkbox');
+            if (checkbox) {
+                checkbox.checked = !!state.looping;
+            }
+        }
+    } catch (e) {
+        console.error('Failed to sync quick action state:', e);
     }
 }
 

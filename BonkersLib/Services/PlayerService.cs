@@ -64,6 +64,7 @@ public class PlayerService
     {
         if (!BonkersAPI.Game.IsInGame || Inventory == null) return;
         Inventory.gold = amount;
+        BonkersAPI.Ui.RefreshUi();
         ModLogger.LogDebug($"Set gold to {amount}");
     }
 
@@ -73,13 +74,13 @@ public class PlayerService
         for (var i = 0; i < amount; i++) Inventory?.AddLevel();
         ModLogger.LogDebug($"Added {amount} Levels to player");
     }
-    
+
     public void GiveItem(string itemId, int quantity)
     {
         if (!BonkersAPI.Game.IsInGame || Inventory == null) return;
 
         var rawItemData = BonkersAPI.Item.GetAllRawItems()
-            .FirstOrDefault(item => 
+            .FirstOrDefault(item =>
                 item.eItem.ToString().Equals(itemId, StringComparison.OrdinalIgnoreCase));
 
         if (rawItemData)
@@ -115,4 +116,7 @@ public class PlayerService
 
         _player.transform.position = _teleportTarget;
     }
+
+    public void PickUpAllXp()
+        => BonkersAPI.Game.PickupManagerInstance.PickupAllXp();
 }

@@ -2,7 +2,36 @@
     {
         id: 'kill_all_enemies',
         name: 'Kill All Enemies',
-        modifiers: []
+        modifiers: [
+            {
+                id: 'kill_enemies_mode_select',
+                name: 'Mode',
+                type: 'select',
+                payloadKey: 'mode',
+                defaultValue: 'single',
+                options: [
+                    { value: 'single', name: 'Single use' },
+                    { value: 'toggle', name: 'Toggle' }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'pick_up_all_xp',
+        name: 'Pick Up All XP',
+        modifiers: [
+            {
+                id: 'pick_up_xp_mode_select',
+                name: 'Mode',
+                type: 'select',
+                payloadKey: 'mode',
+                defaultValue: 'single',
+                options: [
+                    { value: 'single', name: 'Single use' },
+                    { value: 'toggle', name: 'Toggle' }
+                ]
+            }
+        ]
     },
     {
         id: 'add_levels',

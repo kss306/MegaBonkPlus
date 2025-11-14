@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Actors.Player;
+﻿using System;
+using Assets.Scripts.Actors.Player;
 using Assets.Scripts.Game.Other;
 using Assets.Scripts.Managers;
 using BonkersLib.Core;
@@ -6,6 +7,7 @@ using BonkersLib.Enums;
 using BonkersLib.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace BonkersLib.Services;
 
@@ -19,8 +21,11 @@ public class GameStateService
         CurrentStateEnum = GameStateEnum.MainMenu;
     }
 
+    public event Action GameStarted;
+
     public GameManager GameManagerInstance { get; private set; }
     public EnemyManager EnemyManagerInstance { get; private set; }
+    public PickupManager PickupManagerInstance { get; private set; }
     public MyPlayer PlayerController => GameManagerInstance?.player;
     public GameStateEnum CurrentStateEnum { get; private set; }
     public RunConfig CurrentRunConfig { get; private set; }
@@ -62,6 +67,7 @@ public class GameStateService
                 "[GameStateService] Found GameManager and Player, waiting for world objects to spawn...");
 
             EnemyManagerInstance = Object.FindObjectOfType<EnemyManager>();
+            PickupManagerInstance = Object.FindObjectOfType<PickupManager>();
             CurrentRunConfig = MapController.runConfig;
 
             CurrentStateEnum = GameStateEnum.WaitingForWorldLoad;
@@ -79,6 +85,7 @@ public class GameStateService
             CurrentStateEnum = GameStateEnum.InGame;
 
             BonkersAPI.World.OnGameStarted();
+            GameStarted?.Invoke();
         }
     }
 
