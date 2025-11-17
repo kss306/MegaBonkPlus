@@ -29,26 +29,24 @@ Ensure [BepInExPack_IL2CPP](https://bepinex.dev/) (Version 6) is installed for y
 1.  Start your game with the mod installed.
 2.  The mod will automatically start a local web server in the background.
 3.  Open your preferred web browser (e.g., Chrome, Firefox).
-4.  Navigate to the following address: **[http://localhost:808](http://localhost:8080)**
-5.  The web dashboard should load and connect to your game. If you are in a run, the data will update live.
+4.  Navigate to the following address: **[http://localhost:8080](http://localhost:8080)**
+5.  The web dashboard should load and connect to your game.
 
 > **Note:** The port `8080` is the default. This can be changed in the mod's configuration file.
 
 ## 🛠️ Technical Overview
 
-This project is a single Visual Studio solution (`.sln`) that contains two main C# projects:
+This mod consists of the following components:
 
-* **`BonkersLib` (C# Project):**
-    * A core shared library that provides the main API and services for interacting with the game's code (e.g., `PlayerService`, `WorldService`, `GameStateService`).
-    * This is a required dependency that must be in the `plugins` folder alongside the main mod.
+* **Infrastructure:** Starts an `HttpServer` (using `HttpListener`) to handle web requests.
+* **Controllers:** Defines API endpoints (e.g., `/api/action/...`, `/api/gamestate`) to receive requests from the frontend.
+* **Actions:** Contains the specific logic for all executable cheats/actions (e.g., `GoldAction`, `TeleportAction`).
+* **GameLogic:** Contains "Trackers" that poll the game state (player position, enemies, etc.) and provide this data to the frontend.
+* **Frontend:** Contains all the static web files (`index.html`, `js/app.js`, `css/...`) that are served by the `HttpServer`.
 
-* **`MegaBonkPlusMod` (C# Project):**
-    * The main BepInEx mod plugin.
-    * **Infrastructure:** Starts an `HttpServer` (using `HttpListener`) to handle web requests.
-    * **Controllers:** Defines API endpoints (e.g., `/api/action/...`, `/api/gamestate`, `/api/inventory`) to receive requests from the frontend.
-    * **Actions:** Contains the specific logic for all executable cheats/actions (e.g., `GoldAction`, `TeleportAction`).
-    * **GameLogic:** Contains "Trackers" that poll the game state (player position, enemies, etc.) and provide this data to the frontend.
-    * **Frontend:** Contains all the static web files (`index.html`, `js/app.js`, `css/...`) that are served by the `HttpServer`.
+## ❗ Dependencies
+
+* **BonkersLib:** This mod relies on `BonkersLib.dll`, which provides the core API for interacting with the game.
 
 ## 🤝 Contributing
 
