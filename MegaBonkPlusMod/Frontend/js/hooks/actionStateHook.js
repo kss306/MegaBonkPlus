@@ -1,5 +1,5 @@
-﻿import { api } from '../api/apiClient.js';
-import { showToast } from '../toast/toastService.js';;
+﻿import {api} from '../api/apiClient.js';
+import {showToast} from '../toast/toastService.js';
 
 export async function getActionStates() {
     try {

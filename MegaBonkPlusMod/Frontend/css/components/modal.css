@@ -50,6 +50,7 @@
     cursor: pointer;
     padding: 0;
 }
+
 .modal-close-btn:hover {
     color: var(--text-primary);
 }
@@ -68,6 +69,7 @@
     font-size: 14px;
     box-sizing: border-box;
 }
+
 .modal-search input:focus {
     outline: none;
     border-color: var(--accent);
@@ -122,4 +124,14 @@
     font-size: 12px;
     color: var(--text-secondary);
     line-height: 1.4;
+}
+
+.modal-warning {
+    margin: 6px 0 8px 0;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    background: rgba(255, 193, 7, 0.12);
+    border: 1px solid #ffb74d;
+    color: #ffeb3b;
 }

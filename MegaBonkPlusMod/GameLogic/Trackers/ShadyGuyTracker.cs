@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using BonkersLib.Core;
-using BonkersLib.Services;
 using BonkersLib.Utils;
 using MegaBonkPlusMod.GameLogic.Trackers.Base;
 using MegaBonkPlusMod.Models;
@@ -12,7 +11,7 @@ public class ShadyGuyTracker : BaseTracker
     public ShadyGuyTracker(float scanIntervalInSeconds) : base(scanIntervalInSeconds)
     {
     }
-    
+
     protected override object BuildDataPayload()
     {
         var trackedObjects = new List<TrackedObjectDataModel>();
@@ -20,7 +19,7 @@ public class ShadyGuyTracker : BaseTracker
         if (!BonkersAPI.Game.IsInGame)
             return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
 
-        WorldService world = BonkersAPI.World;
+        var world = BonkersAPI.World;
 
         var allObjects = world.GetShadyGuys();
 

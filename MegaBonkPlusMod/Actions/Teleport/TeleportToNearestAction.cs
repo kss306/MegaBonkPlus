@@ -19,8 +19,8 @@ public class TeleportToNearestAction : IAction
         if (!BonkersAPI.Game.IsInGame)
             return "Cannot teleport: Not in game";
 
-        string teleportToObject = objectElement.GetString();
-        Vector3 nearestObject = Vector3.zero;
+        var teleportToObject = objectElement.GetString();
+        var nearestObject = Vector3.zero;
         switch (teleportToObject)
         {
             case "chest":
@@ -82,7 +82,7 @@ public class TeleportToNearestAction : IAction
             default:
                 return $"Error: Unknown teleport target '{teleportToObject}'";
         }
-        
+
         return "Teleport successful";
     }
 }

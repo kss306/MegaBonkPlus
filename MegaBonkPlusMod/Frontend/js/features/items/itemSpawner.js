@@ -67,7 +67,7 @@ function renderItemSlots() {
 
 function selectItem(itemId) {
     if (!selectedItems.find(i => i.id === itemId)) {
-        selectedItems.push({ id: itemId, quantity: 1 });
+        selectedItems.push({id: itemId, quantity: 1});
         renderItemSlots();
     }
 }

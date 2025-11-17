@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using MegaBonkPlusMod.Infrastructure.Http.Attributes;
 using MegaBonkPlusMod.Infrastructure.Http.Controllers;
@@ -19,10 +20,7 @@ public class ControllerRouter
     public void RegisterControllers(params object[] controllers)
     {
         ModLogger.LogDebug("Registering API controllers...");
-        foreach (var controller in controllers)
-        {
-            RegisterController(controller);
-        }
+        foreach (var controller in controllers) RegisterController(controller);
     }
 
     private void RegisterController(object controller)
@@ -90,17 +88,11 @@ public class ControllerRouter
 
             var parameters = method.GetParameters();
             if (parameters.Length == 0)
-            {
                 result = method.Invoke(controller, null);
-            }
             else if (parameters.Length == 1 && parameters[0].ParameterType == typeof(JsonElement))
-            {
                 result = method.Invoke(controller, new object[] { payload ?? default(JsonElement) });
-            }
             else
-            {
                 throw new InvalidOperationException($"Unsupported method signature: {method.Name}");
-            }
 
             if (result != null && controller is ApiControllerBase controllerBase)
             {
@@ -112,18 +104,18 @@ public class ControllerRouter
                 sendMethod.Invoke(controllerBase, new[] { context, result });
             }
         }
-            catch (TargetInvocationException ex)
-            {
-                var innerException = ex.InnerException ?? ex;
-                ModLogger.LogDebug($"Error invoking controller method: {innerException.Message}");
-                SendErrorResponse(context, innerException);
-            }
-            catch (Exception ex)
-            {
-                ModLogger.LogDebug($"Error invoking controller method: {ex.Message}");
-                SendErrorResponse(context, ex);
-            }
+        catch (TargetInvocationException ex)
+        {
+            var innerException = ex.InnerException ?? ex;
+            ModLogger.LogDebug($"Error invoking controller method: {innerException.Message}");
+            SendErrorResponse(context, innerException);
         }
+        catch (Exception ex)
+        {
+            ModLogger.LogDebug($"Error invoking controller method: {ex.Message}");
+            SendErrorResponse(context, ex);
+        }
+    }
 
     private JsonElement? ReadJsonPayload(HttpListenerContext context)
     {
@@ -131,10 +123,10 @@ public class ControllerRouter
         {
             using var reader = new StreamReader(context.Request.InputStream, context.Request.ContentEncoding);
             var json = reader.ReadToEnd();
-            
+
             if (string.IsNullOrWhiteSpace(json))
                 return null;
-            
+
             return JsonDocument.Parse(json).RootElement;
         }
         catch (Exception ex)
@@ -153,11 +145,11 @@ public class ControllerRouter
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             });
-            
+
             context.Response.StatusCode = 500;
             context.Response.ContentType = "application/json";
-            
-            var bytes = System.Text.Encoding.UTF8.GetBytes(json);
+
+            var bytes = Encoding.UTF8.GetBytes(json);
             context.Response.OutputStream.Write(bytes, 0, bytes.Length);
             context.Response.Close();
         }
@@ -169,7 +161,10 @@ public class ControllerRouter
                 context.Response.StatusCode = 500;
                 context.Response.Close();
             }
-            catch { /* Give up */ }
+            catch
+            {
+                /* Give up */
+            }
         }
     }
 
@@ -177,10 +172,10 @@ public class ControllerRouter
     {
         if (string.IsNullOrEmpty(basePath)) return route;
         if (string.IsNullOrEmpty(route)) return basePath;
-            
+
         basePath = basePath.TrimEnd('/');
         route = route.TrimStart('/');
-            
+
         return $"{basePath}/{route}";
     }
 }

@@ -1,5 +1,5 @@
 ﻿export function createEmptyData() {
-    return { count: 0, items: [] };
+    return {count: 0, items: []};
 }
 
 export function isDataEmpty(data) {

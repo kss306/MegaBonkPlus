@@ -1,5 +1,5 @@
-﻿import { api } from '../../api/apiClient.js';
-import { showToast } from '../../toast/toastService.js';
+﻿import {api} from '../../api/apiClient.js';
+import {showToast} from '../../toast/toastService.js';
 
 export async function spawnItems(items) {
     try {
@@ -9,7 +9,8 @@ export async function spawnItems(items) {
         });
         showToast('success', response.message);
         return true;
-    } catch (error) {1
+    } catch (error) {
+        1
         showToast('error', error.message || 'Spawn items failed');
         return false;
     }

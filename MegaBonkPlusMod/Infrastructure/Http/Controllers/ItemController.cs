@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BonkersLib.Core;
 using MegaBonkPlusMod.Infrastructure.Http.Attributes;
@@ -26,7 +27,7 @@ public class ItemController : ApiControllerBase
 
             return Ok(items, $"Retrieved {items.Count} items");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             return ServerError<List<ItemViewModel>>(ex.Message);
         }

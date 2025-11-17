@@ -1,28 +1,22 @@
 ﻿using System;
 using System.Text.Json;
-using Assets.Scripts.Actors.Enemies;
-using Assets.Scripts.Actors.Player;
-using BepInEx.Logging;
 using BonkersLib.Core;
 using MegaBonkPlusMod.Actions.Base;
-using Object = UnityEngine.Object;
 
 namespace MegaBonkPlusMod.Actions.Gameplay;
 
 public class KillAllEnemiesAction : IAction, IUpdatableAction
 {
-    private bool _looping;
     private bool _isRegistered;
-    
-    public bool IsLooping => _looping;
+
+    public bool IsLooping { get; private set; }
 
     public string Execute(JsonElement payload, ActionHandler handler)
     {
-        bool newLoopingState = _looping;
-        bool hasExplicitLooping = false;
+        var newLoopingState = IsLooping;
+        var hasExplicitLooping = false;
 
         if (payload.TryGetProperty("looping", out var loopingElement))
-        {
             switch (loopingElement.ValueKind)
             {
                 case JsonValueKind.True:
@@ -36,52 +30,44 @@ public class KillAllEnemiesAction : IAction, IUpdatableAction
                         newLoopingState = parsed;
                         hasExplicitLooping = true;
                     }
+
                     break;
             }
-        }
 
         if (!hasExplicitLooping && payload.TryGetProperty("mode", out var modeElement) &&
             modeElement.ValueKind == JsonValueKind.String)
         {
             var mode = modeElement.GetString();
             if (string.Equals(mode, "toggle", StringComparison.OrdinalIgnoreCase))
-            {
-                newLoopingState = !_looping;
-            }
-            else if (string.Equals(mode, "single", StringComparison.OrdinalIgnoreCase))
-            {
-                newLoopingState = false;
-            }
+                newLoopingState = !IsLooping;
+            else if (string.Equals(mode, "single", StringComparison.OrdinalIgnoreCase)) newLoopingState = false;
         }
 
         if (newLoopingState)
         {
-            _looping = true;
+            IsLooping = true;
             if (!_isRegistered)
             {
                 handler.RegisterUpdatable(this);
                 _isRegistered = true;
             }
+
             return "Started Kill loop";
         }
-        else
+
+        if (IsLooping)
         {
-            if (_looping)
-            {
-                _looping = false;
-                return "Stopped Kill loop";
-            }
-            else
-            {
-                BonkersAPI.World.KillAllEnemies();
-                return "Killed all enemies";
-            }
+            IsLooping = false;
+            return "Stopped Kill loop";
         }
+
+        BonkersAPI.World.KillAllEnemies();
+        return "Killed all enemies";
     }
 
     public bool Update()
     {
-        if (!_looping)
+        if (!IsLooping)
         {
             _isRegistered = false;
             return false;

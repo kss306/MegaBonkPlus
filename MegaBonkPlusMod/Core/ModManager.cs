@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using BonkersLib.Core;
+﻿using BonkersLib.Core;
 using MegaBonkPlusMod.Actions.Base;
 using MegaBonkPlusMod.GameLogic.Minimap;
 using MegaBonkPlusMod.Infrastructure.Http;
@@ -8,72 +7,72 @@ using MegaBonkPlusMod.Infrastructure.Services;
 using MegaBonkPlusMod.Utils;
 using UnityEngine;
 
-namespace MegaBonkPlusMod.Core
+namespace MegaBonkPlusMod.Core;
+
+public class ModManager : MonoBehaviour
 {
-    public class ModManager : MonoBehaviour
+    private ActionHandler _actionHandler;
+    private MinimapCaptureService _minimapCaptureService;
+    private HttpServer _server;
+    private TrackerRegistryService _trackerRegistry;
+
+    private void Update()
     {
-        private HttpServer _server;
-        private TrackerRegistryService _trackerRegistry;
-        private MinimapCaptureService _minimapCaptureService;
-        private ActionHandler _actionHandler;
+        MainThreadActionQueue.ExecuteAll();
+        _trackerRegistry.UpdateAll();
+        _actionHandler.UpdateActions();
+        _minimapCaptureService.Update();
+    }
 
-        public void Initialize()
-        {
-            ModLogger.LogDebug("ModManager initializing...");
+    private void OnDestroy()
+    {
+        ModLogger.LogDebug("Object destroyed, stopping HttpServer…");
+        BonkersAPI.Game.GameStarted -= OnGameStarted;
+        _server?.Stop();
+    }
 
-            _trackerRegistry = new TrackerRegistryService();
-            _trackerRegistry.RegisterDefaultTrackers();
+    private void OnApplicationQuit()
+    {
+        ModLogger.LogDebug("Application quitting, stopping HttpServer…");
+        BonkersAPI.Game.GameStarted -= OnGameStarted;
+        _server?.Stop();
+    }
 
-            var minimapStreamer = new MinimapStreamer();
-            _minimapCaptureService = new MinimapCaptureService(_trackerRegistry.TrackersList, minimapStreamer);
+    public void Initialize()
+    {
+        ModLogger.LogDebug("ModManager initializing...");
 
-            _actionHandler = new ActionHandler();
+        _trackerRegistry = new TrackerRegistryService();
+        _trackerRegistry.RegisterDefaultTrackers();
 
-            var controllerRouter = new ControllerRouter();
-            controllerRouter.RegisterControllers(
-                new ItemController(),
-                new HotkeyController(_actionHandler),
-                new ActionController(_actionHandler),
-                new TrackerController(_trackerRegistry.TrackersDictionary),
-                new MinimapController(minimapStreamer),
-                new GameStateController()
-            );
+        var minimapStreamer = new MinimapStreamer();
+        _minimapCaptureService = new MinimapCaptureService(_trackerRegistry.TrackersList, minimapStreamer);
 
-            _server = new HttpServer(controllerRouter);
-            _server.Start();
-            
-            BonkersAPI.Game.GameStarted += OnGameStarted;
-            
-            ModLogger.LogDebug("ModManager initialized.");
-        }
+        _actionHandler = new ActionHandler();
 
-        private void Update()
-        {
-            MainThreadActionQueue.ExecuteAll();
-            _trackerRegistry.UpdateAll();
-            _actionHandler.UpdateActions();
-            _minimapCaptureService.Update();
-        }
-        
-        private void OnGameStarted()
-        {
-            ModLogger.LogDebug("New run detected, starting minimap capture...");
-            _minimapCaptureService.StartCapture();
-            _actionHandler.StopAllLoopingActions();
-        }
+        var controllerRouter = new ControllerRouter();
+        controllerRouter.RegisterControllers(
+            new ItemController(),
+            new HotkeyController(_actionHandler),
+            new ActionController(_actionHandler),
+            new TrackerController(_trackerRegistry.TrackersDictionary),
+            new MinimapController(minimapStreamer),
+            new GameStateController(),
+            new InventoryController()
+        );
 
-        private void OnDestroy()
-        {
-            ModLogger.LogDebug("Object destroyed, stopping HttpServer…");
-            BonkersAPI.Game.GameStarted -= OnGameStarted;
-            _server?.Stop();
-        }
-        
-        private void OnApplicationQuit()
-        {
-            ModLogger.LogDebug("Application quitting, stopping HttpServer…");
-            BonkersAPI.Game.GameStarted -= OnGameStarted;
-            _server?.Stop();
-        }
+        _server = new HttpServer(controllerRouter);
+        _server.Start();
+
+        BonkersAPI.Game.GameStarted += OnGameStarted;
+
+        ModLogger.LogDebug("ModManager initialized.");
+    }
+
+    private void OnGameStarted()
+    {
+        ModLogger.LogDebug("New run detected, starting minimap capture...");
+        _minimapCaptureService.StartCapture();
+        _actionHandler.StopAllLoopingActions();
     }
 }

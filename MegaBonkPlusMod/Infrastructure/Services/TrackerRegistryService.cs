@@ -10,7 +10,7 @@ namespace MegaBonkPlusMod.Infrastructure.Services;
 public class TrackerRegistryService
 {
     private readonly Dictionary<string, BaseTracker> _trackers = new();
-    
+
     public IReadOnlyDictionary<string, BaseTracker> TrackersDictionary => _trackers;
     public IReadOnlyList<BaseTracker> TrackersList => _trackers.Values.ToList();
 
@@ -75,9 +75,6 @@ public class TrackerRegistryService
 
     public void UpdateAll()
     {
-        foreach (var tracker in _trackers.Values)
-        {
-            tracker.Update();
-        }
+        foreach (var tracker in _trackers.Values) tracker.Update();
     }
 }

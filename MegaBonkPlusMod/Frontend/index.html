@@ -2,15 +2,15 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Mod-Dashboard</title>
-    <link rel="stylesheet" href="css/main.css">
+    <title>Megabonk Plus</title>
+    <link href="css/main.css" rel="stylesheet">
 </head>
 <body>
 
 <div class="dashboard-layout">
 
     <section class="card char-info">
-        <img id="char-avatar" src="/images/characters/placeholder.png" alt="Avatar" class="char-avatar">
+        <img alt="Avatar" class="char-avatar" id="char-avatar" src="/images/characters/placeholder.png">
         <h2 id="char-name">Loading...</h2>
 
         <div class="char-topline">
@@ -29,7 +29,7 @@
             </div>
         </div>
 
-        <ul id="char-stats" class="char-stats">
+        <ul class="char-stats" id="char-stats">
         </ul>
     </section>
 
@@ -41,7 +41,7 @@
         <div id="minimap-wrapper">
             <canvas id="minimap-canvas"></canvas>
             <div id="minimap-icons"></div>
-            <div id="minimap-loader" class="minimap-loader">
+            <div class="minimap-loader" id="minimap-loader">
                 <div class="loader-spinner"></div>
                 <p>Waiting for round start...</p>
             </div>
@@ -68,11 +68,11 @@
                     </div>
                 </div>
                 <div class="item-spawner-controls">
-                    <button id="spawn-items-btn" class="quick-action-button">Spawn Items</button>
+                    <button class="quick-action-button" id="spawn-items-btn">Spawn Items</button>
                 </div>
             </div>
             <div class="restarter-item-list-container">
-                <div id="item-spawner-list" class="restarter-item-list">
+                <div class="restarter-item-list" id="item-spawner-list">
                 </div>
             </div>
         </section>
@@ -88,13 +88,13 @@
                 </div>
                 <div class="restarter-controls">
                     <label class="toggle-switch">
-                        <input type="checkbox" id="restarter-master-toggle">
+                        <input id="restarter-master-toggle" type="checkbox">
                         <span class="slider"></span>
                     </label>
                 </div>
             </div>
             <div class="restarter-item-list-container">
-                <div id="restarter-item-list" class="restarter-item-list">
+                <div class="restarter-item-list" id="restarter-item-list">
                 </div>
             </div>
         </section>
@@ -110,14 +110,14 @@
                 </div>
                 <div class="restarter-controls">
                     <label class="toggle-switch">
-                        <input type="checkbox" id="hotkey-master-toggle">
+                        <input id="hotkey-master-toggle" type="checkbox">
                         <span class="slider"></span>
                     </label>
                 </div>
             </div>
 
             <div class="hotkey-list-container">
-                <ul id="hotkey-list" class="hotkey-list">
+                <ul class="hotkey-list" id="hotkey-list">
                 </ul>
             </div>
         </section>
@@ -131,49 +131,50 @@
 
 </div>
 
-<div id="map-tooltip" class="map-tooltip" style="display: none;"></div>
+<div class="map-tooltip" id="map-tooltip" style="display: none;"></div>
 
-<div id="item-modal-backdrop" class="modal-backdrop is-hidden">
-    <div id="item-modal" class="modal-content card">
-        
+<div class="modal-backdrop is-hidden" id="item-modal-backdrop">
+    <div class="modal-content card" id="item-modal">
+
         <div class="modal-header">
             <h3>Select Item</h3>
-            <button id="modal-close-btn" class="modal-close-btn">&times;</button>
+            <button class="modal-close-btn" id="modal-close-btn">&times;</button>
         </div>
 
         <div class="modal-search">
-            <label for="modal-search-input"></label><input type="text" id="modal-search-input" placeholder="Search items...">
+            <label for="modal-search-input"></label><input id="modal-search-input" placeholder="Search items..."
+                                                           type="text">
         </div>
 
-        <ul id="modal-item-list" class="modal-item-list modal-item-list-container">
+        <ul class="modal-item-list modal-item-list-container" id="modal-item-list">
         </ul>
 
     </div>
 </div>
 
-<div id="hotkey-action-modal-backdrop" class="modal-backdrop is-hidden">
-    <div id="hotkey-action-modal" class="modal-content card">
+<div class="modal-backdrop is-hidden" id="hotkey-action-modal-backdrop">
+    <div class="modal-content card" id="hotkey-action-modal">
 
         <div class="modal-header">
             <h3>Configure Action</h3>
-            <button id="hotkey-modal-close-btn" class="modal-close-btn">&times;</button>
+            <button class="modal-close-btn" id="hotkey-modal-close-btn">&times;</button>
         </div>
 
         <div class="hotkey-modal-body">
 
             <div class="hotkey-modal-group">
                 <label for="hotkey-modal-action-select">Action</label>
-                <select id="hotkey-modal-action-select" class="hotkey-select">
+                <select class="hotkey-select" id="hotkey-modal-action-select">
                 </select>
             </div>
 
-            <div id="hotkey-modal-modifiers" class="hotkey-modal-modifiers">
+            <div class="hotkey-modal-modifiers" id="hotkey-modal-modifiers">
             </div>
 
         </div>
 
         <div class="hotkey-modal-footer">
-            <button id="hotkey-modal-save-btn" class="quick-action-button">Save</button>
+            <button class="quick-action-button" id="hotkey-modal-save-btn">Save</button>
         </div>
 
     </div>

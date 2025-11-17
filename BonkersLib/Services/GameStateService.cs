@@ -14,14 +14,12 @@ namespace BonkersLib.Services;
 public class GameStateService
 {
     private const float WORLD_LOAD_DELAY = 0.5f;
-    private float _worldLoadTimer = 0f;
+    private float _worldLoadTimer;
 
     public GameStateService()
     {
         CurrentStateEnum = GameStateEnum.MainMenu;
     }
-
-    public event Action GameStarted;
 
     public GameManager GameManagerInstance { get; private set; }
     public EnemyManager EnemyManagerInstance { get; private set; }
@@ -36,6 +34,9 @@ public class GameStateService
     public int BossCurses => GameManagerInstance?.bossCurses ?? 0;
     public int StageTier => CurrentRunConfig?.mapTierIndex + 1 ?? -1;
     public string StageName => CurrentMapData?.GetName() ?? "N/A";
+
+    public event Action GameStarted;
+    public event Action SceneChanged;
 
     public void RestartRun()
     {
@@ -97,8 +98,8 @@ public class GameStateService
         {
             CurrentStateEnum = GameStateEnum.MainMenu;
             ClearGameInstances();
-            BonkersAPI.Item.CacheAllRawItems();
             BonkersAPI.World.OnSceneChanged();
+            SceneChanged?.Invoke();
         }
         else
         {

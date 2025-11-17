@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using MegaBonkPlusMod.Actions.Gameplay;
+using MegaBonkPlusMod.Actions.Inventory;
 using MegaBonkPlusMod.Actions.Teleport;
 using MegaBonkPlusMod.Core;
 using MegaBonkPlusMod.Utils;
@@ -19,11 +20,11 @@ public class ActionHandler
         _actions = new Dictionary<string, IAction>(StringComparer.OrdinalIgnoreCase);
         RegisterActions();
     }
-    
+
     private void RegisterActions()
     {
         ModLogger.LogDebug("Register actions...");
-        
+
         _actions["teleport"] = new TeleportAction();
         _actions["interact"] = new InteractAction();
         _actions["kill_all_enemies"] = new KillAllEnemiesAction();
@@ -33,14 +34,15 @@ public class ActionHandler
         _actions["teleport_to_nearest"] = new TeleportToNearestAction();
         _actions["add_levels"] = new LevelAction();
         _actions["pick_up_all_xp"] = new PickUpAllXpAction();
-        
+        _actions["weapon"] = new WeaponAction();
+        _actions["tome"] = new TomeAction();
+
         ModLogger.LogDebug($"{_actions.Count} actions registered.");
     }
-    
+
     public string HandleAction(string actionName, JsonElement payload)
     {
-        if (_actions.TryGetValue(actionName, out IAction action))
-        {
+        if (_actions.TryGetValue(actionName, out var action))
             try
             {
                 return action.Execute(payload, this);
@@ -50,47 +52,33 @@ public class ActionHandler
                 ModLogger.LogDebug($"Error executing action '{actionName}': {ex.Message}\n{ex.StackTrace}");
                 return $"Error: {ex.Message}";
             }
-        }
-        else
-        {
-            ModLogger.LogDebug($"Unknown action received: '{actionName}'");
-            return $"Unknown action: {actionName}";
-        }
+
+        ModLogger.LogDebug($"Unknown action received: '{actionName}'");
+        return $"Unknown action: {actionName}";
     }
-    
+
     public void RegisterUpdatable(IUpdatableAction action)
     {
-        if (action != null && !_updatableActions.Contains(action))
-        {
-            _updatableActions.Add(action);
-        }
+        if (action != null && !_updatableActions.Contains(action)) _updatableActions.Add(action);
     }
-    
+
     public Dictionary<string, object> GetActionStates()
     {
         var states = new Dictionary<string, object>();
 
         var killAction = GetAction<KillAllEnemiesAction>("kill_all_enemies");
-        if (killAction != null)
-        {
-            states["kill_all_enemies"] = new { looping = killAction.IsLooping };
-        }
+        if (killAction != null) states["kill_all_enemies"] = new { looping = killAction.IsLooping };
 
         var pickUpAction = GetAction<PickUpAllXpAction>("pick_up_all_xp");
-        if (pickUpAction != null)
-        {
-            states["pick_up_all_xp"] = new { looping = pickUpAction.IsLooping };
-        }
+        if (pickUpAction != null) states["pick_up_all_xp"] = new { looping = pickUpAction.IsLooping };
 
         var restartAction = GetAction<AutoRestartAction>("set_auto_restart_config");
         if (restartAction != null)
-        {
             states["set_auto_restart_config"] = new
             {
                 enabled = restartAction.IsEnabled,
                 itemIds = restartAction.ItemIds
             };
-        }
 
         return states;
     }
@@ -100,24 +88,19 @@ public class ActionHandler
         HotkeyManager.CheckKeys(this);
         if (_updatableActions.Count == 0) return;
         foreach (var action in _updatableActions.ToList())
-        {
             try
             {
-                bool keepRunning = action.Update();
-                    
-                if (!keepRunning)
-                {
-                    _updatableActions.Remove(action);
-                }
+                var keepRunning = action.Update();
+
+                if (!keepRunning) _updatableActions.Remove(action);
             }
             catch (Exception ex)
             {
                 ModLogger.LogDebug($"Error in 'UpdateActions': {ex.Message}");
                 _updatableActions.Remove(action);
             }
-        }
     }
-    
+
     private TAction GetAction<TAction>(string name) where TAction : class, IAction
     {
         return _actions.TryGetValue(name, out var action) ? action as TAction : null;
@@ -128,12 +111,9 @@ public class ActionHandler
     {
         if (actionNames == null) return;
 
-        foreach (var name in actionNames)
-        {
-            StopLoopingForAction(name);
-        }
+        foreach (var name in actionNames) StopLoopingForAction(name);
     }
-    
+
     public void StopAllLoopingActions()
     {
         StopLoopingForAction("kill_all_enemies");
@@ -145,7 +125,7 @@ public class ActionHandler
         if (!_actions.TryGetValue(actionName, out var action))
             return;
 
-        bool isLooping =
+        var isLooping =
             (action as KillAllEnemiesAction)?.IsLooping == true ||
             (action as PickUpAllXpAction)?.IsLooping == true;
 

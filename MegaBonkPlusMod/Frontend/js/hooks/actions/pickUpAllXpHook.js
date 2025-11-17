@@ -18,9 +18,9 @@ export async function pickUpAllXp(payload = {}) {
 export async function getPickUpAllXpState() {
     try {
         const response = await api.get('/api/actions/state');
-        return response.data?.pick_up_all_xp || { looping: false };
+        return response.data?.pick_up_all_xp || {looping: false};
     } catch (error) {
         showToast('error', `Failed to load enemy state: ${error.message}`);
-        return { looping: false };
+        return {looping: false};
     }
 }

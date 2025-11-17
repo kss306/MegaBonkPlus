@@ -16,10 +16,11 @@ public class LevelAction : IAction
         }
 
         if (!BonkersAPI.Game.IsInGame)
-            return "Cannot add levels: Not in game";;
-        
-        int amount = amountElement.GetInt32();
-        
+            return "Cannot add levels: Not in game";
+        ;
+
+        var amount = amountElement.GetInt32();
+
         if (amount < 0 || amount > 9999)
             return "Error: Amount must be between 0 and 9999";
 

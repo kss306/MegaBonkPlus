@@ -1,5 +1,5 @@
-﻿import { getElem } from '../../utils/dom.js';
-import { executeAction } from '../../configs/actionHooksConfig.js';
+﻿import {getElem} from '../../utils/dom.js';
+import {executeAction} from '../../configs/actionHooksConfig.js';
 
 export function setupTooltipListeners() {
     const iconContainer = getElem('minimap-icons');
@@ -73,7 +73,7 @@ function setupTooltipClickListener(tooltip, state) {
         const action = button.dataset.action;
 
         if (instanceId && action) {
-            executeAction(action, { instanceId: parseInt(instanceId) });
+            executeAction(action, {instanceId: parseInt(instanceId)});
             hideTooltip(state);
         }
     });

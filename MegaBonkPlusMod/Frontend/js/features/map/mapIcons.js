@@ -1,5 +1,7 @@
-﻿import { getElem } from '../../utils/dom.js';
-import { worldToCanvasPercentages } from './mapCoordinates.js';
+﻿import {getElem} from '../../utils/dom.js';
+import {worldToCanvasPercentages} from './mapCoordinates.js';
+
+let lastIconsHtml = null;
 
 export function updateMapIcons(dataMap, configMap, filterStates) {
     const iconContainer = getElem('minimap-icons');
@@ -10,8 +12,15 @@ export function updateMapIcons(dataMap, configMap, filterStates) {
     }
 
     const icons = buildIconsHTML(dataMap, configMap, filterStates, canvas.width, canvas.height);
+
+    if (icons === lastIconsHtml) {
+        return;
+    }
+    lastIconsHtml = icons;
+
     iconContainer.innerHTML = icons;
 }
+
 
 function buildIconsHTML(dataMap, configMap, filterStates, canvasWidth, canvasHeight) {
     let allIconsHtml = '';
@@ -54,7 +63,7 @@ function buildIconHTML(item, config, canvasWidth, canvasHeight) {
     if (renderInfo.type === 'none') return null;
 
     const tooltipHtml = config.getTooltipHtml(item).replace(/"/g, '&quot;');
-    const { leftPercent, topPercent } = worldToCanvasPercentages(item.position, canvasWidth, canvasHeight);
+    const {leftPercent, topPercent} = worldToCanvasPercentages(item.position, canvasWidth, canvasHeight);
 
     const sizeInPixels = renderInfo.size ?? 16;
     const widthPercent = (sizeInPixels / canvasWidth) * 100;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MegaBonkPlusMod.GameLogic.Trackers;
 using MegaBonkPlusMod.GameLogic.Trackers.Base;
 using MegaBonkPlusMod.Infrastructure.Http.Attributes;
@@ -14,7 +15,7 @@ public class TrackerController : ApiControllerBase
     {
         _trackers = trackers;
     }
-    
+
     [HttpGet("/all")]
     public ApiResponse<Dictionary<string, object>> GetAllTrackerData()
     {
@@ -23,30 +24,34 @@ public class TrackerController : ApiControllerBase
             var allData = new Dictionary<string, object>();
 
             foreach (var kvp in _trackers)
-            {
                 try
                 {
                     allData[kvp.Key] = kvp.Value.GetData();
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     allData[kvp.Key] = new { error = ex.Message };
                 }
-            }
 
             return Ok(allData, $"Retrieved data from {allData.Count} trackers");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             return ServerError<Dictionary<string, object>>(ex.Message);
         }
     }
 
     [HttpGet("/player")]
-    public ApiResponse<object> GetPlayerData() => GetTrackerByKey(TrackerKeys.Player);
+    public ApiResponse<object> GetPlayerData()
+    {
+        return GetTrackerByKey(TrackerKeys.Player);
+    }
 
     [HttpGet("/chests")]
-    public ApiResponse<object> GetChestData() => GetTrackerByKey(TrackerKeys.Chests);
+    public ApiResponse<object> GetChestData()
+    {
+        return GetTrackerByKey(TrackerKeys.Chests);
+    }
 
     [HttpGet("/shrines")]
     public ApiResponse<List<object>> GetShrineData()
@@ -54,45 +59,53 @@ public class TrackerController : ApiControllerBase
         try
         {
             var shrineData = new List<object>();
-            
-            foreach (var key in new[] { 
-                TrackerKeys.ChargeShrines, 
-                TrackerKeys.GreedShrines, 
-                TrackerKeys.MoaiShrines, 
-                TrackerKeys.CursedShrines, 
-                TrackerKeys.MagnetShrines, 
-                TrackerKeys.ChallengeShrines 
-            })
-            {
+
+            foreach (var key in new[]
+                     {
+                         TrackerKeys.ChargeShrines,
+                         TrackerKeys.GreedShrines,
+                         TrackerKeys.MoaiShrines,
+                         TrackerKeys.CursedShrines,
+                         TrackerKeys.MagnetShrines,
+                         TrackerKeys.ChallengeShrines
+                     })
                 if (_trackers.TryGetValue(key, out var tracker))
                 {
                     var data = tracker.GetData();
-                    if (data != null)
-                    {
-                        shrineData.Add(data);
-                    }
+                    if (data != null) shrineData.Add(data);
                 }
-            }
-            
+
             return Ok(shrineData, "Shrine data retrieved");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             return ServerError<List<object>>(ex.Message);
         }
     }
 
     [HttpGet("/enemies")]
-    public ApiResponse<object> GetEnemyData() => GetTrackerByKey(TrackerKeys.Bosses);
+    public ApiResponse<object> GetEnemyData()
+    {
+        return GetTrackerByKey(TrackerKeys.Bosses);
+    }
 
     [HttpGet("/shady-guys")]
-    public ApiResponse<object> GetShadyGuyData() => GetTrackerByKey(TrackerKeys.ShadyGuys);
+    public ApiResponse<object> GetShadyGuyData()
+    {
+        return GetTrackerByKey(TrackerKeys.ShadyGuys);
+    }
 
     [HttpGet("/boss-spawners")]
-    public ApiResponse<object> GetBossSpawnerData() => GetTrackerByKey(TrackerKeys.BossSpawner);
+    public ApiResponse<object> GetBossSpawnerData()
+    {
+        return GetTrackerByKey(TrackerKeys.BossSpawner);
+    }
 
     [HttpGet("/microwave")]
-    public ApiResponse<object> GetMicrowaveData() => GetTrackerByKey(TrackerKeys.Microwaves);
+    public ApiResponse<object> GetMicrowaveData()
+    {
+        return GetTrackerByKey(TrackerKeys.Microwaves);
+    }
 
     private ApiResponse<object> GetTrackerByKey(string key)
     {
@@ -103,9 +116,10 @@ public class TrackerController : ApiControllerBase
                 var data = tracker.GetData();
                 return Ok(data, $"{key} data retrieved");
             }
+
             return NotFound<object>($"Tracker '{key}' not found");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             return ServerError<object>(ex.Message);
         }

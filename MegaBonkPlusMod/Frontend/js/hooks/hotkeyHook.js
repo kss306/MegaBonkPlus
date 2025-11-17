@@ -7,7 +7,7 @@ export async function getHotkeyConfig() {
         return response.data;
     } catch (error) {
         showToast('error', `Failed to load hotkeys: ${error.message}`);
-        return { enabled: true, hotkeys: [] };
+        return {enabled: true, hotkeys: []};
     }
 }
 

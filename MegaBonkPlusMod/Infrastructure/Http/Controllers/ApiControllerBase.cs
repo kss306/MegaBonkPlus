@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using MegaBonkPlusMod.Utils;
 
@@ -11,14 +12,14 @@ public abstract class ApiControllerBase
     {
         context.Response.StatusCode = response.StatusCode;
         context.Response.ContentType = "application/json";
-            
+
         var json = JsonSerializer.Serialize(response, new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             WriteIndented = false
         });
-            
-        var bytes = System.Text.Encoding.UTF8.GetBytes(json);
+
+        var bytes = Encoding.UTF8.GetBytes(json);
         context.Response.ContentLength64 = bytes.Length;
         context.Response.OutputStream.Write(bytes, 0, bytes.Length);
         try
@@ -38,23 +39,37 @@ public abstract class ApiControllerBase
     }
 
     protected ApiResponse<T> Ok<T>(T data, string message = "Success")
-        => ApiResponse<T>.Ok(data, message);
+    {
+        return ApiResponse<T>.Ok(data, message);
+    }
 
     protected ApiResponse Ok(string message = "Success")
-        => ApiResponse.Ok(message);
+    {
+        return ApiResponse.Ok(message);
+    }
 
     protected ApiResponse<T> BadRequest<T>(string error)
-        => ApiResponse<T>.BadRequest(error);
+    {
+        return ApiResponse<T>.BadRequest(error);
+    }
 
     protected ApiResponse BadRequest(string error)
-        => new ApiResponse { Success = false, Message = "Bad request", Error = error, StatusCode = 400 };
+    {
+        return new ApiResponse { Success = false, Message = "Bad request", Error = error, StatusCode = 400 };
+    }
 
     protected ApiResponse<T> NotFound<T>(string message = "Not found")
-        => ApiResponse<T>.NotFound(message);
+    {
+        return ApiResponse<T>.NotFound(message);
+    }
 
     protected ApiResponse<T> ServerError<T>(string error)
-        => ApiResponse<T>.ServerError(error);
+    {
+        return ApiResponse<T>.ServerError(error);
+    }
 
     protected ApiResponse ServerError(string error)
-        => new ApiResponse { Success = false, Message = "Internal server error", Error = error, StatusCode = 500 };
+    {
+        return new ApiResponse { Success = false, Message = "Internal server error", Error = error, StatusCode = 500 };
+    }
 }

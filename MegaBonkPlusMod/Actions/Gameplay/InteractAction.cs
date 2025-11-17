@@ -18,7 +18,7 @@ public class InteractAction : IAction
             return "Error: No valid instanceId provided";
         }
 
-        int instanceId = idElement.GetInt32();
+        var instanceId = idElement.GetInt32();
 
         var component = BonkersAPI.World.GetComponentByInstanceId<Component>(instanceId);
 
@@ -32,57 +32,57 @@ public class InteractAction : IAction
         {
             case InteractableChest chest:
                 chest.Interact();
-                ModLogger.LogDebug($"[InteractAction] Interacted with Chest");
+                ModLogger.LogDebug("[InteractAction] Interacted with Chest");
                 break;
 
             case InteractableShrineMoai moaiShrine:
                 moaiShrine.Interact();
-                ModLogger.LogDebug($"[InteractAction] Interacted with Moai Shrine");
+                ModLogger.LogDebug("[InteractAction] Interacted with Moai Shrine");
                 break;
 
             case InteractableBossSpawner bossSpawner:
                 bossSpawner.Interact();
-                ModLogger.LogDebug($"[InteractAction] Interacted with Boss Spawner");
+                ModLogger.LogDebug("[InteractAction] Interacted with Boss Spawner");
                 break;
 
             case InteractableBossSpawnerFinal bossSpawnerFinal:
                 bossSpawnerFinal.Interact();
-                ModLogger.LogDebug($"[InteractAction] Interacted with Final Boss Spawner");
+                ModLogger.LogDebug("[InteractAction] Interacted with Final Boss Spawner");
                 break;
 
             case InteractableShrineChallenge challengeShrine:
                 challengeShrine.Interact();
-                ModLogger.LogDebug($"[InteractAction] Interacted with Challenge Shrine");
+                ModLogger.LogDebug("[InteractAction] Interacted with Challenge Shrine");
                 break;
 
             case InteractableShrineCursed cursedShrine:
                 cursedShrine.Interact();
-                ModLogger.LogDebug($"[InteractAction] Interacted with Cursed Shrine");
+                ModLogger.LogDebug("[InteractAction] Interacted with Cursed Shrine");
                 break;
 
             case InteractableShrineGreed greedShrine:
                 greedShrine.Interact();
-                ModLogger.LogDebug($"[InteractAction] Interacted with Greed Shrine");
+                ModLogger.LogDebug("[InteractAction] Interacted with Greed Shrine");
                 break;
 
             case InteractableShrineMagnet magnetShrine:
                 magnetShrine.Interact();
-                ModLogger.LogDebug($"[InteractAction] Interacted with Magnet Shrine");
+                ModLogger.LogDebug("[InteractAction] Interacted with Magnet Shrine");
                 break;
 
             case InteractableMicrowave microwave:
                 microwave.Interact();
-                ModLogger.LogDebug($"[InteractAction] Interacted with Microwave");
+                ModLogger.LogDebug("[InteractAction] Interacted with Microwave");
                 break;
 
             case InteractableShadyGuy shadyGuy:
                 shadyGuy.Interact();
-                ModLogger.LogDebug($"[InteractAction] Interacted with Shady Guy");
+                ModLogger.LogDebug("[InteractAction] Interacted with Shady Guy");
                 break;
 
             case ChargeShrine chargeShrine:
                 chargeShrine.Complete();
-                ModLogger.LogDebug($"[InteractAction] Completed Charge Shrine");
+                ModLogger.LogDebug("[InteractAction] Completed Charge Shrine");
                 break;
 
             default:
@@ -90,7 +90,7 @@ public class InteractAction : IAction
                     $"[InteractAction] Component type {component.GetType().Name} has no interaction handler");
                 return "Error: No interaction handler found";
         }
-        
+
         return "Interacted with Object";
     }
 }

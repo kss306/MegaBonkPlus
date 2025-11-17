@@ -7,19 +7,17 @@ namespace MegaBonkPlusMod.Actions.Gameplay;
 
 public class PickUpAllXpAction : IAction, IUpdatableAction
 {
-    private bool _looping;
     private bool _isRegistered;
     private DateTime _nextAllowedPickup = DateTime.MinValue;
 
-    public bool IsLooping => _looping;
+    public bool IsLooping { get; private set; }
 
     public string Execute(JsonElement payload, ActionHandler handler)
     {
-        bool newLoopingState = _looping;
-        bool hasExplicitLooping = false;
+        var newLoopingState = IsLooping;
+        var hasExplicitLooping = false;
 
         if (payload.TryGetProperty("looping", out var loopingElement))
-        {
             switch (loopingElement.ValueKind)
             {
                 case JsonValueKind.True:
@@ -33,27 +31,22 @@ public class PickUpAllXpAction : IAction, IUpdatableAction
                         newLoopingState = parsed;
                         hasExplicitLooping = true;
                     }
+
                     break;
             }
-        }
 
         if (!hasExplicitLooping && payload.TryGetProperty("mode", out var modeElement) &&
             modeElement.ValueKind == JsonValueKind.String)
         {
             var mode = modeElement.GetString();
             if (string.Equals(mode, "toggle", StringComparison.OrdinalIgnoreCase))
-            {
-                newLoopingState = !_looping;
-            }
-            else if (string.Equals(mode, "single", StringComparison.OrdinalIgnoreCase))
-            {
-                newLoopingState = false;
-            }
+                newLoopingState = !IsLooping;
+            else if (string.Equals(mode, "single", StringComparison.OrdinalIgnoreCase)) newLoopingState = false;
         }
 
         if (newLoopingState)
         {
-            _looping = true;
+            IsLooping = true;
             if (!_isRegistered)
             {
                 handler.RegisterUpdatable(this);
@@ -63,39 +56,31 @@ public class PickUpAllXpAction : IAction, IUpdatableAction
             _nextAllowedPickup = DateTime.UtcNow;
             return "Started Pick Up loop";
         }
-        else
+
+        if (IsLooping)
         {
-            if (_looping)
-            {
-                _looping = false;
-                return "Stopped Pick Up loop";
-            }
-
-            var now = DateTime.UtcNow;
-            if (now < _nextAllowedPickup)
-            {
-                return "Pick up XP is on cooldown";
-            }
-
-            BonkersAPI.Player.PickUpAllXp();
-            _nextAllowedPickup = now.AddSeconds(2);
-            return "Picked up all XP";
+            IsLooping = false;
+            return "Stopped Pick Up loop";
         }
+
+        var now = DateTime.UtcNow;
+        if (now < _nextAllowedPickup) return "Pick up XP is on cooldown";
+
+        BonkersAPI.Player.PickUpAllXp();
+        _nextAllowedPickup = now.AddSeconds(2);
+        return "Picked up all XP";
     }
 
     public bool Update()
     {
-        if (!_looping)
+        if (!IsLooping)
         {
             _isRegistered = false;
             return false;
         }
 
         var now = DateTime.UtcNow;
-        if (now < _nextAllowedPickup)
-        {
-            return true;
-        }
+        if (now < _nextAllowedPickup) return true;
 
         BonkersAPI.Player.PickUpAllXp();
         _nextAllowedPickup = now.AddSeconds(5);

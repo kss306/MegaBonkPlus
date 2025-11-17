@@ -1,4 +1,4 @@
-﻿import { api } from '../api/apiClient.js';
+﻿import {api} from '../api/apiClient.js';
 
 export async function getMinimapData() {
     try {

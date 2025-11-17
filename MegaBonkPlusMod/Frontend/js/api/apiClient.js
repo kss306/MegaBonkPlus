@@ -44,7 +44,7 @@
     }
 
     get(endpoint) {
-        return this.request(endpoint, { method: 'GET' });
+        return this.request(endpoint, {method: 'GET'});
     }
 
     post(endpoint, body) {
@@ -65,4 +65,4 @@ class ApiError extends Error {
 
 const api = new ApiClient();
 
-export { api, ApiError };
+export {api, ApiError};

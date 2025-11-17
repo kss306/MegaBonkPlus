@@ -51,56 +51,129 @@ public class WorldService
     }
 
     public IEnumerable<ChargeShrine> GetChargeShrines()
-        => GetCachedObjects<ChargeShrine>(WorldObjectTypeEnum.ChargeShrine);
+    {
+        return GetCachedObjects<ChargeShrine>(WorldObjectTypeEnum.ChargeShrine);
+    }
 
     public IEnumerable<InteractableShrineMoai> GetMoaiShrines()
-        => GetCachedObjects<InteractableShrineMoai>(WorldObjectTypeEnum.MoaiShrine);
+    {
+        return GetCachedObjects<InteractableShrineMoai>(WorldObjectTypeEnum.MoaiShrine);
+    }
 
     public IEnumerable<InteractableShrineCursed> GetCursedShrines()
-        => GetCachedObjects<InteractableShrineCursed>(WorldObjectTypeEnum.CursedShrine);
+    {
+        return GetCachedObjects<InteractableShrineCursed>(WorldObjectTypeEnum.CursedShrine);
+    }
 
     public IEnumerable<InteractableShrineGreed> GetGreedShrines()
-        => GetCachedObjects<InteractableShrineGreed>(WorldObjectTypeEnum.GreedShrine);
+    {
+        return GetCachedObjects<InteractableShrineGreed>(WorldObjectTypeEnum.GreedShrine);
+    }
 
     public IEnumerable<InteractableShrineMagnet> GetMagnetShrines()
-        => GetCachedObjects<InteractableShrineMagnet>(WorldObjectTypeEnum.MagnetShrine);
+    {
+        return GetCachedObjects<InteractableShrineMagnet>(WorldObjectTypeEnum.MagnetShrine);
+    }
 
     public IEnumerable<InteractableShrineChallenge> GetChallengeShrines()
-        => GetCachedObjects<InteractableShrineChallenge>(WorldObjectTypeEnum.ChallengeShrine);
+    {
+        return GetCachedObjects<InteractableShrineChallenge>(WorldObjectTypeEnum.ChallengeShrine);
+    }
 
     public IEnumerable<InteractableChest> GetChests()
-        => GetCachedObjects<InteractableChest>(WorldObjectTypeEnum.Chest);
+    {
+        return GetCachedObjects<InteractableChest>(WorldObjectTypeEnum.Chest);
+    }
 
     public IEnumerable<OpenChest> GetOpenChests()
-        => GetCachedObjects<OpenChest>(WorldObjectTypeEnum.OpenChest);
+    {
+        return GetCachedObjects<OpenChest>(WorldObjectTypeEnum.OpenChest);
+    }
 
     public IEnumerable<InteractableShadyGuy> GetShadyGuys()
-        => GetCachedObjects<InteractableShadyGuy>(WorldObjectTypeEnum.ShadyGuy);
+    {
+        return GetCachedObjects<InteractableShadyGuy>(WorldObjectTypeEnum.ShadyGuy);
+    }
 
     public IEnumerable<InteractableMicrowave> GetMicrowaves()
-        => GetCachedObjects<InteractableMicrowave>(WorldObjectTypeEnum.Microwave);
+    {
+        return GetCachedObjects<InteractableMicrowave>(WorldObjectTypeEnum.Microwave);
+    }
 
     public IEnumerable<InteractableBossSpawner> GetBossSpawner()
-        => GetCachedObjects<InteractableBossSpawner>(WorldObjectTypeEnum.BossSpawner);
+    {
+        return GetCachedObjects<InteractableBossSpawner>(WorldObjectTypeEnum.BossSpawner);
+    }
 
     public IEnumerable<InteractableBossSpawnerFinal> GetBossSpawnerFinal()
-        => GetCachedObjects<InteractableBossSpawnerFinal>(WorldObjectTypeEnum.BossSpawnerFinal);
+    {
+        return GetCachedObjects<InteractableBossSpawnerFinal>(WorldObjectTypeEnum.BossSpawnerFinal);
+    }
 
     public IEnumerable<Enemy> GetBosses()
-        => GetCachedObjects<Enemy>(WorldObjectTypeEnum.Boss);
+    {
+        return GetCachedObjects<Enemy>(WorldObjectTypeEnum.Boss);
+    }
 
-    public Vector3? GetNearestChargeShrine() => GetNearestObject(WorldObjectTypeEnum.ChargeShrine);
-    public Vector3? GetNearestMoaiShrine() => GetNearestObject(WorldObjectTypeEnum.MoaiShrine);
-    public Vector3? GetNearestCursedShrine() => GetNearestObject(WorldObjectTypeEnum.CursedShrine);
-    public Vector3? GetNearestGreedShrine() => GetNearestObject(WorldObjectTypeEnum.GreedShrine);
-    public Vector3? GetNearestMagnetShrine() => GetNearestObject(WorldObjectTypeEnum.MagnetShrine);
-    public Vector3? GetNearestChallengeShrine() => GetNearestObject(WorldObjectTypeEnum.ChallengeShrine);
-    public Vector3? GetNearestChest() => GetNearestObject(WorldObjectTypeEnum.Chest);
-    public Vector3? GetNearestOpenChest() => GetNearestObject(WorldObjectTypeEnum.OpenChest);
-    public Vector3? GetNearestShadyGuy() => GetNearestObject(WorldObjectTypeEnum.ShadyGuy);
-    public Vector3? GetNearestMicrowave() => GetNearestObject(WorldObjectTypeEnum.Microwave);
-    public Vector3? GetNearestBossSpawner() => GetNearestObject(WorldObjectTypeEnum.BossSpawner);
-    public Vector3? GetNearestBossSpawnerFinal() => GetNearestObject(WorldObjectTypeEnum.BossSpawnerFinal);
+    public Vector3? GetNearestChargeShrine()
+    {
+        return GetNearestObject(WorldObjectTypeEnum.ChargeShrine);
+    }
+
+    public Vector3? GetNearestMoaiShrine()
+    {
+        return GetNearestObject(WorldObjectTypeEnum.MoaiShrine);
+    }
+
+    public Vector3? GetNearestCursedShrine()
+    {
+        return GetNearestObject(WorldObjectTypeEnum.CursedShrine);
+    }
+
+    public Vector3? GetNearestGreedShrine()
+    {
+        return GetNearestObject(WorldObjectTypeEnum.GreedShrine);
+    }
+
+    public Vector3? GetNearestMagnetShrine()
+    {
+        return GetNearestObject(WorldObjectTypeEnum.MagnetShrine);
+    }
+
+    public Vector3? GetNearestChallengeShrine()
+    {
+        return GetNearestObject(WorldObjectTypeEnum.ChallengeShrine);
+    }
+
+    public Vector3? GetNearestChest()
+    {
+        return GetNearestObject(WorldObjectTypeEnum.Chest);
+    }
+
+    public Vector3? GetNearestOpenChest()
+    {
+        return GetNearestObject(WorldObjectTypeEnum.OpenChest);
+    }
+
+    public Vector3? GetNearestShadyGuy()
+    {
+        return GetNearestObject(WorldObjectTypeEnum.ShadyGuy);
+    }
+
+    public Vector3? GetNearestMicrowave()
+    {
+        return GetNearestObject(WorldObjectTypeEnum.Microwave);
+    }
+
+    public Vector3? GetNearestBossSpawner()
+    {
+        return GetNearestObject(WorldObjectTypeEnum.BossSpawner);
+    }
+
+    public Vector3? GetNearestBossSpawnerFinal()
+    {
+        return GetNearestObject(WorldObjectTypeEnum.BossSpawnerFinal);
+    }
 
     public void KillAllEnemies()
     {
@@ -108,9 +181,8 @@ public class WorldService
 
         var allEnemies = GetCachedObjects<Enemy>(WorldObjectTypeEnum.Enemy);
         foreach (var enemy in allEnemies)
-        {
-            if (enemy) enemy.DiedNextFrame();
-        }
+            if (enemy)
+                enemy.DiedNextFrame();
     }
 
     public void ToggleEnemySpawns()
@@ -127,15 +199,10 @@ public class WorldService
         var items = new List<ItemData>();
 
         foreach (var shadyGuy in shadyGuys)
-        {
             if (shadyGuy && shadyGuy.items != null)
-            {
                 foreach (var item in shadyGuy.items)
-                {
-                    if (item) items.Add(item);
-                }
-            }
-        }
+                    if (item)
+                        items.Add(item);
 
         return items;
     }

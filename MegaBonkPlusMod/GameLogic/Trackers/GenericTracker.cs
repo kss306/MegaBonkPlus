@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using BonkersLib.Core;
 using BonkersLib.Enums;
-using BonkersLib.Services;
 using BonkersLib.Utils;
 using MegaBonkPlusMod.GameLogic.Trackers.Base;
 using MegaBonkPlusMod.Models;
@@ -13,8 +12,8 @@ namespace MegaBonkPlusMod.GameLogic.Trackers;
 
 public class GenericTracker : BaseTracker
 {
-    private readonly WorldObjectTypeEnum _objectType;
     private readonly Func<Component, Dictionary<string, object>> _customPropertiesExtractor;
+    private readonly WorldObjectTypeEnum _objectType;
 
     public GenericTracker(
         WorldObjectTypeEnum objectType,
@@ -36,7 +35,7 @@ public class GenericTracker : BaseTracker
 
         try
         {
-            WorldService world = BonkersAPI.World;
+            var world = BonkersAPI.World;
             var allObjects = world.GetCachedObjects<Component>(_objectType);
 
             foreach (var trackedObject in allObjects)
@@ -55,24 +54,18 @@ public class GenericTracker : BaseTracker
                     };
 
                     if (_customPropertiesExtractor != null)
-                    {
                         try
                         {
                             var customProps = _customPropertiesExtractor(trackedObject);
                             if (customProps != null)
-                            {
                                 foreach (var kvp in customProps)
-                                {
                                     objectData.CustomProperties[kvp.Key] = kvp.Value;
-                                }
-                            }
                         }
                         catch (Exception ex)
                         {
                             ModLogger.LogDebug(
                                 $"[GenericTracker] Error extracting custom properties: {ex.Message}");
                         }
-                    }
 
                     trackedObjects.Add(objectData);
                 }

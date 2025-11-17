@@ -1,4 +1,4 @@
-﻿import { MAP_SCALE, WORLD_OFFSET_X, WORLD_OFFSET_Z } from '../../configs/mapConfig.js';
+﻿import {MAP_SCALE, WORLD_OFFSET_X, WORLD_OFFSET_Z} from '../../configs/mapConfig.js';
 
 export function worldToCanvasPercentages(worldPos, canvasWidth, canvasHeight) {
     const canvasCenterX = canvasWidth / 2;
@@ -16,5 +16,5 @@ export function worldToCanvasPercentages(worldPos, canvasWidth, canvasHeight) {
     leftPercent = Math.max(0, Math.min(100, leftPercent));
     topPercent = Math.max(0, Math.min(100, topPercent));
 
-    return { leftPercent, topPercent };
+    return {leftPercent, topPercent};
 }

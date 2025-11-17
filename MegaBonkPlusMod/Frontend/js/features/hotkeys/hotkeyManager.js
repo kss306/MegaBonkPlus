@@ -33,7 +33,7 @@ export async function setupHotkeys(allItems) {
         on(modalSaveBtn, 'click', handleModalSave);
         on(modalActionSelect, 'change', () => {
             const selectedActionId = modalActionSelect.value;
-            renderActionModifiers({ id: selectedActionId, payload: {} });
+            renderActionModifiers({id: selectedActionId, payload: {}});
         });
     }
 
@@ -45,12 +45,12 @@ async function loadHotkeys() {
         const config = await getHotkeyConfig();
         hotkeyList = config.hotkeys || [];
         masterToggleEnabled = config.enabled === undefined ? true : config.enabled;
-        currentConfigString = JSON.stringify({ hotkeys: hotkeyList, enabled: masterToggleEnabled });
+        currentConfigString = JSON.stringify({hotkeys: hotkeyList, enabled: masterToggleEnabled});
     } catch (e) {
         console.error("Error loading hotkeys:", e);
         hotkeyList = [];
         masterToggleEnabled = true;
-        currentConfigString = JSON.stringify({ enabled: true, hotkeys: [] });
+        currentConfigString = JSON.stringify({enabled: true, hotkeys: []});
     }
 
     const toggle = getElem('hotkey-master-toggle');
@@ -63,7 +63,7 @@ export function syncHotkeysFromServer(config) {
 
     const isModalOpen = modalBackdrop && !modalBackdrop.classList.contains('is-hidden');
     const isWaitingForKey = document.querySelector('.hotkey-input.is-waiting');
-    
+
     if (isModalOpen || isWaitingForKey || isLocallyEditing) {
         return;
     }
@@ -124,10 +124,10 @@ function renderUI() {
 }
 
 function createHotkeyRow(hotkey, index) {
-    const li = createElement('li', { class: 'hotkey-slot hotkey-slot-configured' });
+    const li = createElement('li', {class: 'hotkey-slot hotkey-slot-configured'});
 
     const keyLabel = hotkey.key ? formatKeyLabel(hotkey.key) : 'Press Key...';
-    const keyInput = createElement('button', { class: 'hotkey-input' }, keyLabel);
+    const keyInput = createElement('button', {class: 'hotkey-input'}, keyLabel);
 
     on(keyInput, 'click', () => {
         keyInput.textContent = 'Waiting...';
@@ -160,10 +160,10 @@ function createHotkeyRow(hotkey, index) {
         }
     });
 
-    const configButton = createElement('button', { class: 'hotkey-select' }, formatActionForButton(hotkey.action));
+    const configButton = createElement('button', {class: 'hotkey-select'}, formatActionForButton(hotkey.action));
     on(configButton, 'click', () => openActionModal(index));
 
-    const deleteBtn = createElement('button', { class: 'hotkey-delete-btn' }, '×');
+    const deleteBtn = createElement('button', {class: 'hotkey-delete-btn'}, '×');
     on(deleteBtn, 'click', () => {
         hotkeyList.splice(index, 1);
         saveHotkeys();
@@ -206,12 +206,12 @@ function formatKeyLabel(code) {
 }
 
 function createEmptySlot() {
-    const li = createElement('li', { class: 'hotkey-slot hotkey-slot-empty' });
+    const li = createElement('li', {class: 'hotkey-slot hotkey-slot-empty'});
     const span = createElement('span', {}, '+ New Hotkey');
     li.appendChild(span);
     on(li, 'click', () => {
         isLocallyEditing = true;
-        hotkeyList.push({ key: null, action: null });
+        hotkeyList.push({key: null, action: null});
         renderUI();
     });
     return li;
@@ -247,7 +247,7 @@ function formatActionForButton(action) {
         label = `${config.name} ${targetName}`;
         return label;
     }
-    
+
     if (action.id === 'add_levels' && typeof payload.amount === 'number') {
         label = `${config.name}: x${payload.amount}`;
         return label;
@@ -258,7 +258,7 @@ function formatActionForButton(action) {
         label = `${config.name}: ${mode} ${payload.amount}`;
         return label;
     }
-    
+
     return label;
 }
 
@@ -266,11 +266,11 @@ function openActionModal(index) {
     isLocallyEditing = true;
     currentlyEditingHotkeyIndex = index;
     const hotkey = hotkeyList[index];
-    const currentAction = hotkey.action || { id: null, payload: {} };
+    const currentAction = hotkey.action || {id: null, payload: {}};
 
     modalActionSelect.innerHTML = '<option value="">Choose action...</option>';
     ACTIONS_CONFIG.forEach(action => {
-        const option = createElement('option', { value: action.id }, action.name);
+        const option = createElement('option', {value: action.id}, action.name);
         if (currentAction.id === action.id) option.selected = true;
         modalActionSelect.appendChild(option);
     });
@@ -283,7 +283,7 @@ function closeActionModal() {
     modalBackdrop.classList.add('is-hidden');
     currentlyEditingHotkeyIndex = null;
     modalModifiersContainer.innerHTML = '';
-    
+
     const hasIncompleteHotkey = hotkeyList.some(h => !h.key || !(h.action && h.action.id));
     if (!hasIncompleteHotkey) {
         isLocallyEditing = false;
@@ -309,8 +309,8 @@ function renderActionModifiers(action) {
     }
 
     config.modifiers.forEach(mod => {
-        const group = createElement('div', { class: 'hotkey-modal-group' });
-        const label = createElement('label', { for: `modifier-input-${mod.id}` }, mod.name);
+        const group = createElement('div', {class: 'hotkey-modal-group'});
+        const label = createElement('label', {for: `modifier-input-${mod.id}`}, mod.name);
 
         const currentValue = (action.payload && action.payload[mod.payloadKey] !== undefined)
             ? action.payload[mod.payloadKey]
@@ -319,19 +319,19 @@ function renderActionModifiers(action) {
         let inputElement;
 
         if (mod.type === 'select') {
-            inputElement = createElement('select', { class: 'modifier-input', id: `modifier-input-${mod.id}` });
+            inputElement = createElement('select', {class: 'modifier-input', id: `modifier-input-${mod.id}`});
             mod.options.forEach(opt => {
-                const option = createElement('option', { value: opt.value }, opt.name);
+                const option = createElement('option', {value: opt.value}, opt.name);
                 if (opt.value === currentValue) option.selected = true;
                 inputElement.appendChild(option);
             });
         } else if (mod.type === 'item-select') {
-            inputElement = createElement('select', { class: 'modifier-input', id: `modifier-input-${mod.id}` });
-            const defaultOpt = createElement('option', { value: '' }, 'Select item...');
+            inputElement = createElement('select', {class: 'modifier-input', id: `modifier-input-${mod.id}`});
+            const defaultOpt = createElement('option', {value: ''}, 'Select item...');
             inputElement.appendChild(defaultOpt);
 
             allItemsList.forEach(item => {
-                const opt = createElement('option', { value: item.id }, item.name);
+                const opt = createElement('option', {value: item.id}, item.name);
                 if (item.id === currentValue) opt.selected = true;
                 inputElement.appendChild(opt);
             });

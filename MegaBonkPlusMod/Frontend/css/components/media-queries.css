@@ -5,6 +5,12 @@
 }
 
 @media (max-width: 520px) {
-    #map-tooltip { min-width: 320px; max-width: 520px; }
-    .tooltip-content { grid-template-columns: 130px 1fr; }
+    #map-tooltip {
+        min-width: 320px;
+        max-width: 520px;
+    }
+
+    .tooltip-content {
+        grid-template-columns: 130px 1fr;
+    }
 }

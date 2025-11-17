@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
+using BonkersLib.Core;
 using BonkersLib.Utils;
 
 namespace BonkersLib.Services.World;
 
 public class ItemService
 {
-    private List<ItemData> _cachedRawItems = new();
+    private readonly List<ItemData> _cachedRawItems = new();
 
     internal void CacheAllRawItems()
     {
         _cachedRawItems.Clear();
-        var allGameItems = AlwaysManager.Instance.dataManager.itemData;
+        var allGameItems = BonkersAPI.Data.ItemData;
 
         foreach (var item in allGameItems)
         {
@@ -18,7 +19,7 @@ public class ItemService
             tempItem.description = tempItem.GetDescription();
             _cachedRawItems.Add(tempItem);
         }
-            
+
         ModLogger.LogDebug($"[ItemService] {_cachedRawItems.Count} raw items cached");
     }
 
@@ -27,5 +28,7 @@ public class ItemService
         return _cachedRawItems;
     }
 
-    internal void Update() { }
+    internal void Update()
+    {
+    }
 }

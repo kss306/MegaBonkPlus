@@ -10,8 +10,8 @@
                 payloadKey: 'mode',
                 defaultValue: 'single',
                 options: [
-                    { value: 'single', name: 'Single use' },
-                    { value: 'toggle', name: 'Toggle' }
+                    {value: 'single', name: 'Single use'},
+                    {value: 'toggle', name: 'Toggle'}
                 ]
             }
         ]
@@ -27,8 +27,8 @@
                 payloadKey: 'mode',
                 defaultValue: 'single',
                 options: [
-                    { value: 'single', name: 'Single use' },
-                    { value: 'toggle', name: 'Toggle' }
+                    {value: 'single', name: 'Single use'},
+                    {value: 'toggle', name: 'Toggle'}
                 ]
             }
         ]
@@ -59,8 +59,8 @@
                 payloadKey: 'changeMode',
                 defaultValue: 'add',
                 options: [
-                    { value: 'add', name: 'Add Gold' },
-                    { value: 'set', name: 'Set Gold' }
+                    {value: 'add', name: 'Add Gold'},
+                    {value: 'set', name: 'Set Gold'}
                 ]
             },
             {
@@ -106,17 +106,17 @@
                 payloadKey: 'object',
                 defaultValue: 'charge_shrine',
                 options: [
-                    { value: 'charge_shrine', name: 'Charge Shrine' },
-                    { value: 'chest', name: 'Chest' },
-                    { value: 'boss_spawner', name: 'Boss Spawner' },
-                    { value: 'shady_guy', name: 'Shady Guy' },
-                    { value: 'microwave', name: 'Microwave' },
-                    { value: 'moai_shrine', name: 'Moai Shrine' },
-                    { value: 'greed_shrine', name: 'Greed Shrine' },
-                    { value: 'challenge_shrine', name: 'Challenge Shrine' },
-                    { value: 'magnet_shrine', name: 'Magnet Shrine' },
-                    { value: 'cursed_shrine', name: 'Cursed Shrine' },
-                    { value: 'open_chest', name: 'Open Chest' }
+                    {value: 'charge_shrine', name: 'Charge Shrine'},
+                    {value: 'chest', name: 'Chest'},
+                    {value: 'boss_spawner', name: 'Boss Spawner'},
+                    {value: 'shady_guy', name: 'Shady Guy'},
+                    {value: 'microwave', name: 'Microwave'},
+                    {value: 'moai_shrine', name: 'Moai Shrine'},
+                    {value: 'greed_shrine', name: 'Greed Shrine'},
+                    {value: 'challenge_shrine', name: 'Challenge Shrine'},
+                    {value: 'magnet_shrine', name: 'Magnet Shrine'},
+                    {value: 'cursed_shrine', name: 'Cursed Shrine'},
+                    {value: 'open_chest', name: 'Open Chest'}
                 ]
             }
         ]

@@ -1,6 +1,6 @@
-﻿import { getElem } from '../../utils/dom.js';
-import { formatTime, parseStatPair, calculatePercentage } from '../../utils/format.js';
-import { isDataEmpty } from '../../utils/data.js';
+﻿import {getElem} from '../../utils/dom.js';
+import {calculatePercentage, formatTime, parseStatPair} from '../../utils/format.js';
+import {isDataEmpty} from '../../utils/data.js';
 
 export function renderPlayerStats(data) {
     if (isDataEmpty(data)) {

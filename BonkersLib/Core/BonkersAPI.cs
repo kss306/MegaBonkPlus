@@ -12,17 +12,24 @@ public static class BonkersAPI
     public static PlayerService Player { get; private set; }
     public static ItemService Item { get; private set; }
     public static WeaponService Weapon { get; private set; }
+    public static TomeService Tome { get; private set; }
     public static UiService Ui { get; private set; }
+    public static DataService Data { get; private set; }
 
     internal static void Initialize()
     {
         Game = new GameStateService();
+        Data = new DataService();
         World = new WorldService();
         Player = new PlayerService();
         Item = new ItemService();
         Weapon = new WeaponService();
-        
+        Tome = new TomeService();
+        Ui = new UiService();
+
+        Game.SceneChanged += Data.SetDataManager;
         Game.GameStarted += Ui.OnGameStarted;
+        Game.SceneChanged += Item.CacheAllRawItems;
     }
 
     internal static void Update()

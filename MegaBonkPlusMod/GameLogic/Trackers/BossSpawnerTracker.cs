@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BonkersLib.Core;
-using BonkersLib.Services;
 using BonkersLib.Utils;
 using MegaBonkPlusMod.GameLogic.Trackers.Base;
 using MegaBonkPlusMod.Models;
@@ -14,7 +13,7 @@ public class BossSpawnerTracker : BaseTracker
     public BossSpawnerTracker(float scanIntervalInSeconds) : base(scanIntervalInSeconds)
     {
     }
-    
+
     protected override object BuildDataPayload()
     {
         var trackedObjects = new List<TrackedObjectDataModel>();
@@ -22,14 +21,11 @@ public class BossSpawnerTracker : BaseTracker
         if (!BonkersAPI.Game.IsInGame)
             return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
 
-        WorldService world = BonkersAPI.World;
+        var world = BonkersAPI.World;
 
         Component bossSpawner = world.GetBossSpawner().FirstOrDefault();
 
-        if (!bossSpawner)
-        {
-            bossSpawner = world.GetBossSpawnerFinal().FirstOrDefault();
-        }
+        if (!bossSpawner) bossSpawner = world.GetBossSpawnerFinal().FirstOrDefault();
 
         if (bossSpawner)
         {
@@ -37,7 +33,7 @@ public class BossSpawnerTracker : BaseTracker
             var bossSpawnerData = new TrackedObjectDataModel
             {
                 Position = PositionDataModel.FromVector3(bossSpawner.transform.position),
-                InstanceId = bossSpawner.gameObject.GetInstanceID(),
+                InstanceId = bossSpawner.gameObject.GetInstanceID()
             };
             trackedObjects.Add(bossSpawnerData);
         }

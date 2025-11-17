@@ -39,7 +39,7 @@ function createSimpleButton(config) {
 }
 
 function createSplitButton(config) {
-    const container = createElement('div', { class: 'split-button-container' });
+    const container = createElement('div', {class: 'split-button-container'});
 
     const actionButton = createElement('button', {
         id: `${config.id}-action`,
@@ -59,7 +59,16 @@ function createSplitButton(config) {
     renderMenuItems(dropdownMenu, config);
 
     on(actionButton, 'click', () => {
-        const payload = buildPayloadFromMenu(dropdownMenu);
+        let payload;
+
+        if (config.actionId === 'kill_all_enemies') {
+            payload = {mode: 'single'};
+        } else if (config.actionId === 'pick_up_all_xp') {
+            payload = {mode: 'single'};
+        } else {
+            payload = buildPayloadFromMenu(dropdownMenu);
+        }
+
         handleAction(config.actionId, payload, actionButton);
     });
 
@@ -78,12 +87,12 @@ function createSplitButton(config) {
 function renderMenuItems(menu, config) {
     config.menuItems?.forEach(item => {
         if (item.type === 'checkbox') {
-            const label = createElement('label', { class: 'dropdown-item' });
+            const label = createElement('label', {class: 'dropdown-item'});
 
             const checkbox = createElement('input', {
                 type: 'checkbox',
                 id: item.id,
-                data: { payloadKey: item.payloadKey }
+                data: {payloadKey: item.payloadKey}
             });
 
             on(checkbox, 'change', () => {

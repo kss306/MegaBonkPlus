@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Text.Json;
 using MegaBonkPlusMod.Actions.Base;
 using MegaBonkPlusMod.Core;
 using MegaBonkPlusMod.Infrastructure.Http.Attributes;
@@ -23,7 +24,7 @@ public class HotkeyController : ApiControllerBase
             var config = HotkeyManager.GetCurrentConfig();
             return Ok(config, "Hotkey configuration retrieved successfully");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             return ServerError<object>(ex.Message);
         }
@@ -40,7 +41,7 @@ public class HotkeyController : ApiControllerBase
 
             return Ok("Hotkeys updated");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             return BadRequest(ex.Message);
         }

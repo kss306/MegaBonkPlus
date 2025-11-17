@@ -9,22 +9,13 @@ namespace MegaBonkPlusMod.Infrastructure.Services;
 
 public class MinimapCaptureService
 {
-    private enum CaptureState
-    {
-        Idle,
-        WaitingForSpawn,
-        WaitingForMapDelay,
-        HidingIcons,
-        TakingPicture
-    }
-
     private const float MINIMAP_CAPTURE_DELAY = 1.5f;
-
-    private CaptureState _captureState = CaptureState.Idle;
-    private float _captureTimer = 0f;
+    private readonly MinimapStreamer _minimapStreamer;
 
     private readonly IReadOnlyList<BaseTracker> _trackers;
-    private readonly MinimapStreamer _minimapStreamer;
+
+    private CaptureState _captureState = CaptureState.Idle;
+    private float _captureTimer;
 
     public MinimapCaptureService(IReadOnlyList<BaseTracker> trackers, MinimapStreamer minimapStreamer)
     {
@@ -67,10 +58,7 @@ public class MinimapCaptureService
 
     private void HandleWaitingForSpawn()
     {
-        foreach (var tracker in _trackers)
-        {
-            tracker.ForceUpdatePayload();
-        }
+        foreach (var tracker in _trackers) tracker.ForceUpdatePayload();
 
         _captureState = CaptureState.WaitingForMapDelay;
         _captureTimer = MINIMAP_CAPTURE_DELAY;
@@ -81,10 +69,7 @@ public class MinimapCaptureService
         _captureState = CaptureState.HidingIcons;
         try
         {
-            foreach (var tracker in _trackers)
-            {
-                tracker.HideIcons();
-            }
+            foreach (var tracker in _trackers) tracker.HideIcons();
 
             Canvas.ForceUpdateCanvases();
         }
@@ -107,12 +92,18 @@ public class MinimapCaptureService
         }
         finally
         {
-            foreach (var tracker in _trackers)
-            {
-                tracker.ShowIcons();
-            }
+            foreach (var tracker in _trackers) tracker.ShowIcons();
         }
 
         _captureState = CaptureState.Idle;
+    }
+
+    private enum CaptureState
+    {
+        Idle,
+        WaitingForSpawn,
+        WaitingForMapDelay,
+        HidingIcons,
+        TakingPicture
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Actors.Enemies;
 using Assets.Scripts.Inventory__Items__Pickups.Chests;
@@ -7,6 +8,7 @@ using BonkersLib.Core;
 using BonkersLib.Enums;
 using BonkersLib.Utils;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace BonkersLib.Services.World;
 
@@ -14,9 +16,8 @@ public class WorldObjectCache
 {
     private readonly Dictionary<WorldObjectTypeEnum, List<Component>> _cachedObjects = new();
     private readonly Dictionary<int, Component> _instanceIdLookup = new();
-    private bool _isCacheValid = false;
 
-    public bool IsValid => _isCacheValid;
+    public bool IsValid { get; private set; }
 
     internal void BuildCache()
     {
@@ -42,7 +43,7 @@ public class WorldObjectCache
         CacheObjectType<InteractableBossSpawner>(WorldObjectTypeEnum.BossSpawner);
         CacheObjectType<InteractableBossSpawnerFinal>(WorldObjectTypeEnum.BossSpawnerFinal);
 
-        _isCacheValid = true;
+        IsValid = true;
 
         var totalCached = _cachedObjects.Sum(x => x.Value.Count);
         ModLogger.LogDebug(
@@ -76,7 +77,7 @@ public class WorldObjectCache
 
     private void CleanupCompletedShrines<T>(
         WorldObjectTypeEnum objectType,
-        System.Func<T, bool> shouldRemove,
+        Func<T, bool> shouldRemove,
         string logName) where T : Component
     {
         if (!_cachedObjects.TryGetValue(objectType, out var objects))
@@ -92,23 +93,17 @@ public class WorldObjectCache
         foreach (var obj in toRemove)
         {
             objects.Remove(obj);
-            if (obj && obj.gameObject)
-            {
-                _instanceIdLookup.Remove(obj.gameObject.GetInstanceID());
-            }
+            if (obj && obj.gameObject) _instanceIdLookup.Remove(obj.gameObject.GetInstanceID());
         }
 
-        if (toRemove.Count > 0)
-        {
-            ModLogger.LogDebug($"[WorldObjectCache] Removed {toRemove.Count} {logName}");
-        }
+        if (toRemove.Count > 0) ModLogger.LogDebug($"[WorldObjectCache] Removed {toRemove.Count} {logName}");
     }
 
     internal void Invalidate()
     {
         _cachedObjects.Clear();
         _instanceIdLookup.Clear();
-        _isCacheValid = false;
+        IsValid = false;
     }
 
     private void CacheObjectType<T>(WorldObjectTypeEnum objectType) where T : Component
@@ -121,22 +116,15 @@ public class WorldObjectCache
         _cachedObjects[objectType] = objects;
 
         foreach (var obj in objects)
-        {
             if (obj && obj.gameObject)
-            {
                 _instanceIdLookup[obj.gameObject.GetInstanceID()] = obj;
-            }
-        }
     }
 
     public T GetComponentByInstanceId<T>(int instanceId) where T : Component
     {
         if (_instanceIdLookup.TryGetValue(instanceId, out var component))
         {
-            if (component && component)
-            {
-                return component as T;
-            }
+            if (component && component) return component as T;
 
             _instanceIdLookup.Remove(instanceId);
         }
@@ -147,11 +135,9 @@ public class WorldObjectCache
     public IEnumerable<T> GetCachedObjects<T>(WorldObjectTypeEnum objectType) where T : Component
     {
         if (_cachedObjects.TryGetValue(objectType, out var objects))
-        {
             return objects
                 .Where(obj => obj && obj)
                 .Cast<T>();
-        }
 
         return Enumerable.Empty<T>();
     }

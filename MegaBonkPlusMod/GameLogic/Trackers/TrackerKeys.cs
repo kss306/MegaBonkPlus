@@ -8,7 +8,7 @@ public static class TrackerKeys
     public const string ShadyGuys = "shadyGuys";
     public const string BossSpawner = "bossSpawner";
     public const string Microwaves = "microwaves";
-    
+
     public const string ChargeShrines = "chargeShrines";
     public const string GreedShrines = "greedShrines";
     public const string MoaiShrines = "moaiShrines";

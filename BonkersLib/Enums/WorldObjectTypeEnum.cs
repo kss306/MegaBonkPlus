@@ -9,7 +9,7 @@ public enum WorldObjectTypeEnum
     GreedShrine,
     MagnetShrine,
     ChallengeShrine,
-        
+
     // Interactables
     Chest,
     OpenChest,
@@ -17,7 +17,7 @@ public enum WorldObjectTypeEnum
     Microwave,
     BossSpawner,
     BossSpawnerFinal,
-        
+
     // Enemies
     Boss,
     Enemy

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+
 namespace MegaBonkPlusMod.Actions.Base;
 
 public interface IAction

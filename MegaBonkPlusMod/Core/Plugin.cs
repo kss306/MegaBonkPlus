@@ -16,11 +16,11 @@ public class Plugin : BasePlugin
     {
         var configPath = Path.Combine(Paths.ConfigPath, $"{PluginInfo.PLUGIN_GUID}.cfg");
         var sharedConfig = new ConfigFile(configPath, true);
-        
+
         ModConfig.Initialize(sharedConfig);
 
         ModLogger.InitLog(Log);
-        
+
         HotkeyManager.Initialize(sharedConfig);
 
         ClassInjector.RegisterTypeInIl2Cpp<ModManager>();

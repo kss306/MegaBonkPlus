@@ -1,4 +1,4 @@
-﻿import { getElem } from '../../utils/dom.js';
+﻿import {getElem} from '../../utils/dom.js';
 
 export function renderMinimap(data) {
     const canvas = getElem('minimap-canvas');

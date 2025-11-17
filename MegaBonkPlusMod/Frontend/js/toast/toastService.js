@@ -17,7 +17,7 @@ function ensureContainer() {
 }
 
 export function showToast(type, message, duration = 3000) {
-    toastQueue.push({ type, message, duration });
+    toastQueue.push({type, message, duration});
     processQueue();
 }
 
@@ -25,7 +25,7 @@ function processQueue() {
     if (visibleToasts >= MAX_VISIBLE_TOASTS) return;
     if (toastQueue.length === 0) return;
 
-    const { type, message, duration } = toastQueue.shift();
+    const {type, message, duration} = toastQueue.shift();
     showOneToast(type, message, duration);
 }
 

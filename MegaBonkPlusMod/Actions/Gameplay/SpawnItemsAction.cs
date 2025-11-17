@@ -25,17 +25,14 @@ public class SpawnItemsAction : IAction
             {
                 foreach (var itemJson in itemsElement.EnumerateArray())
                 {
-                    string id = itemJson.GetProperty("id").GetString();
-                    int quantity = itemJson.GetProperty("quantity").GetInt32();
+                    var id = itemJson.GetProperty("id").GetString();
+                    var quantity = itemJson.GetProperty("quantity").GetInt32();
 
                     if (!string.IsNullOrEmpty(id) && quantity is > 0 and <= 99)
-                    {
                         BonkersAPI.Player.GiveItem(id, quantity);
-                    }
                     else
-                    {
-                        ModLogger.LogDebug($"[SpawnItemsAction] Invalid quantity ({quantity}) for item '{id}'. Skipping.");
-                    }
+                        ModLogger.LogDebug(
+                            $"[SpawnItemsAction] Invalid quantity ({quantity}) for item '{id}'. Skipping.");
                 }
             }
             catch (Exception ex)
@@ -43,7 +40,7 @@ public class SpawnItemsAction : IAction
                 ModLogger.LogDebug($"[SpawnItemsAction] Fehler beim Spawnen: {ex.Message}");
             }
         });
-        
+
         return "Items spawned.";
     }
 }

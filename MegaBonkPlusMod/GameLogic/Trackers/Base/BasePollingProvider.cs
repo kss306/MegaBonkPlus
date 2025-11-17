@@ -1,5 +1,5 @@
-﻿using BepInEx.Logging;
-using System;
+﻿using System;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using BonkersLib.Core;
@@ -13,13 +13,14 @@ public abstract class BasePollingProvider
     protected static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = false,
-        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
     };
 
-    private volatile string _lastJsonData = "{\"count\":0,\"items\":[]}";
     private readonly float _scanInterval;
-    private float _nextScanTime = 0f;
+
+    private volatile string _lastJsonData = "{\"count\":0,\"items\":[]}";
+    private float _nextScanTime;
 
     public BasePollingProvider(float scanIntervalInSeconds)
     {
@@ -34,10 +35,7 @@ public abstract class BasePollingProvider
             return false;
         }
 
-        if (Time.time < _nextScanTime)
-        {
-            return false;
-        }
+        if (Time.time < _nextScanTime) return false;
 
         _nextScanTime = Time.time + _scanInterval;
         return true;
@@ -47,7 +45,7 @@ public abstract class BasePollingProvider
     {
         try
         {
-            object payload = BuildDataPayload();
+            var payload = BuildDataPayload();
             _lastJsonData = JsonSerializer.Serialize(payload, JsonOptions);
         }
         catch (Exception ex)
@@ -60,10 +58,7 @@ public abstract class BasePollingProvider
 
     public virtual void Update()
     {
-        if (CheckTimer())
-        {
-            ForceUpdatePayload();
-        }
+        if (CheckTimer()) ForceUpdatePayload();
     }
 
     public string GetJsonData()

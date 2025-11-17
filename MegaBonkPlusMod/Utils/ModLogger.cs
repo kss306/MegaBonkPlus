@@ -12,7 +12,7 @@ internal static class ModLogger
     {
         _modLogger = logger;
     }
-    
+
     private static bool IsEnabled(LoggingLevelEnum level)
     {
         return ModConfig.LogLevel.Value >= level;
@@ -23,13 +23,13 @@ internal static class ModLogger
         if (IsEnabled(LoggingLevelEnum.Debug))
             _modLogger?.LogInfo($"[DEBUG] {message}");
     }
-    
+
     public static void LogHttp(string message)
     {
         if (IsEnabled(LoggingLevelEnum.Http))
             _modLogger?.LogInfo($"[HTTP] {message}");
     }
-    
+
     public static void LogTrace(string message)
     {
         if (IsEnabled(LoggingLevelEnum.Trace))

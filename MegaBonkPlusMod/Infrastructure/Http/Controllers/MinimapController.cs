@@ -1,4 +1,5 @@
-﻿using MegaBonkPlusMod.GameLogic.Minimap;
+﻿using System;
+using MegaBonkPlusMod.GameLogic.Minimap;
 using MegaBonkPlusMod.Infrastructure.Http.Attributes;
 
 namespace MegaBonkPlusMod.Infrastructure.Http.Controllers;
@@ -21,7 +22,7 @@ public class MinimapController : ApiControllerBase
             var data = _minimapStreamer.GetData();
             return Ok(data, "Minimap data retrieved");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             return ServerError<object>(ex.Message);
         }

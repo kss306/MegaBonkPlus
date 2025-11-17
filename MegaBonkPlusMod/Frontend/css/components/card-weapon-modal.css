@@ -1,0 +1,84 @@
+﻿.weapon-upgrade-modal {
+    max-width: 520px;
+}
+
+.weapon-upgrade-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.weapon-upgrade-warning {
+    background: rgba(255, 193, 7, 0.12);
+    border: 1px solid #ffb74d;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 12px;
+    color: #ffeb3b;
+}
+
+.weapon-upgrade-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: space-between;
+}
+
+.weapon-upgrade-hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.weapon-upgrade-stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.weapon-upgrade-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1.2fr 1fr auto;
+    gap: 6px;
+    align-items: center;
+}
+
+.weapon-upgrade-select,
+.weapon-upgrade-value {
+    width: 100%;
+    padding: 6px 8px;
+    box-sizing: border-box;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.weapon-upgrade-remove-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid #e05353;
+    background: transparent;
+    color: #e05353;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.weapon-upgrade-remove-btn:hover {
+    background: #e05353;
+    color: var(--text-primary);
+}
+
+.weapon-upgrade-footer {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+}

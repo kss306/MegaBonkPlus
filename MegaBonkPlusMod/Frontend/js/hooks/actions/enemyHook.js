@@ -1,5 +1,5 @@
-﻿import { api } from '../../api/apiClient.js';
-import { showToast } from '../../toast/toastService.js';
+﻿import {api} from '../../api/apiClient.js';
+import {showToast} from '../../toast/toastService.js';
 
 export async function killAllEnemies(payload = {}) {
     try {
@@ -18,9 +18,9 @@ export async function killAllEnemies(payload = {}) {
 export async function getKillEnemiesState() {
     try {
         const response = await api.get('/api/actions/state');
-        return response.data?.kill_all_enemies || { looping: false };
+        return response.data?.kill_all_enemies || {looping: false};
     } catch (error) {
         showToast('error', `Failed to load enemy state: ${error.message}`);
-        return { looping: false };
+        return {looping: false};
     }
 }

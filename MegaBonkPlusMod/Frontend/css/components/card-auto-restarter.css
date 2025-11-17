@@ -81,10 +81,12 @@
 .restarter-item-list-container::-webkit-scrollbar {
     height: 8px;
 }
+
 .restarter-item-list-container::-webkit-scrollbar-thumb {
     background: var(--border-color);
     border-radius: 4px;
 }
+
 .restarter-item-list-container::-webkit-scrollbar-track {
     background: transparent;
 }
@@ -120,6 +122,7 @@
     border-color: var(--accent);
     background: rgba(0, 188, 212, 0.1);
 }
+
 .item-slot-empty:hover span {
     color: var(--accent);
 }

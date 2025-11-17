@@ -302,7 +302,7 @@ export const ENDPOINTS_TO_TRACK = {
             return `
                     <div class="tooltip-content" data-tooltip-wide="1">
                         <div class="tooltip-icon">
-                            <img src="/images/map_objects/shady_${(rarity||'Common').toLowerCase()}.png" alt="Shady Guy">
+                            <img src="/images/map_objects/shady_${(rarity || 'Common').toLowerCase()}.png" alt="Shady Guy">
                         </div>
 
                         <div class="tooltip-right">

@@ -13,17 +13,11 @@ namespace MegaBonkPlusMod.Core;
 
 public static class HotkeyManager
 {
-    public class HotkeyDefinition
-    {
-        public string Key { get; set; }
-        public string ActionId { get; set; }
-        public JsonElement Payload { get; set; }
-    }
-
-    public static bool IsEnabled { get; private set; } = true;
     private static readonly List<HotkeyDefinition> Hotkeys = new();
     private static ConfigEntry<string> _hotkeyConfigEntry;
-    
+
+    public static bool IsEnabled { get; private set; } = true;
+
     public static void Initialize(ConfigFile config)
     {
         _hotkeyConfigEntry = config.Bind(
@@ -31,7 +25,7 @@ public static class HotkeyManager
             "Configuration",
             "[]",
             "Stores the hotkey configuration as a JSON string. Do not edit manually unless you know what you are doing.");
-        
+
         LoadConfig();
     }
 
@@ -64,7 +58,7 @@ public static class HotkeyManager
             Hotkeys.Clear();
         }
     }
-    
+
     private static void SaveConfig()
     {
         try
@@ -104,18 +98,14 @@ public static class HotkeyManager
             {
                 if (!hotkeyJson.TryGetProperty("action", out var actionElement) ||
                     actionElement.ValueKind == JsonValueKind.Null)
-                {
                     continue;
-                }
 
-                if (!hotkeyJson.TryGetProperty("key", out var keyElement) || keyElement.ValueKind == JsonValueKind.Null)
-                {
-                    continue;
-                }
+                if (!hotkeyJson.TryGetProperty("key", out var keyElement) ||
+                    keyElement.ValueKind == JsonValueKind.Null) continue;
 
-                string key = keyElement.GetString();
-                string actionId = actionElement.GetProperty("id").GetString();
-                JsonElement actionPayload = actionElement.GetProperty("payload").Clone();
+                var key = keyElement.GetString();
+                var actionId = actionElement.GetProperty("id").GetString();
+                var actionPayload = actionElement.GetProperty("payload").Clone();
 
                 Hotkeys.Add(new HotkeyDefinition
                 {
@@ -133,10 +123,7 @@ public static class HotkeyManager
                 var hadToggle = kvp.Value;
                 hasToggleAfter.TryGetValue(actionId, out var hasToggleNow);
 
-                if (hadToggle && !hasToggleNow)
-                {
-                    removedToggleActions.Add(actionId);
-                }
+                if (hadToggle && !hasToggleNow) removedToggleActions.Add(actionId);
             }
 
             ModLogger.LogDebug($"[HotkeyManager] Config updated. {Hotkeys.Count} hotkeys registered.");
@@ -151,7 +138,7 @@ public static class HotkeyManager
 
         return removedToggleActions;
     }
-    
+
     private static Dictionary<string, bool> GetToggleActionsSnapshot(IEnumerable<HotkeyDefinition> hotkeys)
     {
         var result = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
@@ -161,7 +148,7 @@ public static class HotkeyManager
             if (string.IsNullOrEmpty(h.ActionId))
                 continue;
 
-            bool isToggle = false;
+            var isToggle = false;
 
             try
             {
@@ -170,10 +157,7 @@ public static class HotkeyManager
                     modeElement.ValueKind == JsonValueKind.String)
                 {
                     var mode = modeElement.GetString();
-                    if (string.Equals(mode, "toggle", StringComparison.OrdinalIgnoreCase))
-                    {
-                        isToggle = true;
-                    }
+                    if (string.Equals(mode, "toggle", StringComparison.OrdinalIgnoreCase)) isToggle = true;
                 }
             }
             catch
@@ -182,13 +166,9 @@ public static class HotkeyManager
             }
 
             if (!result.ContainsKey(h.ActionId))
-            {
                 result[h.ActionId] = isToggle;
-            }
             else
-            {
                 result[h.ActionId] = result[h.ActionId] || isToggle;
-            }
         }
 
         return result;
@@ -200,13 +180,12 @@ public static class HotkeyManager
             return;
 
         foreach (var hotkey in Hotkeys)
-        {
             if (Input.GetKeyDown(TranslateJsCodeToUnityKey(hotkey.Key)))
             {
                 ModLogger.LogDebug($"[HotkeyManager] Hotkey pressed: {hotkey.Key} -> {hotkey.ActionId}");
                 try
                 {
-                    JsonElement payloadToExecute = hotkey.Payload.Clone();
+                    var payloadToExecute = hotkey.Payload.Clone();
 
                     if (hotkey.ActionId.Equals("spawn_items", StringComparison.OrdinalIgnoreCase))
                         payloadToExecute = TransformSpawnItemPayload(hotkey.Payload);
@@ -218,7 +197,6 @@ public static class HotkeyManager
                     ModLogger.LogDebug($"[HotkeyManager] Error executing action {hotkey.ActionId}: {ex.Message}");
                 }
             }
-        }
     }
 
     private static KeyCode TranslateJsCodeToUnityKey(string jsCode)
@@ -230,22 +208,15 @@ public static class HotkeyManager
         if (jsCode == "AltLeft") jsCode = "LeftAlt";
         if (jsCode == "AltRight") jsCode = "RightAlt";
 
-        if (Enum.TryParse<KeyCode>(jsCode, true, out var keyCode))
-        {
-            return keyCode;
-        }
+        if (Enum.TryParse<KeyCode>(jsCode, true, out var keyCode)) return keyCode;
 
         if (jsCode.StartsWith("Key") && jsCode.Length > 3)
-        {
-            if (Enum.TryParse<KeyCode>(jsCode.Substring(3), true, out keyCode))
+            if (Enum.TryParse(jsCode.Substring(3), true, out keyCode))
                 return keyCode;
-        }
 
         if (jsCode.StartsWith("Digit") && jsCode.Length > 5)
-        {
-            if (Enum.TryParse<KeyCode>("Alpha" + jsCode.Substring(5), true, out keyCode))
+            if (Enum.TryParse("Alpha" + jsCode.Substring(5), true, out keyCode))
                 return keyCode;
-        }
 
         ModLogger.LogDebug($"[HotkeyManager] Unmapped key: {jsCode}");
         return KeyCode.None;
@@ -255,10 +226,10 @@ public static class HotkeyManager
     {
         try
         {
-            string itemId = flatPayload.GetProperty("itemId").GetString();
-            int quantity = flatPayload.GetProperty("quantity").GetInt32();
+            var itemId = flatPayload.GetProperty("itemId").GetString();
+            var quantity = flatPayload.GetProperty("quantity").GetInt32();
 
-            string newJson = $@"
+            var newJson = $@"
             {{
                 ""items"": [
                     {{
@@ -268,7 +239,7 @@ public static class HotkeyManager
                 ]
             }}";
 
-            using (JsonDocument doc = JsonDocument.Parse(newJson))
+            using (var doc = JsonDocument.Parse(newJson))
             {
                 return doc.RootElement.Clone();
             }
@@ -291,11 +262,18 @@ public static class HotkeyManager
                 payload = h.Payload
             }
         }).ToList();
-        
+
         return new
         {
             enabled = IsEnabled,
             hotkeys = hotkeysForFrontend
         };
+    }
+
+    public class HotkeyDefinition
+    {
+        public string Key { get; set; }
+        public string ActionId { get; set; }
+        public JsonElement Payload { get; set; }
     }
 }

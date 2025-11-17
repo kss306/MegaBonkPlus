@@ -1,6 +1,7 @@
-﻿
+﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading;
 using MegaBonkPlusMod.Actions.Base;
 using MegaBonkPlusMod.Infrastructure.Http.Attributes;
 using MegaBonkPlusMod.Utils;
@@ -25,7 +26,7 @@ public class ActionController : ApiControllerBase
             var states = _actionHandler.GetActionStates();
             return Ok(states, "Action states retrieved");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             return ServerError<Dictionary<string, object>>(ex.Message);
         }
@@ -34,26 +35,23 @@ public class ActionController : ApiControllerBase
     [HttpPost("/execute")]
     public ApiResponse ExecuteAction(JsonElement payload)
     {
-        if (!payload.TryGetProperty("action", out var actionElement))
-        {
-            return BadRequest("Missing 'action' property");
-        }
+        if (!payload.TryGetProperty("action", out var actionElement)) return BadRequest("Missing 'action' property");
 
-        string actionName = actionElement.GetString();
+        var actionName = actionElement.GetString();
         string resultMessage = null;
 
         try
         {
-            MainThreadActionQueue.QueueAction(() => 
-            { 
-                resultMessage = _actionHandler.HandleAction(actionName, payload); 
+            MainThreadActionQueue.QueueAction(() =>
+            {
+                resultMessage = _actionHandler.HandleAction(actionName, payload);
             });
 
-            System.Threading.Thread.Sleep(50);
+            Thread.Sleep(50);
 
             return Ok(resultMessage ?? $"Action '{actionName}' queued successfully");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             return ServerError(ex.Message);
         }

@@ -1,6 +1,4 @@
-﻿using Assets.Scripts.Inventory__Items__Pickups.Items;
-
-namespace MegaBonkPlusMod.Models;
+﻿namespace MegaBonkPlusMod.Models;
 
 public class ItemViewModel
 {

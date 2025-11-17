@@ -118,5 +118,7 @@ public class PlayerService
     }
 
     public void PickUpAllXp()
-        => BonkersAPI.Game.PickupManagerInstance.PickupAllXp();
+    {
+        BonkersAPI.Game.PickupManagerInstance.PickupAllXp();
+    }
 }

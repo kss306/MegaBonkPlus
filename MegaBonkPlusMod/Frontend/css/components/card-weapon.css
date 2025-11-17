@@ -1,0 +1,235 @@
+﻿.weapon-module {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+}
+
+.weapon-tome-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.weapon-column,
+.tome-column {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.weapon-column-header h4 {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.weapon-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.weapon-module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.weapon-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.weapon-module-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.weapon-header-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.weapon-rarity-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.weapon-rarity-select {
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+/* Slot-Liste: orientiert an restarter-item-list */
+
+.weapon-slot-list-container {
+    flex: 1 1 auto;
+    padding: 8px 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.tome-slot-list-container {
+    flex: 1 1 auto;
+    padding: 8px 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.weapon-slot-list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4 Slots pro Zeile */
+    gap: 12px;
+    padding-left: 12px;
+    padding-right: 12px;
+    align-items: start;
+    justify-items: center;
+}
+
+/* Slots nutzen Optik von restarter-item-slot (70x70) */
+
+.weapon-slot {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 2px;
+    padding: 4px;
+    box-sizing: border-box;
+    overflow: hidden; /* verhindert, dass das Icon aus der Box ragt */
+}
+
+/* Name + Level sehr kompakt oben im Slot */
+
+.weapon-slot-name {
+    position: relative;
+    z-index: 2;
+    font-size: 10px;
+    color: var(--text-primary);
+    text-align: left;
+    margin: 0;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    user-select: none;
+    pointer-events: none;
+}
+
+.weapon-slot-level {
+    position: relative;
+    z-index: 2;
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-align: left;
+    margin: 0 0 2px 0;
+
+    user-select: none;
+    pointer-events: none;
+}
+
+/* Icon als Hintergrund über die komplette Box */
+
+.weapon-slot-icon-wrapper {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 0;
+    opacity: 0.35; /* leicht in den Hintergrund schieben */
+}
+
+.weapon-slot-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Overlay in drei vertikalen Bereichen (für Klickzonen) */
+/* Deckt jetzt die gesamte Box ab, nicht nur das Icon */
+
+.weapon-slot-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly; /* Bereiche mittig verteilen */
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 1;
+    pointer-events: none; /* nur die Regionen selbst sind klickbar */
+}
+
+.weapon-slot:hover .weapon-slot-overlay {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.weapon-slot-region {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.weapon-slot-region-top,
+.weapon-slot-region-middle,
+.weapon-slot-region-bottom {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.weapon-slot-region-bottom {
+    border-bottom: none;
+}
+
+.weapon-slot-region:hover {
+    background: rgba(0, 188, 212, 0.25);
+}
+
+/* Remove-Button unten rechts in der Box */
+
+.weapon-slot-remove-btn {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid #e05353;
+    background: #222831;
+    color: #e05353;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.weapon-slot-remove-btn:hover {
+    background: #e05353;
+    color: var(--text-primary);
+}
+
+/* Plus-Symbol in leeren Slots */
+
+.weapon-slot-plus {
+    font-size: 28px;
+    color: var(--border-color);
+}
+
+.item-slot-empty.weapon-slot:hover .weapon-slot-plus {
+    color: var(--accent);
+}

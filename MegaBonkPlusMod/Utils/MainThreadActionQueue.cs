@@ -5,7 +5,7 @@ namespace MegaBonkPlusMod.Utils;
 
 public static class MainThreadActionQueue
 {
-    private static readonly ConcurrentQueue<Action> _queue = new ConcurrentQueue<Action>();
+    private static readonly ConcurrentQueue<Action> _queue = new();
 
     public static void QueueAction(Action action)
     {
@@ -14,9 +14,6 @@ public static class MainThreadActionQueue
 
     public static void ExecuteAll()
     {
-        while (_queue.TryDequeue(out Action action))
-        {
-            action?.Invoke();
-        }
+        while (_queue.TryDequeue(out var action)) action?.Invoke();
     }
 }

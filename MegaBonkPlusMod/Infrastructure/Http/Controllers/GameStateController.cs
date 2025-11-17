@@ -1,5 +1,5 @@
-﻿using BonkersLib.Core;
-using BonkersLib.Enums;
+﻿using System;
+using BonkersLib.Core;
 using MegaBonkPlusMod.Infrastructure.Http.Attributes;
 using MegaBonkPlusMod.Response;
 
@@ -14,7 +14,7 @@ public class GameStateController : ApiControllerBase
         try
         {
             var gameState = BonkersAPI.Game;
-            
+
             var response = new GameStateResponse
             {
                 IsInGame = gameState.IsInGame,
@@ -27,7 +27,7 @@ public class GameStateController : ApiControllerBase
 
             return Ok(response, "Game state retrieved");
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             return ServerError<GameStateResponse>(ex.Message);
         }

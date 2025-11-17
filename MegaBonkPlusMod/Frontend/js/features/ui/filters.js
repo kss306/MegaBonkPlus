@@ -20,7 +20,7 @@ function generateFilterList() {
         const parentId = `filter-${filter.id}`;
         const hasRarities = filter.rarities && filter.rarities.length > 0;
 
-        filterState[filter.id] = { main: true };
+        filterState[filter.id] = {main: true};
 
         const iconHtml = filter.icon
             ? `<img src="${filter.icon}" alt="${filter.name}">`
@@ -124,7 +124,7 @@ export function initializeFilters(onFilterChange) {
 }
 
 export function getFilterState() {
-    return { ...filterState };
+    return {...filterState};
 }
 
 export function setFilter(key, subKey, value) {

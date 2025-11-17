@@ -1,7 +1,7 @@
-﻿import { executeAction } from '../../configs/actionHooksConfig.js';
-import { applyBackendState } from '../items/autoRestarter.js';
+﻿import {executeAction} from '../../configs/actionHooksConfig.js';
+import {applyBackendState} from '../items/autoRestarter.js';
 
-export { executeAction };
+export {executeAction};
 
 export function applyActionStates(states) {
     if (!states) return;

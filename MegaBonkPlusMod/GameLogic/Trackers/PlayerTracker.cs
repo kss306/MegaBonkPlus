@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Assets.Scripts.Menu.Shop;
 using BonkersLib.Core;
-using BonkersLib.Services;
 using MegaBonkPlusMod.GameLogic.Trackers.Base;
 using MegaBonkPlusMod.Models;
 using MegaBonkPlusMod.Utils;
@@ -14,7 +13,7 @@ public class PlayerTracker : BaseTracker
     public PlayerTracker(float scanIntervalInSeconds) : base(scanIntervalInSeconds)
     {
     }
-    
+
     protected override object BuildDataPayload()
     {
         var trackedObjects = new List<TrackedObjectDataModel>();
@@ -22,7 +21,7 @@ public class PlayerTracker : BaseTracker
         if (!BonkersAPI.Game.IsInGame)
             return new ApiListResponseModel<TrackedObjectDataModel>(trackedObjects);
 
-        PlayerService player = BonkersAPI.Player;
+        var player = BonkersAPI.Player;
         var playerData = new TrackedObjectDataModel
         {
             InstanceId = player.InstanceId,
@@ -89,15 +88,15 @@ public class PlayerTracker : BaseTracker
 
     private static string AddPercentStat(float value, float multiplier = 100)
     {
-        float percent = value * multiplier;
-        float rounded = (float)Math.Round(percent);
+        var percent = value * multiplier;
+        var rounded = (float)Math.Round(percent);
         return rounded + "%";
     }
 
     private static string AddTimesStat(float value, float multiplier = 1)
     {
-        float times = value * multiplier;
-        float rounded = (float)Math.Round(times, 1);
+        var times = value * multiplier;
+        var rounded = (float)Math.Round(times, 1);
         return rounded.ToString("F1") + "x";
     }
 

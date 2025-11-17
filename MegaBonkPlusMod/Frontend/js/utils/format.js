@@ -11,24 +11,24 @@ export function formatNumber(num) {
 }
 
 export function parseStatPair(value) {
-    if (value == null) return { current: 0, max: 0 };
+    if (value == null) return {current: 0, max: 0};
 
     if (typeof value === 'string') {
         const match = value.match(/([\d.]+)\s*\/\s*([\d.]+)/);
-        if (match) return { current: parseFloat(match[1]), max: parseFloat(match[2]) };
+        if (match) return {current: parseFloat(match[1]), max: parseFloat(match[2])};
         const num = parseFloat(value);
-        return { current: num, max: num };
+        return {current: num, max: num};
     }
 
     if (typeof value === 'number') {
-        return { current: value, max: value };
+        return {current: value, max: value};
     }
 
     if (typeof value === 'object' && 'current' in value && 'max' in value) {
-        return { current: Number(value.current) || 0, max: Number(value.max) || 0 };
+        return {current: Number(value.current) || 0, max: Number(value.max) || 0};
     }
 
-    return { current: 0, max: 0 };
+    return {current: 0, max: 0};
 }
 
 export function calculatePercentage(value, max) {
