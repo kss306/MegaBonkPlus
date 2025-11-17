@@ -1,4 +1,4 @@
-﻿# MegaBonkPlus
+# MegaBonkPlus
 
 **MegaBonkPlus** is a BepInEx mod for Megabonk that adds a powerful web dashboard to control, analyze, and modify the game in real-time.
 

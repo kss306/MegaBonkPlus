@@ -1,4 +1,4 @@
-﻿# BonkersLib
+# BonkersLib
 
 **BonkersLib** is a core shared library for BepInEx mod development targeting the game "Megabonk".
 
