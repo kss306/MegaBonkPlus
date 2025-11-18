@@ -8,6 +8,7 @@ import {setupAutoRestarter} from './features/items/autoRestarter.js';
 import {setupHotkeys} from './features/hotkeys/hotkeyManager.js';
 import {getAllItems} from './hooks/actions/itemHook.js';
 import {setupWeaponActions} from './features/inventory/weaponActions.js';
+import {setupCheatActions} from "./features/cheats/cheatsActions.js";
 
 async function initializeApp() {
     console.log('Initializing MegaBonkPlus Frontend...');
@@ -22,6 +23,7 @@ async function initializeApp() {
     setupAutoRestarter(allItems);
     setupHotkeys(allItems);
     setupWeaponActions();
+    setupCheatActions();
 
     setupDashboard();
 }

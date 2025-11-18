@@ -58,4 +58,22 @@
         </Reference>
     </ItemGroup>
 
+    <Target Name="PackageLib" AfterTargets="PostBuildEvent">
+        <PropertyGroup>
+            <ReleasePath>$(SolutionDir)_Releases\BonkersLib</ReleasePath>
+            <ZipPath>$(SolutionDir)_Releases\BonkersLib.zip</ZipPath>
+        </PropertyGroup>
+
+        <MakeDir Directories="$(ReleasePath)"/>
+        <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(ReleasePath)"/>
+        <Copy SourceFiles="CHANGELOG.md" DestinationFolder="$(ReleasePath)" Condition="Exists('CHANGELOG.md')"/>
+        <Copy SourceFiles="manifest.json" DestinationFolder="$(ReleasePath)" Condition="Exists('manifest.json')"/>
+        <Copy SourceFiles="README.md" DestinationFolder="$(ReleasePath)" Condition="Exists('README.md')"/>
+        <Copy SourceFiles="BonkersLibLogo.png" DestinationFiles="$(ReleasePath)\icon.png" Condition="Exists('BonkersLibLogo.png')"/>
+
+        <ZipDirectory SourceDirectory="$(ReleasePath)" DestinationFile="$(ZipPath)" Overwrite="true"/>
+
+        <Message Text="BonkersLib wurde erfolgreich gezippt: $(ZipPath)" Importance="high"/>
+    </Target>
+
 </Project>

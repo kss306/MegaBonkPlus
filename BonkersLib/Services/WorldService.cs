@@ -213,6 +213,36 @@ public class WorldService
         return _cache.GetCachedObjects<T>(objectType);
     }
 
+    public void InteractWithEvery(WorldObjectTypeEnum objectType)
+    {
+        switch (objectType)
+        {
+            case WorldObjectTypeEnum.ChargeShrine:
+                foreach (var obj in GetCachedObjects<ChargeShrine>(objectType))
+                    obj.Complete();
+                break;
+            case WorldObjectTypeEnum.GreedShrine:
+                foreach (var obj in GetCachedObjects<InteractableShrineGreed>(objectType))
+                    obj.Interact();
+                break;
+            case WorldObjectTypeEnum.ChallengeShrine:
+                foreach (var obj in GetCachedObjects<InteractableShrineChallenge>(objectType))
+                    obj.Interact();
+                break;
+            case WorldObjectTypeEnum.CursedShrine:
+                foreach (var obj in GetCachedObjects<InteractableShrineCursed>(objectType))
+                    obj.Interact();
+                break;
+            case WorldObjectTypeEnum.MoaiShrine:
+                foreach (var obj in GetCachedObjects<InteractableShrineMoai>(objectType))
+                    obj.Interact();
+                break;
+            default:
+                ModLogger.LogDebug($"[InteractAction] Component type {objectType} has no interaction handler");
+                break;
+        }
+    }
+
     private Vector3? GetNearestObject(WorldObjectTypeEnum objectType)
     {
         EnsureCacheValid();

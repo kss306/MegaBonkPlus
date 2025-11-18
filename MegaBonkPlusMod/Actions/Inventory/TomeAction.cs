@@ -109,9 +109,12 @@ public class TomeAction : IAction
 
         if (currentTomes == null || !currentTomes.TryGetValue(eTome, out var statModifier) ||
             statModifier == null)
+        {
             BonkersAPI.Tome.AddTome(eTome);
+            return $"Added '{eTome}' Tome";
+        }
+            
 
-        var currentTome = BonkersAPI.Tome.GetTomeDataFromEnum(eTome);
         if (BonkersAPI.Tome.GetTomeLevel(eTome) >= 99)
             return $"Error: Cannot upgrade tome {eTome} (already at max level)";
 
@@ -119,7 +122,7 @@ public class TomeAction : IAction
 
         ModLogger.LogDebug(
             $"[TomeAction] Added / upgraded tome {eTome} with random upgrades (rarity={rarity})");
-        return $"Upgraded '{eTome}' {rarity}";
+        return $"Upgraded '{eTome}' Tome {rarity}";
     }
 
     private string AddTomeWithCustomStats(

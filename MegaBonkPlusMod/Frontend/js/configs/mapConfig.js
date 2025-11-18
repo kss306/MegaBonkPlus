@@ -2,7 +2,32 @@ import {renderMinimap} from '../features/map/mapRenderer.js';
 
 export const MAP_SCALE = 2.35;
 export const WORLD_OFFSET_X = 0;
-export const WORLD_OFFSET_Z = 0.0;
+export const WORLD_OFFSET_Z = 0;
+
+export const MAP_DATA = {
+    forest: {
+        mapScale: 2.35,
+        worldOffsetX: 0,
+        worldOffsetZ: 0
+    },
+    desert: {
+        mapScale: 3.8,
+        worldOffsetX: 0,
+        worldOffsetZ: 0
+    }
+}
+
+export function getMapData(mapName) {
+    const emptyData = { mapScale: MAP_SCALE, worldOffsetX: WORLD_OFFSET_X, worldOffsetZ: WORLD_OFFSET_Z};
+    if (!mapName) {
+        return emptyData;
+    }
+
+    const key = mapName.toLowerCase();
+    const mapConfig = MAP_DATA[key];
+
+    return mapConfig ?? emptyData;
+}
 
 export const ENDPOINTS_TO_TRACK = {
     minimap: {

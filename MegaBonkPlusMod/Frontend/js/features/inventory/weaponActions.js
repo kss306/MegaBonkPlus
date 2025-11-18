@@ -21,9 +21,8 @@ let lastWeaponInventorySerialized = null;
 let lastTomeInventorySerialized = null;
 
 export async function setupWeaponActions() {
-    const card = document.querySelector('.new-long-card');
+    const card = document.querySelector('.inventory-card');
     if (!card) {
-        console.error('WeaponActions: .new-long-card not found');
         return;
     }
 
@@ -41,7 +40,7 @@ export async function setupWeaponActions() {
             <div class="weapon-title-group">
                 <h3>Inventory</h3>
                 <div class="info-tooltip"
-                     title="Manage your weapons and tomes: add, upgrade, downgrade">
+                     data-tooltip="Manage your weapons and tomes: add, upgrade, downgrade">
                     ?
                 </div>
             </div>

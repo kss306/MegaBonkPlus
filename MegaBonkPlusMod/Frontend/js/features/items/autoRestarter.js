@@ -15,7 +15,6 @@ export async function setupAutoRestarter(items) {
     masterToggle = getElem('restarter-master-toggle');
 
     if (!itemListContainer || !masterToggle) {
-        console.error("AutoRestarter: Missing DOM elements");
         return;
     }
 
@@ -49,7 +48,6 @@ function calculateMinEmptySlots() {
         minEmptySlots = Math.floor((containerWidth + 1 + slotGap) / (slotWidth + slotGap));
         if (minEmptySlots < 1) minEmptySlots = 1;
     } catch (e) {
-        console.warn("Could not calculate slots, using default:", e);
         minEmptySlots = 5;
     }
 }

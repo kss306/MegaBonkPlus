@@ -43,7 +43,7 @@ async function updateDashboard() {
             return;
         }
 
-        await updateGameData();
+        await updateGameData(gameState.currentMap);
     } catch (error) {
         console.error('Dashboard update error:', error);
     }
@@ -53,7 +53,7 @@ function updateGameStateUI(isInGame) {
     toggleClass(document.body, 'game-not-running', !isInGame);
 }
 
-async function updateGameData() {
+async function updateGameData(currentMap) {
     const [allTrackerData, minimapData, weaponInventory, tomeInventory] = await Promise.all([
         getAllTrackerData(),
         getMinimapData(),
@@ -70,7 +70,7 @@ async function updateGameData() {
 
     const dataMap = buildDataMap(allTrackerData, minimapData);
 
-    renderGameUI(dataMap);
+    renderGameUI(dataMap, currentMap);
     applyWeaponInventory(weaponInventory || []);
     applyTomeInventory(tomeInventory || []);
 }
@@ -90,15 +90,15 @@ function buildDataMap(trackerData, minimapData) {
     return dataMap;
 }
 
-function renderGameUI(dataMap) {
+function renderGameUI(dataMap, currentMap) {
     if (dataMap.minimap) {
-        renderMinimap(dataMap.minimap);
+        renderMinimap(dataMap.minimap, currentMap);
     }
 
     renderPlayerStats(dataMap.player);
 
     const filters = getFilterState();
-    updateMapIcons(dataMap, ENDPOINTS_TO_TRACK, filters);
+    updateMapIcons(dataMap, ENDPOINTS_TO_TRACK, filters, currentMap);
 }
 
 function clearGameUI() {
@@ -107,8 +107,20 @@ function clearGameUI() {
 }
 
 function clearMinimapContainer() {
-    const minimapContainer = getElem('minimap-container');
-    if (minimapContainer) {
-        minimapContainer.innerHTML = '';
+    const wrapper = getElem('minimap-wrapper');
+    const canvas = getElem('minimap-canvas');
+    const icons = getElem('minimap-icons');
+    if (wrapper) {
+        wrapper.classList.add('is-loading');
+    }
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    if (icons) {
+        icons.innerHTML = '';
     }
 }

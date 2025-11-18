@@ -28,7 +28,6 @@
     image-rendering: pixelated;
 }
 
-/* --- 6. Loader --- */
 #minimap-loader {
     display: none;
     flex-direction: column;

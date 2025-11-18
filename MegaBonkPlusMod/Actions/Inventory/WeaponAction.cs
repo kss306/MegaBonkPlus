@@ -121,7 +121,7 @@ public class WeaponAction : IAction
             weaponBase == null)
         {
             BonkersAPI.Weapon.AddWeapon(eWeapon);
-            currentWeapons = BonkersAPI.Weapon.CurrentWeapons;
+            return $"Added '{eWeapon}'";
         }
 
         if (currentWeapons == null || !currentWeapons.TryGetValue(eWeapon, out var wb) || wb == null)
@@ -130,7 +130,7 @@ public class WeaponAction : IAction
         BonkersAPI.Weapon.UpgradeWithRandomStats(wb, rarity);
 
         ModLogger.LogDebug(
-            $"[WeaponAction] Added / upgraded weapon {eWeapon} with random upgrades (rarity={rarity})");
+            $"[WeaponAction] Upgraded weapon {eWeapon} with random upgrades (rarity={rarity})");
         return $"Upgraded '{eWeapon}' {rarity}";
     }
 
