@@ -41,7 +41,7 @@ export async function setupWeaponActions() {
             <div class="weapon-title-group">
                 <h3>Inventory</h3>
                 <div class="info-tooltip"
-                     title="Manage your weapons and tomes: add, upgrade, downgrade">
+                     data-tooltip="Manage your weapons and tomes: add, upgrade, downgrade">
                     ?
                 </div>
             </div>
