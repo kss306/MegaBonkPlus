@@ -567,4 +567,22 @@
         <EmbeddedResource Include="Frontend\js\hooks\actions\interactWithEveryHook.js" />
     </ItemGroup>
 
+    <Target Name="PackageMod" AfterTargets="PostBuildEvent">
+        <PropertyGroup>
+            <ReleasePath>$(SolutionDir)_Releases\MegaBonkPlusMod</ReleasePath>
+            <ZipPath>$(SolutionDir)_Releases\MegaBonkPlusMod.zip</ZipPath>
+        </PropertyGroup>
+
+        <MakeDir Directories="$(ReleasePath)" />
+        <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(ReleasePath)" />
+        <Copy SourceFiles="CHANGELOG.md" DestinationFolder="$(ReleasePath)" Condition="Exists('CHANGELOG.md')" />
+        <Copy SourceFiles="manifest.json" DestinationFolder="$(ReleasePath)" Condition="Exists('manifest.json')" />
+        <Copy SourceFiles="README.md" DestinationFolder="$(ReleasePath)" Condition="Exists('README.md')" />
+        <Copy SourceFiles="MegabonkPlusLogo.png" DestinationFiles="$(ReleasePath)\icon.png" Condition="Exists('MegabonkPlusLogo.png')" />
+
+        <ZipDirectory SourceDirectory="$(ReleasePath)" DestinationFile="$(ZipPath)" Overwrite="true" />
+
+        <Message Text="MegaBonkPlusMod wurde erfolgreich gezippt: $(ZipPath)" Importance="high" />
+    </Target>
+
 </Project>
