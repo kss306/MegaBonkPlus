@@ -2,6 +2,7 @@
 using Assets.Scripts.Actors.Player;
 using Assets.Scripts.Game.Other;
 using Assets.Scripts.Managers;
+using Assets.Scripts.Inventory__Items__Pickups.Interactables;
 using BonkersLib.Core;
 using BonkersLib.Enums;
 using BonkersLib.Utils;
@@ -13,8 +14,12 @@ namespace BonkersLib.Services;
 
 public class GameStateService
 {
-    private const float WORLD_LOAD_DELAY = 0.5f;
+    private const float TIMEOUT_WORLD_LOAD_DELAY = 2.0f;
+    private const float DELAY_AFTER_FOUND = 0.5f;
+
     private float _worldLoadTimer;
+    private bool _shrinesDetected;
+    private float _delayAfterFoundTimer;
 
     public GameStateService()
     {
@@ -72,21 +77,38 @@ public class GameStateService
             CurrentRunConfig = MapController.runConfig;
 
             CurrentStateEnum = GameStateEnum.WaitingForWorldLoad;
-            _worldLoadTimer = WORLD_LOAD_DELAY;
+            _worldLoadTimer = TIMEOUT_WORLD_LOAD_DELAY;
+            _shrinesDetected = false;
+            _delayAfterFoundTimer = 0f;
         }
     }
 
     private void HandleWaitingForWorldLoadState()
     {
-        _worldLoadTimer -= Time.unscaledDeltaTime;
+        if (!_shrinesDetected && HasWorldStartedBasedOnShrines())
+        {
+            _shrinesDetected = true;
+            _delayAfterFoundTimer = DELAY_AFTER_FOUND;
+            ModLogger.LogDebug(
+                $"[GameStateService] Shrine detected, waiting additional {DELAY_AFTER_FOUND:0.00}s before starting game");
+        }
 
+        if (_shrinesDetected)
+        {
+            _delayAfterFoundTimer -= Time.unscaledDeltaTime;
+            if (_delayAfterFoundTimer <= 0f)
+            {
+                SwitchToInGame("Detected shrines and post-delay elapsed");
+                return;
+            }
+        }
+
+        _worldLoadTimer -= Time.unscaledDeltaTime;
         if (_worldLoadTimer <= 0f)
         {
-            ModLogger.LogDebug("[GameStateService] World load delay complete, switching to InGame state");
-            CurrentStateEnum = GameStateEnum.InGame;
-
-            BonkersAPI.World.OnGameStarted();
-            GameStarted?.Invoke();
+            ModLogger.LogWarning(
+                "[GameStateService] World load timeout reached, switching to InGame state anyway");
+            SwitchToInGame("Timeout reached");
         }
     }
 
@@ -109,11 +131,31 @@ public class GameStateService
         }
     }
 
+    private bool HasWorldStartedBasedOnShrines()
+    {
+        var greed  = Object.FindObjectOfType<InteractableShrineGreed>(true);
+        var magnet = Object.FindObjectOfType<InteractableShrineMagnet>(true);
+        var cursed = Object.FindObjectOfType<InteractableShrineCursed>(true);
+        
+        return greed || magnet || cursed;
+    }
+
+    private void SwitchToInGame(string reason)
+    {
+        ModLogger.LogDebug($"[GameStateService] World load complete ({reason}), switching to InGame state");
+        CurrentStateEnum = GameStateEnum.InGame;
+
+        BonkersAPI.World.OnGameStarted();
+        GameStarted?.Invoke();
+    }
+
     private void ClearGameInstances()
     {
         GameManagerInstance = null;
         EnemyManagerInstance = null;
         CurrentRunConfig = null;
         _worldLoadTimer = 0f;
+        _shrinesDetected = false;
+        _delayAfterFoundTimer = 0f;
     }
 }
