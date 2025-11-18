@@ -5,6 +5,8 @@ import {addLevels} from '../hooks/actions/levelHook.js';
 import {addGold, setGold} from '../hooks/actions/goldHook.js';
 import {spawnItems} from '../hooks/actions/itemHook.js';
 import {pickUpAllXp} from "../hooks/actions/pickUpAllXpHook.js";
+import {unlockAll} from "../hooks/actions/achievementHook.js";
+import {interactWithEvery} from "../hooks/actions/interactWithEveryHook.js";
 
 export const ACTION_HOOKS = {
     'interact': (payload) => interact(payload.instanceId),
@@ -21,14 +23,15 @@ export const ACTION_HOOKS = {
     },
 
     'spawn_items': (payload) => spawnItems(payload.items),
-    'pick_up_all_xp': (payload) => pickUpAllXp(payload)
+    'pick_up_all_xp': (payload) => pickUpAllXp(payload),
+    'unlock_all': (payload) => unlockAll(payload),
+    'interact_with_every': (payload) => interactWithEvery(payload)
 };
 
 export async function executeAction(actionName, payload) {
     const actionHook = ACTION_HOOKS[actionName];
 
     if (!actionHook) {
-        console.warn(`Unknown action: ${actionName}`);
         return false;
     }
 

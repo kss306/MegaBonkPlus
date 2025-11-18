@@ -2,19 +2,19 @@
     grid-column: 1 / -1;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 180px 180px;
+    grid-template-rows: 180px 180px 180px;
     gap: var(--card-gap);
     align-items: stretch;
 }
 
 .item-spawner-card {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 2;
 }
 
 .auto-restarter-card {
     grid-column: 2;
-    grid-row: 1;
+    grid-row: 2;
 }
 
 .hotkey-card {
@@ -22,8 +22,12 @@
     grid-row: 1 / span 2;
 }
 
-
-.new-long-card {
+.inventory-card {
     grid-column: 1 / span 2;
-    grid-row: 2;
+    grid-row: 1;
+}
+
+.cheats-card {
+    grid-column: 1 / span 3;
+    grid-row: 3;
 }

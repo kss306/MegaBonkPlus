@@ -1,0 +1,83 @@
+﻿
+.cheats-module {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+}
+
+.cheats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cheats-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cheats-title-group h3 {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.cheats-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    margin-top: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 4px;
+}
+
+.cheats-list {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    height: 100%;
+    justify-content: space-between;
+    column-gap: 16px;
+    row-gap: 0;
+    padding-right: 12px;
+}
+
+.cheat-row {
+    break-inside: avoid;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-color);
+    box-sizing: border-box;
+    width: 260px;
+    position: relative;
+    height: 30px;
+}
+
+.cheat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+
+.cheat-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.cheat-control .cheat-button {
+    min-width: 80px;
+    padding-inline: 10px;
+    white-space: nowrap;
+}

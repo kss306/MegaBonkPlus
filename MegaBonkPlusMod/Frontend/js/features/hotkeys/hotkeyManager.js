@@ -1,4 +1,4 @@
-﻿import {createElement, getElem, on} from '../../utils/dom.js';
+import {createElement, getElem, on} from '../../utils/dom.js';
 import {getHotkeyConfig, updateHotkeyConfig} from '../../hooks/hotkeyHook.js';
 import {ACTIONS_CONFIG} from '../../configs/actionConfig.js';
 
@@ -242,6 +242,14 @@ function formatActionForButton(action) {
 
     if (action.id === 'teleport_to_nearest' && payload.object) {
         const mod = config.modifiers.find(m => m.payloadKey === 'object');
+        const option = mod?.options?.find(o => o.value === payload.object);
+        const targetName = option ? option.name : payload.object;
+        label = `${config.name} ${targetName}`;
+        return label;
+    }
+
+    if (action.id === 'interact_with_every' && payload.object) {
+        const mod = config.modifiers.find(m => m.payloadKey === 'interactable');
         const option = mod?.options?.find(o => o.value === payload.object);
         const targetName = option ? option.name : payload.object;
         label = `${config.name} ${targetName}`;

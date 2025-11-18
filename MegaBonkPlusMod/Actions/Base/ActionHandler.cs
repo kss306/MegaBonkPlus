@@ -36,6 +36,8 @@ public class ActionHandler
         _actions["pick_up_all_xp"] = new PickUpAllXpAction();
         _actions["weapon"] = new WeaponAction();
         _actions["tome"] = new TomeAction();
+        _actions["unlock_all"] = new AchievementAction();
+        _actions["interact_with_every"] = new InteractWithEveryAction();
 
         ModLogger.LogDebug($"{_actions.Count} actions registered.");
     }
