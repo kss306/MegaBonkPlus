@@ -4,7 +4,6 @@
     }
 
     async request(endpoint, options = {}) {
-        console.debug('API request start', endpoint);
         try {
             const response = await fetch(`${this.baseUrl}${endpoint}`, {
                 headers: {
@@ -15,7 +14,6 @@
             });
 
             const text = await response.text();
-            console.debug('API response raw', endpoint, text);
 
             let data;
             try {
@@ -36,7 +34,6 @@
             return data;
         } catch (error) {
             if (error instanceof ApiError) {
-                console.error('API request failed', endpoint, error);
                 throw error;
             }
             throw new ApiError('Network error', error.message, 0);

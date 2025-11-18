@@ -21,9 +21,8 @@ let lastWeaponInventorySerialized = null;
 let lastTomeInventorySerialized = null;
 
 export async function setupWeaponActions() {
-    const card = document.querySelector('.new-long-card');
+    const card = document.querySelector('.inventory-card');
     if (!card) {
-        console.error('WeaponActions: .new-long-card not found');
         return;
     }
 

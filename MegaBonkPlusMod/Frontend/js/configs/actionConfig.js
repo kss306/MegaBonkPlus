@@ -1,4 +1,4 @@
-﻿export const ACTIONS_CONFIG = [
+export const ACTIONS_CONFIG = [
     {
         id: 'kill_all_enemies',
         name: 'Kill All Enemies',
@@ -117,6 +117,26 @@
                     {value: 'magnet_shrine', name: 'Magnet Shrine'},
                     {value: 'cursed_shrine', name: 'Cursed Shrine'},
                     {value: 'open_chest', name: 'Open Chest'}
+                ]
+            }
+        ]
+    },
+    {
+        id: 'interact_with_every',
+        name: 'Interact with Every',
+        modifiers: [
+            {
+                id: 'interact_with_select',
+                name: 'Interact with',
+                type: 'select',
+                payloadKey: 'interactable',
+                defaultValue: 'ChargeShrine',
+                options: [
+                    {value: 'ChargeShrine', name: 'Charge Shrine'},
+                    {value: 'MoaiShrine', name: 'Moai Shrine'},
+                    {value: 'GreedShrine', name: 'Greed Shrine'},
+                    {value: 'ChallengeShrine', name: 'Challenge Shrine'},
+                    {value: 'CursedShrine', name: 'Cursed Shrine'},
                 ]
             }
         ]

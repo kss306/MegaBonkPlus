@@ -555,6 +555,16 @@
         <EmbeddedResource Include="Frontend\images\inventory\precision.png"/>
         <None Remove="Frontend\favicon.ico"/>
         <EmbeddedResource Include="Frontend\favicon.ico"/>
+        <None Remove="Frontend\js\hooks\actions\achievementHook.js" />
+        <EmbeddedResource Include="Frontend\js\hooks\actions\achievementHook.js" />
+        <None Remove="Frontend\js\configs\cheatsConfig.js" />
+        <EmbeddedResource Include="Frontend\js\configs\cheatsConfig.js" />
+        <None Remove="Frontend\js\features\cheats\cheatsActions.js" />
+        <EmbeddedResource Include="Frontend\js\features\cheats\cheatsActions.js" />
+        <None Remove="Frontend\css\components\card-cheats.css" />
+        <EmbeddedResource Include="Frontend\css\components\card-cheats.css" />
+        <None Remove="Frontend\js\hooks\actions\interactWithEveryHook.js" />
+        <EmbeddedResource Include="Frontend\js\hooks\actions\interactWithEveryHook.js" />
     </ItemGroup>
 
 </Project>
