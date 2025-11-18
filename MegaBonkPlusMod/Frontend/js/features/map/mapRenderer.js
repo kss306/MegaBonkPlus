@@ -1,6 +1,6 @@
 ﻿import {getElem} from '../../utils/dom.js';
 
-export function renderMinimap(data) {
+export function renderMinimap(data, currentMap) {
     const canvas = getElem('minimap-canvas');
     const wrapper = getElem('minimap-wrapper');
 

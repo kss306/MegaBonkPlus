@@ -3,7 +3,7 @@ import {worldToCanvasPercentages} from './mapCoordinates.js';
 
 let lastIconsHtml = null;
 
-export function updateMapIcons(dataMap, configMap, filterStates) {
+export function updateMapIcons(dataMap, configMap, filterStates, currentMap) {
     const iconContainer = getElem('minimap-icons');
     const canvas = getElem('minimap-canvas');
 
@@ -11,7 +11,14 @@ export function updateMapIcons(dataMap, configMap, filterStates) {
         return;
     }
 
-    const icons = buildIconsHTML(dataMap, configMap, filterStates, canvas.width, canvas.height);
+    const icons = buildIconsHTML(
+        dataMap,
+        configMap,
+        filterStates,
+        canvas.width,
+        canvas.height,
+        currentMap
+    );
 
     if (icons === lastIconsHtml) {
         return;
@@ -22,7 +29,7 @@ export function updateMapIcons(dataMap, configMap, filterStates) {
 }
 
 
-function buildIconsHTML(dataMap, configMap, filterStates, canvasWidth, canvasHeight) {
+function buildIconsHTML(dataMap, configMap, filterStates, canvasWidth, canvasHeight, currentMap) {
     let allIconsHtml = '';
 
     for (const key of Object.keys(dataMap)) {
@@ -43,7 +50,7 @@ function buildIconsHTML(dataMap, configMap, filterStates, canvasWidth, canvasHei
                 return;
             }
 
-            const iconHTML = buildIconHTML(item, config, canvasWidth, canvasHeight);
+            const iconHTML = buildIconHTML(item, config, canvasWidth, canvasHeight, currentMap);
             if (iconHTML) {
                 allIconsHtml += iconHTML;
             }
@@ -58,12 +65,12 @@ function shouldFilterByRarity(item, filter) {
     return filter[itemRarity] === false;
 }
 
-function buildIconHTML(item, config, canvasWidth, canvasHeight) {
+function buildIconHTML(item, config, canvasWidth, canvasHeight, currentMap) {
     const renderInfo = config.renderConfigSelector(item);
     if (renderInfo.type === 'none') return null;
 
     const tooltipHtml = config.getTooltipHtml(item).replace(/"/g, '&quot;');
-    const {leftPercent, topPercent} = worldToCanvasPercentages(item.position, canvasWidth, canvasHeight);
+    const {leftPercent, topPercent} = worldToCanvasPercentages(item.position, canvasWidth, canvasHeight, currentMap);
 
     const sizeInPixels = renderInfo.size ?? 16;
     const widthPercent = (sizeInPixels / canvasWidth) * 100;

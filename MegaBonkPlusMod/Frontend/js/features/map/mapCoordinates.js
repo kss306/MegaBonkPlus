@@ -1,14 +1,16 @@
-﻿import {MAP_SCALE, WORLD_OFFSET_X, WORLD_OFFSET_Z} from '../../configs/mapConfig.js';
+﻿import {getMapData} from '../../configs/mapConfig.js';
 
-export function worldToCanvasPercentages(worldPos, canvasWidth, canvasHeight) {
+export function worldToCanvasPercentages(worldPos, canvasWidth, canvasHeight, currentMap) {
     const canvasCenterX = canvasWidth / 2;
     const canvasCenterY = canvasHeight / 2;
 
-    const relativeX = worldPos.x - WORLD_OFFSET_X;
-    const relativeZ = worldPos.z - WORLD_OFFSET_Z;
+    const mapData = getMapData(currentMap);
+    
+    const relativeX = worldPos.x - mapData.worldOffsetX;
+    const relativeZ = worldPos.z - mapData.worldOffsetZ;
 
-    const u = (relativeX / MAP_SCALE) + canvasCenterX;
-    const v = (relativeZ / MAP_SCALE) + canvasCenterY;
+    const u = (relativeX / mapData.mapScale) + canvasCenterX;
+    const v = (relativeZ / mapData.mapScale) + canvasCenterY;
 
     let leftPercent = (u / canvasWidth) * 100;
     let topPercent = (v / canvasHeight) * 100;
