@@ -3,6 +3,7 @@ using Assets.Scripts.Inventory__Items__Pickups.Stats;
 using Assets.Scripts.Inventory__Items__Pickups.Weapons;
 using Assets.Scripts.Menu.Shop;
 using BonkersLib.Core;
+using BonkersLib.Utils;
 using Il2CppSystem.Collections.Generic;
 
 namespace BonkersLib.Services.Player;
@@ -11,112 +12,160 @@ public class WeaponService
 {
     private PlayerInventory _playerInventory => BonkersAPI.Player.Inventory;
 
-    public WeaponInventory WeaponInventory => _playerInventory?.weaponInventory;
-    public Dictionary<EWeapon, WeaponBase> CurrentWeapons => WeaponInventory?.weapons;
+    public WeaponInventory WeaponInventory =>
+        MainThreadDispatcher.Evaluate(() => _playerInventory?.weaponInventory);
+
+    public Dictionary<EWeapon, WeaponBase> CurrentWeapons =>
+        MainThreadDispatcher.Evaluate(() => WeaponInventory?.weapons.ToSafeCopy());
 
     public WeaponData GetWeaponDataFromEnum(EWeapon eWeapon)
     {
-        return BonkersAPI.Data.WeaponData[eWeapon];
+        var weaponDataDict = BonkersAPI.Data.WeaponData;
+        return weaponDataDict.ContainsKey(eWeapon) ? weaponDataDict[eWeapon] : null;
     }
 
     public WeaponData GetWeaponDataFromWeaponBase(WeaponBase wb)
     {
-        return wb.weaponData;
+        return MainThreadDispatcher.Evaluate(() => wb?.weaponData);
     }
 
     public string GetWeaponNameFromWeaponBase(WeaponBase wb)
     {
-        return wb.weaponData?.damageSourceName ?? "WeaponData not found";
+        return MainThreadDispatcher.Evaluate(() =>
+            wb?.weaponData?.damageSourceName ?? "WeaponData not found");
     }
 
     public List<StatModifier> GetWeaponUpgradeOffer(WeaponData wd, ERarity rarity)
     {
-        return wd.GetUpgradeOffer(rarity);
+        return MainThreadDispatcher.Evaluate(() => wd ? wd.GetUpgradeOffer(rarity) : null);
     }
 
     public List<EStat> GetValidUpgradeStats(EWeapon eWeapon)
     {
-        var wd = GetWeaponDataFromEnum(eWeapon);
-        if (!wd)
-            return new List<EStat>();
-
-        var upgradeData = wd.upgradeData;
-        var allowedUpgradeModifiers = upgradeData?.upgradeModifiers;
-        if (allowedUpgradeModifiers == null || allowedUpgradeModifiers.Count == 0)
-            return new List<EStat>();
-
-        var uniqueStats = new List<EStat>();
-        for (var i = 0; i < allowedUpgradeModifiers.Count; i++)
+        return MainThreadDispatcher.Evaluate(() =>
         {
-            var modifier = allowedUpgradeModifiers[i];
-            if (modifier == null)
-                continue;
+            var wd = GetWeaponDataFromEnum(eWeapon);
+            if (!wd) return new List<EStat>();
 
-            var stat = modifier.stat;
-            if (!uniqueStats.Contains(stat)) uniqueStats.Add(stat);
-        }
+            var upgradeData = wd.upgradeData;
+            var allowedUpgradeModifiers = upgradeData?.upgradeModifiers;
 
-        return uniqueStats;
+            var uniqueStats = new List<EStat>();
+
+            if (allowedUpgradeModifiers == null || allowedUpgradeModifiers.Count == 0)
+                return uniqueStats;
+
+            for (var i = 0; i < allowedUpgradeModifiers.Count; i++)
+            {
+                var modifier = allowedUpgradeModifiers[i];
+                if (modifier == null) continue;
+
+                var stat = modifier.stat;
+                if (!uniqueStats.Contains(stat))
+                    uniqueStats.Add(stat);
+            }
+
+            return uniqueStats;
+        });
     }
 
     public bool AddWeaponWithStats(WeaponData wd, List<StatModifier> stats)
     {
-        if (WeaponInventory == null || !wd)
-            return false;
+        return MainThreadDispatcher.Evaluate(() =>
+        {
+            if (!BonkersAPI.Game.IsInGame || WeaponInventory == null) return false;
+            if (!wd) return false;
 
-        var validStats = GetValidUpgradeStats(wd.eWeapon);
+            var validStats = GetValidUpgradeStats(wd.eWeapon);
 
-        foreach (var stat in stats)
-            if (!validStats.Contains(stat.stat))
-                return false;
+            foreach (var stat in stats)
+            {
+                if (!validStats.Contains(stat.stat))
+                    return false;
+            }
 
-        WeaponInventory.AddWeapon(wd, stats);
-        return true;
+            WeaponInventory.AddWeapon(wd, stats);
+            return true;
+        });
     }
-
 
     public void AddWeapon(EWeapon eWeapon)
     {
-        var wd = GetWeaponDataFromEnum(eWeapon);
-        var statModifiers = GetWeaponUpgradeOffer(wd, ERarity.New);
-        AddWeaponWithStats(wd, statModifiers);
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            var wd = GetWeaponDataFromEnum(eWeapon);
+            if (!wd)
+            {
+                ModLogger.LogDebug($"[WeaponService] WeaponData not found for {eWeapon}");
+                return;
+            }
+
+            var statModifiers = GetWeaponUpgradeOffer(wd, ERarity.New);
+            AddWeaponWithStats(wd, statModifiers);
+
+            ModLogger.LogDebug($"[WeaponService] Added weapon: {eWeapon}");
+        });
     }
 
     public bool RemoveWeapon(EWeapon eWeapon)
     {
-        if (!CurrentWeapons.Remove(eWeapon))
-            return false;
+        return MainThreadDispatcher.Evaluate(() =>
+        {
+            var weapons = WeaponInventory?.weapons;
 
-        BonkersAPI.Ui.RefreshUi();
-        return true;
+            if (weapons == null || !weapons.Remove(eWeapon))
+                return false;
+
+            BonkersAPI.Ui.RefreshUi();
+            ModLogger.LogDebug($"[WeaponService] Removed weapon: {eWeapon}");
+            return true;
+        });
     }
 
     public void UpgradeWithRandomStats(WeaponBase wb, ERarity rarity)
     {
-        var wd = wb.weaponData;
-        var upgrades = GetWeaponUpgradeOffer(wd, rarity);
-        AddWeaponWithStats(wd, upgrades);
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            if (wb == null || !wb.weaponData) return;
+
+            var wd = wb.weaponData;
+            var upgrades = GetWeaponUpgradeOffer(wd, rarity);
+            AddWeaponWithStats(wd, upgrades);
+
+            ModLogger.LogDebug($"[WeaponService] Upgraded weapon: {wd.name}");
+        });
     }
 
     public bool DowngradeWeapon(WeaponBase wb)
     {
-        if (wb?.upgrades is not { Count: > 1 })
-            return false;
+        return MainThreadDispatcher.Evaluate(() =>
+        {
+            if (wb?.upgrades == null || wb.upgrades.Count <= 1)
+                return false;
 
-        wb.upgrades.RemoveAt(wb.upgrades.Count - 1);
-        wb.level--;
-        BonkersAPI.Ui.RefreshUi();
-        return true;
+            wb.upgrades.RemoveAt(wb.upgrades.Count - 1);
+            wb.level--;
+
+            BonkersAPI.Ui.RefreshUi();
+            ModLogger.LogDebug($"[WeaponService] Downgraded weapon: {GetWeaponNameFromWeaponBase(wb)}");
+            return true;
+        });
     }
-
+    
     public bool ClearWeaponUpgrades(WeaponBase wb)
     {
-        if (wb?.upgrades is not { Count: > 1 })
-            return false;
+        return MainThreadDispatcher.Evaluate(() =>
+        {
+            if (wb?.upgrades is not { Count: > 1 })
+                return false;
 
-        wb.upgrades.RemoveRange(1, wb.upgrades.Count - 1);
-        wb.level = 1;
-        BonkersAPI.Ui.RefreshUi();
-        return true;
+            wb.upgrades.RemoveRange(1, wb.upgrades.Count - 1);
+            wb.level = 1;
+        
+            BonkersAPI.Ui.RefreshUi();
+        
+            ModLogger.LogDebug($"[WeaponService] Cleared upgrades for weapon: {GetWeaponNameFromWeaponBase(wb)}");
+            return true;
+        });
     }
 }
