@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.Actors.Enemies;
 using Assets.Scripts.Inventory__Items__Pickups.Chests;
 using Assets.Scripts.Inventory__Items__Pickups.Interactables;
@@ -21,15 +22,14 @@ public class WorldService
     }
 
     private EnemyManager _enemyManager => BonkersAPI.Game.EnemyManagerInstance;
-    public bool AreEnemiesSpawning => _enemyManager?.enabledWaves ?? false;
+    public bool AreEnemiesSpawning => MainThreadDispatcher.Evaluate(() => _enemyManager?.enabledWaves ?? false);
 
     internal void Update()
     {
-        if (BonkersAPI.Game.IsInGame && _cache.IsValid)
-        {
-            _cache.UpdateDynamicObjects();
-            _cache.CleanupCompleted();
-        }
+        if (!BonkersAPI.Game.IsInGame || !_cache.IsValid) return;
+
+        _cache.UpdateDynamicObjects();
+        _cache.CleanupCompleted();
     }
 
     internal void OnSceneChanged()
@@ -46,8 +46,11 @@ public class WorldService
 
     public T GetComponentByInstanceId<T>(int instanceId) where T : Component
     {
-        EnsureCacheValid();
-        return _cache.GetComponentByInstanceId<T>(instanceId);
+        return MainThreadDispatcher.Evaluate(() =>
+        {
+            EnsureCacheValid();
+            return _cache.GetComponentByInstanceId<T>(instanceId);
+        });
     }
 
     public IEnumerable<ChargeShrine> GetChargeShrines()
@@ -174,79 +177,108 @@ public class WorldService
     {
         return GetNearestObject(WorldObjectTypeEnum.BossSpawnerFinal);
     }
-
+    
     public void KillAllEnemies()
     {
-        if (!BonkersAPI.Game.IsInGame) return;
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            if (!BonkersAPI.Game.IsInGame) return;
 
-        var allEnemies = GetCachedObjects<Enemy>(WorldObjectTypeEnum.Enemy);
-        foreach (var enemy in allEnemies)
-            if (enemy)
-                enemy.DiedNextFrame();
+            var allEnemies = GetCachedObjects<Enemy>(WorldObjectTypeEnum.Enemy);
+            foreach (var enemy in allEnemies)
+            {
+                if (enemy) enemy.DiedNextFrame();
+            }
+
+            ModLogger.LogDebug("[WorldService] Killed all enemies");
+        });
     }
 
     public void ToggleEnemySpawns()
     {
-        if (!_enemyManager) return;
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            if (!_enemyManager) return;
 
-        _enemyManager.enabledWaves = !AreEnemiesSpawning;
-        ModLogger.LogDebug($"[WorldService] Toggled enemy spawns to {AreEnemiesSpawning}");
+            _enemyManager.enabledWaves = !_enemyManager.enabledWaves;
+            ModLogger.LogDebug($"[WorldService] Toggled enemy spawns to {_enemyManager.enabledWaves}");
+        });
     }
 
     public List<ItemData> GetEveryShadyItem()
     {
-        var shadyGuys = GetShadyGuys();
-        var items = new List<ItemData>();
+        return MainThreadDispatcher.Evaluate(() =>
+        {
+            var items = new List<ItemData>();
+            var shadyGuys = GetShadyGuys();
 
-        foreach (var shadyGuy in shadyGuys)
-            if (shadyGuy && shadyGuy.items != null)
-                foreach (var item in shadyGuy.items)
-                    if (item)
-                        items.Add(item);
+            foreach (var shadyGuy in shadyGuys)
+            {
+                if (shadyGuy && shadyGuy.items != null)
+                {
+                    foreach (var item in shadyGuy.items)
+                    {
+                        if (item) items.Add(item);
+                    }
+                }
+            }
 
-        return items;
+            return items;
+        });
     }
 
     public IEnumerable<T> GetCachedObjects<T>(WorldObjectTypeEnum objectType) where T : Component
     {
-        EnsureCacheValid();
-        return _cache.GetCachedObjects<T>(objectType);
+        return MainThreadDispatcher.Evaluate(() =>
+        {
+            EnsureCacheValid();
+            return _cache.GetCachedObjects<T>(objectType).ToList();
+        });
     }
 
     public void InteractWithEvery(WorldObjectTypeEnum objectType)
     {
-        switch (objectType)
+        MainThreadDispatcher.Enqueue(() =>
         {
-            case WorldObjectTypeEnum.ChargeShrine:
-                foreach (var obj in GetCachedObjects<ChargeShrine>(objectType))
-                    obj.Complete();
-                break;
-            case WorldObjectTypeEnum.GreedShrine:
-                foreach (var obj in GetCachedObjects<InteractableShrineGreed>(objectType))
-                    obj.Interact();
-                break;
-            case WorldObjectTypeEnum.ChallengeShrine:
-                foreach (var obj in GetCachedObjects<InteractableShrineChallenge>(objectType))
-                    obj.Interact();
-                break;
-            case WorldObjectTypeEnum.CursedShrine:
-                foreach (var obj in GetCachedObjects<InteractableShrineCursed>(objectType))
-                    obj.Interact();
-                break;
-            case WorldObjectTypeEnum.MoaiShrine:
-                foreach (var obj in GetCachedObjects<InteractableShrineMoai>(objectType))
-                    obj.Interact();
-                break;
-            default:
-                ModLogger.LogDebug($"[InteractAction] Component type {objectType} has no interaction handler");
-                break;
-        }
+            EnsureCacheValid();
+
+            switch (objectType)
+            {
+                case WorldObjectTypeEnum.ChargeShrine:
+                    foreach (var obj in _cache.GetCachedObjects<ChargeShrine>(objectType))
+                        obj.Complete();
+                    break;
+                case WorldObjectTypeEnum.GreedShrine:
+                    foreach (var obj in _cache.GetCachedObjects<InteractableShrineGreed>(objectType))
+                        obj.Interact();
+                    break;
+                case WorldObjectTypeEnum.ChallengeShrine:
+                    foreach (var obj in _cache.GetCachedObjects<InteractableShrineChallenge>(objectType))
+                        obj.Interact();
+                    break;
+                case WorldObjectTypeEnum.CursedShrine:
+                    foreach (var obj in _cache.GetCachedObjects<InteractableShrineCursed>(objectType))
+                        obj.Interact();
+                    break;
+                case WorldObjectTypeEnum.MoaiShrine:
+                    foreach (var obj in _cache.GetCachedObjects<InteractableShrineMoai>(objectType))
+                        obj.Interact();
+                    break;
+                default:
+                    ModLogger.LogDebug(
+                        $"[WorldService] Component type {objectType} has no interaction handler in WorldService");
+                    break;
+            }
+        });
     }
 
-    private Vector3? GetNearestObject(WorldObjectTypeEnum objectType)
+    public Vector3? GetNearestObject(WorldObjectTypeEnum objectType)
     {
-        EnsureCacheValid();
-        return _cache.GetNearestObject(objectType, BonkersAPI.Player.Position);
+        return MainThreadDispatcher.Evaluate(() =>
+        {
+            EnsureCacheValid();
+            return _cache.GetNearestObject(objectType, BonkersAPI.Player.Position);
+        });
     }
 
     private void EnsureCacheValid()

@@ -565,6 +565,8 @@
         <EmbeddedResource Include="Frontend\css\components\card-cheats.css" />
         <None Remove="Frontend\js\hooks\actions\interactWithEveryHook.js" />
         <EmbeddedResource Include="Frontend\js\hooks\actions\interactWithEveryHook.js" />
+        <None Remove="Frontend\js\core\gameData.js" />
+        <EmbeddedResource Include="Frontend\js\core\gameData.js" />
     </ItemGroup>
 
     <Target Name="PackageMod" AfterTargets="PostBuildEvent">

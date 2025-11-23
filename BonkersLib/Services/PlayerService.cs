@@ -16,8 +16,8 @@ public class PlayerService
 {
     private const float SAFE_RANGE = 15.0f;
     private const float Y_OFFSET = 10.0f;
-    private Vector3 _teleportTarget;
 
+    private Vector3 _teleportTarget;
     private bool _tryingToTeleport;
 
     internal PlayerService()
@@ -26,80 +26,48 @@ public class PlayerService
 
     private MyPlayer _player => BonkersAPI.Game.PlayerController;
 
-    public string CharacterName => _player?.character.ToString() ?? "N/A";
-    public Vector3 Position => _player?.feet.transform.position ?? Vector3.zero;
-    public int InstanceId => _player?.gameObject.GetInstanceID() ?? -1;
-    public GameObject GameObject => _player?.gameObject;
+    public string CharacterName => MainThreadDispatcher.Evaluate(() =>
+        _player ? _player.character.ToString() : "N/A");
 
-    public PlayerInventory Inventory => _player?.inventory;
-    public PlayerStatsNew Stats => Inventory?.playerStats;
-    public Dictionary<EStat, float> StatsDict => Stats?.stats ?? new Dictionary<EStat, float>();
-    public Dictionary<EStat, float> RawStatsDict => Stats?.rawStats ?? new Dictionary<EStat, float>();
-    public PlayerHealth PlayerHealth => Inventory?.playerHealth;
-    public PlayerXp PlayerXp => Inventory?.playerXp;
+    public Vector3 Position => MainThreadDispatcher.Evaluate(() =>
+        _player ? _player.feet.transform.position : Vector3.zero);
 
-    public int Health => PlayerHealth?.hp ?? 0;
-    public int MaxHealth => PlayerHealth?.maxHp ?? 0;
-    public float Shield => PlayerHealth?.shield ?? 0;
-    public float MaxShield => PlayerHealth?.maxShield ?? 0;
+    public int InstanceId => MainThreadDispatcher.Evaluate(() =>
+        _player ? _player.gameObject.GetInstanceID() : -1);
 
-    public float Gold => Inventory?.gold ?? 0;
-    public int Level => Inventory?.GetCharacterLevel() ?? 0;
+    public GameObject GameObject => MainThreadDispatcher.Evaluate(() => _player?.gameObject);
+
+    public PlayerInventory Inventory => MainThreadDispatcher.Evaluate(() => _player?.inventory);
+
+    public PlayerHealth PlayerHealth =>
+        MainThreadDispatcher.Evaluate(() => _player?.inventory?.playerHealth);
+
+    public PlayerXp PlayerXp => MainThreadDispatcher.Evaluate(() => _player?.inventory?.playerXp);
+
+    public PlayerStatsNew Stats => MainThreadDispatcher.Evaluate(() => _player?.inventory?.playerStats);
+
+    public Dictionary<EStat, float> StatsDict =>
+        MainThreadDispatcher.Evaluate(() => _player?.inventory?.playerStats?.stats.ToSafeCopy());
+
+    public Dictionary<EStat, float> RawStatsDict =>
+        MainThreadDispatcher.Evaluate(() => _player?.inventory?.playerStats?.rawStats.ToSafeCopy());
+
+    public int Health => MainThreadDispatcher.Evaluate(() => PlayerHealth?.hp ?? 0);
+    public int MaxHealth => MainThreadDispatcher.Evaluate(() => PlayerHealth?.maxHp ?? 0);
+    public float Shield => MainThreadDispatcher.Evaluate(() => PlayerHealth?.shield ?? 0);
+    public float MaxShield => MainThreadDispatcher.Evaluate(() => PlayerHealth?.maxShield ?? 0);
+    public float Gold => MainThreadDispatcher.Evaluate(() => Inventory?.gold ?? 0);
+    public int Level => MainThreadDispatcher.Evaluate(() => Inventory?.GetCharacterLevel() ?? 0);
+
 
     internal void Update()
     {
         if (!BonkersAPI.Game.IsInGame) return;
 
-        if (_tryingToTeleport) TryToTeleport();
-    }
-
-    public void GiveGold(int amount)
-    {
-        if (!BonkersAPI.Game.IsInGame) return;
-        Inventory?.ChangeGold(amount);
-        ModLogger.LogDebug($"Gave {amount} gold to player");
-    }
-
-    public void SetGold(int amount)
-    {
-        if (!BonkersAPI.Game.IsInGame || Inventory == null) return;
-        Inventory.gold = amount;
-        BonkersAPI.Ui.RefreshUi();
-        ModLogger.LogDebug($"Set gold to {amount}");
-    }
-
-    public void AddLevel(int amount)
-    {
-        if (!BonkersAPI.Game.IsInGame) return;
-        for (var i = 0; i < amount; i++) Inventory?.AddLevel();
-        ModLogger.LogDebug($"Added {amount} Levels to player");
-    }
-
-    public void GiveItem(string itemId, int quantity)
-    {
-        if (!BonkersAPI.Game.IsInGame || Inventory == null) return;
-
-        var rawItemData = BonkersAPI.Item.GetAllRawItems()
-            .FirstOrDefault(item =>
-                item.eItem.ToString().Equals(itemId, StringComparison.OrdinalIgnoreCase));
-
-        if (rawItemData)
+        if (_tryingToTeleport)
         {
-            Inventory.itemInventory.AddItem(rawItemData.eItem, quantity);
-            ModLogger.LogDebug($"Gave Player Item: {quantity}x {itemId}");
+            TryToTeleport();
         }
-        else
-        {
-            ModLogger.LogDebug($"[PlayerService] Item-ID '{itemId}' could not be found");
-        }
-    }
-
-    public void TeleportTo(Vector3 targetPosition)
-    {
-        if (!BonkersAPI.Game.IsInGame) return;
-        _teleportTarget = targetPosition + new Vector3(0, Y_OFFSET, 0);
-        _tryingToTeleport = true;
-        ModLogger.LogDebug($"Teleporting to {_teleportTarget} from {_player.transform.position}");
     }
 
     private void TryToTeleport()
@@ -111,14 +79,90 @@ public class PlayerService
         if (distance <= SAFE_RANGE)
         {
             _tryingToTeleport = false;
-            ModLogger.LogDebug("Teleport completed");
+            ModLogger.LogDebug("[PlayerService] Teleport completed/arrived");
         }
+        else
+        {
+            _player.transform.position = _teleportTarget;
+        }
+    }
 
-        _player.transform.position = _teleportTarget;
+    public void TeleportTo(Vector3 targetPosition)
+    {
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            if (!BonkersAPI.Game.IsInGame) return;
+
+            _teleportTarget = targetPosition + new Vector3(0, Y_OFFSET, 0);
+            _tryingToTeleport = true;
+
+            ModLogger.LogDebug(
+                $"[PlayerService] Starting teleport to {_teleportTarget} from {_player.transform.position}");
+        });
+    }
+
+    public void GiveGold(int amount)
+    {
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            if (!BonkersAPI.Game.IsInGame) return;
+            _player?.inventory?.ChangeGold(amount);
+            ModLogger.LogDebug($"[PlayerService] Gave {amount} gold to player");
+        });
+    }
+
+    public void SetGold(int amount)
+    {
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            if (!BonkersAPI.Game.IsInGame || _player?.inventory == null) return;
+            _player.inventory.gold = amount;
+            BonkersAPI.Ui.RefreshUi();
+            ModLogger.LogDebug($"[PlayerService] Set gold to {amount}");
+        });
+    }
+
+    public void AddLevel(int amount)
+    {
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            if (!BonkersAPI.Game.IsInGame || _player?.inventory == null) return;
+            for (var i = 0; i < amount; i++)
+                _player.inventory.AddLevel();
+
+            ModLogger.LogDebug($"[PlayerService] Added {amount} Levels to player");
+        });
+    }
+
+    public void GiveItem(string itemId, int quantity)
+    {
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            if (!BonkersAPI.Game.IsInGame || _player?.inventory == null) return;
+
+            var rawItemData = BonkersAPI.Item.GetAllRawItems()
+                .FirstOrDefault(item =>
+                    string.Equals(item.eItem.ToString(), itemId, StringComparison.OrdinalIgnoreCase));
+
+            if (rawItemData)
+            {
+                _player.inventory.itemInventory.AddItem(rawItemData.eItem, quantity);
+                ModLogger.LogDebug($"[PlayerService] Gave Player Item: {quantity}x {itemId}");
+            }
+            else
+            {
+                ModLogger.LogDebug($"[PlayerService] Item-ID '{itemId}' could not be found");
+            }
+        });
     }
 
     public void PickUpAllXp()
     {
-        BonkersAPI.Game.PickupManagerInstance.PickupAllXp();
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            if (!BonkersAPI.Game.IsInGame) return;
+            BonkersAPI.Game.PickupManagerInstance?.PickupAllXp();
+            ModLogger.LogDebug("[PlayerService] Picked up all XP");
+        });
     }
 }

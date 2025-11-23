@@ -10,25 +10,39 @@ public class ItemService
 
     internal void CacheAllRawItems()
     {
-        _cachedRawItems.Clear();
-        var allGameItems = BonkersAPI.Data.ItemData;
-
-        foreach (var item in allGameItems)
-        {
-            var tempItem = item.value;
-            tempItem.description = tempItem.GetDescription();
-            _cachedRawItems.Add(tempItem);
-        }
-
-        ModLogger.LogDebug($"[ItemService] {_cachedRawItems.Count} raw items cached");
+        MainThreadDispatcher.Enqueue(BuildCache);
     }
 
     public List<ItemData> GetAllRawItems()
     {
-        return _cachedRawItems;
+        return MainThreadDispatcher.Evaluate(() =>
+        {
+            if (_cachedRawItems.Count == 0)
+            {
+                BuildCache();
+            }
+
+            return new List<ItemData>(_cachedRawItems);
+        });
     }
 
-    internal void Update()
+    private void BuildCache()
     {
+        _cachedRawItems.Clear();
+
+        var allGameItems = BonkersAPI.Data.ItemData;
+
+        if (allGameItems != null)
+        {
+            foreach (var kvp in allGameItems)
+            {
+                var itemData = kvp.Value;
+                if (!itemData) continue;
+                itemData.description = itemData.GetDescription();
+                _cachedRawItems.Add(itemData);
+            }
+        }
+
+        ModLogger.LogDebug($"[ItemService] {_cachedRawItems.Count} raw items cached");
     }
 }

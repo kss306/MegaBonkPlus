@@ -9,6 +9,7 @@ public class LibUpdater : MonoBehaviour
     private void Update()
     {
         BonkersAPI.Update();
+        MainThreadDispatcher.Update();
     }
 
     public void Initialize()

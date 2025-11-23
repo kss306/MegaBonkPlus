@@ -3,7 +3,6 @@ using Assets.Scripts.Saves___Serialization.Progression.Unlocks;
 using BonkersLib.Core;
 using BonkersLib.Utils;
 using Il2CppSystem.Collections.Generic;
-using Il2CppSystem.Globalization;
 
 namespace BonkersLib.Services;
 
@@ -13,9 +12,18 @@ public class AchievementService
 
     public void UnlockAll()
     {
-        foreach (var achievemnt in AllAchievements)
-            MyAchievements.TryUnlock(achievemnt.Key);
-        
-        ModLogger.LogDebug("Unlocked all achievements!");
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            var achievements = AllAchievements;
+
+            if (achievements == null) return;
+
+            foreach (var achievement in achievements)
+            {
+                MyAchievements.TryUnlock(achievement.Key);
+            }
+
+            ModLogger.LogDebug("Unlocked all achievements!");
+        });
     }
 }

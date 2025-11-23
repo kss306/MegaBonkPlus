@@ -1,12 +1,14 @@
 ﻿import {api} from '../../api/apiClient.js';
 import {showToast} from '../../toast/toastService.js';
 
-export async function getAllTomes() {
+export async function getAllTomes(suppressError = false) {
     try {
         const response = await api.get('/api/tomes/all');
         return response.data || [];
     } catch (error) {
-        showToast('error', `Failed to load tomes: ${error.message}`);
+        if (!suppressError) {
+            showToast('error', `Failed to load tomes: ${error.message}`);
+        }
         return [];
     }
 }

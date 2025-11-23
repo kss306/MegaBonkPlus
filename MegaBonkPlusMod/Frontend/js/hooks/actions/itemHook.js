@@ -10,18 +10,19 @@ export async function spawnItems(items) {
         showToast('success', response.message);
         return true;
     } catch (error) {
-        1
         showToast('error', error.message || 'Spawn items failed');
         return false;
     }
 }
 
-export async function getAllItems() {
+export async function getAllItems(suppressError = false) {
     try {
         const response = await api.get('/api/items/all');
         return response.data;
     } catch (error) {
-        showToast('error', `Failed to load items: ${error.message}`);
+        if (!suppressError) {
+            showToast('error', `Failed to load items: ${error.message}`);
+        }
         return [];
     }
 }

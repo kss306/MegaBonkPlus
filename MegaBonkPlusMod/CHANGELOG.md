@@ -1,3 +1,7 @@
+### v0.9.2
+
+- Fixed an where the items, weapons and tomes would not be fetched from the server and forcing the user to reload the website
+
 ### v0.9.1
 
 - Fixed Minimap icon alignment on different maps
