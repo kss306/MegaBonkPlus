@@ -1,12 +1,14 @@
 ﻿import {api} from '../../api/apiClient.js';
 import {showToast} from '../../toast/toastService.js';
 
-export async function getAllWeapons() {
+export async function getAllWeapons(suppressError = false) {
     try {
         const response = await api.get('/api/weapons/all');
         return response.data || [];
     } catch (error) {
-        showToast('error', `Failed to load weapons: ${error.message}`);
+        if (!suppressError) {
+            showToast('error', `Failed to load weapons: ${error.message}`);
+        }
         return [];
     }
 }
