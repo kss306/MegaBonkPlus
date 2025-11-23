@@ -2,7 +2,6 @@
 using Assets.Scripts.Actors.Player;
 using Assets.Scripts.Game.Other;
 using Assets.Scripts.Managers;
-using Assets.Scripts.Inventory__Items__Pickups.Interactables;
 using BonkersLib.Core;
 using BonkersLib.Enums;
 using BonkersLib.Utils;
@@ -21,31 +20,47 @@ public class GameStateService
     private bool _shrinesDetected;
     private float _delayAfterFoundTimer;
 
+    private GameManager _gameManagerInstance;
+    private EnemyManager _enemyManagerInstance;
+    private PickupManager _pickupManagerInstance;
+    private RunConfig _currentRunConfig;
+
     public GameStateService()
     {
         CurrentStateEnum = GameStateEnum.MainMenu;
     }
 
-    public GameManager GameManagerInstance { get; private set; }
-    public EnemyManager EnemyManagerInstance { get; private set; }
-    public PickupManager PickupManagerInstance { get; private set; }
-    public MyPlayer PlayerController => GameManagerInstance?.player;
+    public GameManager GameManagerInstance => MainThreadDispatcher.Evaluate(() => _gameManagerInstance);
+    public EnemyManager EnemyManagerInstance => MainThreadDispatcher.Evaluate(() => _enemyManagerInstance);
+    public PickupManager PickupManagerInstance => MainThreadDispatcher.Evaluate(() => _pickupManagerInstance);
+    public MyPlayer PlayerController => MainThreadDispatcher.Evaluate(() => _gameManagerInstance?.player);
+
     public GameStateEnum CurrentStateEnum { get; private set; }
-    public RunConfig CurrentRunConfig { get; private set; }
-    public MapData CurrentMapData => CurrentRunConfig?.mapData;
-    public bool IsInGame => CurrentStateEnum == GameStateEnum.InGame;
-    public float StageTime => GameManagerInstance?.totalStageTime ?? 0;
-    public float TimeAlive => GameManagerInstance?.GetAliveTime() ?? 0;
-    public int BossCurses => GameManagerInstance?.bossCurses ?? 0;
-    public int StageTier => CurrentRunConfig?.mapTierIndex + 1 ?? -1;
-    public string StageName => CurrentMapData?.GetName() ?? "N/A";
+
+    public bool IsInGame => MainThreadDispatcher.Evaluate(() => CurrentStateEnum == GameStateEnum.InGame);
+
+    public RunConfig CurrentRunConfig => MainThreadDispatcher.Evaluate(() => _currentRunConfig);
+
+    public MapData CurrentMapData => MainThreadDispatcher.Evaluate(() => _currentRunConfig?.mapData);
+
+    public float StageTime => MainThreadDispatcher.Evaluate(() => _gameManagerInstance?.totalStageTime ?? 0);
+    public float TimeAlive => MainThreadDispatcher.Evaluate(() => _gameManagerInstance?.GetAliveTime() ?? 0);
+    public int BossCurses => MainThreadDispatcher.Evaluate(() => _gameManagerInstance?.bossCurses ?? 0);
+
+    public int StageTier => MainThreadDispatcher.Evaluate(() => _currentRunConfig?.mapTierIndex + 1 ?? -1);
+
+    public string StageName => MainThreadDispatcher.Evaluate(() => CurrentMapData?.GetName() ?? "N/A");
 
     public event Action GameStarted;
     public event Action SceneChanged;
 
     public void RestartRun()
     {
-        MapController.RestartRun();
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            MapController.RestartRun();
+            ModLogger.LogDebug("[GameStateService] Restart run requested");
+        });
     }
 
     internal void Update()
@@ -64,17 +79,18 @@ public class GameStateService
 
     private void HandleLoadingState()
     {
-        if (!GameManagerInstance)
-            GameManagerInstance = Object.FindObjectOfType<GameManager>();
+        if (!_gameManagerInstance)
+            _gameManagerInstance = Object.FindObjectOfType<GameManager>();
 
-        if (GameManagerInstance && GameManagerInstance.player)
+        if (_gameManagerInstance && _gameManagerInstance.player)
         {
             ModLogger.LogDebug(
                 "[GameStateService] Found GameManager and Player, waiting for world objects to spawn...");
 
-            EnemyManagerInstance = Object.FindObjectOfType<EnemyManager>();
-            PickupManagerInstance = Object.FindObjectOfType<PickupManager>();
-            CurrentRunConfig = MapController.runConfig;
+            _enemyManagerInstance = Object.FindObjectOfType<EnemyManager>();
+            _pickupManagerInstance = Object.FindObjectOfType<PickupManager>();
+
+            _currentRunConfig = MapController.runConfig;
 
             CurrentStateEnum = GameStateEnum.WaitingForWorldLoad;
             _worldLoadTimer = TIMEOUT_WORLD_LOAD_DELAY;
@@ -106,8 +122,7 @@ public class GameStateService
         _worldLoadTimer -= Time.unscaledDeltaTime;
         if (_worldLoadTimer <= 0f)
         {
-            ModLogger.LogWarning(
-                "[GameStateService] World load timeout reached, switching to InGame state anyway");
+            ModLogger.LogDebug("[GameStateService] World load timeout reached, switching to InGame state anyway");
             SwitchToInGame("Timeout reached");
         }
     }
@@ -133,10 +148,10 @@ public class GameStateService
 
     private bool HasWorldStartedBasedOnShrines()
     {
-        var greed  = Object.FindObjectOfType<InteractableShrineGreed>(true);
+        var greed = Object.FindObjectOfType<InteractableShrineGreed>(true);
         var magnet = Object.FindObjectOfType<InteractableShrineMagnet>(true);
         var cursed = Object.FindObjectOfType<InteractableShrineCursed>(true);
-        
+
         return greed || magnet || cursed;
     }
 
@@ -151,9 +166,11 @@ public class GameStateService
 
     private void ClearGameInstances()
     {
-        GameManagerInstance = null;
-        EnemyManagerInstance = null;
-        CurrentRunConfig = null;
+        _gameManagerInstance = null;
+        _enemyManagerInstance = null;
+        _currentRunConfig = null;
+        _pickupManagerInstance = null;
+
         _worldLoadTimer = 0f;
         _shrinesDetected = false;
         _delayAfterFoundTimer = 0f;

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Assets.Scripts.Actors.Enemies;
 using Assets.Scripts.Inventory__Items__Pickups.Chests;
-using Assets.Scripts.Inventory__Items__Pickups.Interactables;
 using BonkersLib.Core;
 using BonkersLib.Enums;
 using BonkersLib.Utils;
@@ -14,7 +11,14 @@ namespace BonkersLib.Services.World;
 
 public class WorldObjectCache
 {
-    private readonly Dictionary<WorldObjectTypeEnum, List<Component>> _cachedObjects = new();
+    private class SafeObjectData
+    {
+        public Component ComponentRef;
+        public Vector3 Position;
+        public int InstanceId;
+    }
+
+    private readonly Dictionary<WorldObjectTypeEnum, List<SafeObjectData>> _cachedObjects = new();
     private readonly Dictionary<int, Component> _instanceIdLookup = new();
 
     public bool IsValid { get; private set; }
@@ -30,6 +34,29 @@ public class WorldObjectCache
         _cachedObjects.Clear();
         _instanceIdLookup.Clear();
 
+        void CacheObjectType<T>(WorldObjectTypeEnum type) where T : Component
+        {
+            var objects = Object.FindObjectsOfType<T>();
+            var safeList = new List<SafeObjectData>();
+
+            foreach (var obj in objects)
+            {
+                if (obj)
+                {
+                    safeList.Add(new SafeObjectData
+                    {
+                        ComponentRef = obj,
+                        Position = obj.transform.position,
+                        InstanceId = obj.gameObject.GetInstanceID()
+                    });
+
+                    _instanceIdLookup[obj.gameObject.GetInstanceID()] = obj;
+                }
+            }
+
+            _cachedObjects[type] = safeList;
+        }
+
         CacheObjectType<ChargeShrine>(WorldObjectTypeEnum.ChargeShrine);
         CacheObjectType<InteractableShrineMoai>(WorldObjectTypeEnum.MoaiShrine);
         CacheObjectType<InteractableShrineCursed>(WorldObjectTypeEnum.CursedShrine);
@@ -44,88 +71,46 @@ public class WorldObjectCache
         CacheObjectType<InteractableBossSpawnerFinal>(WorldObjectTypeEnum.BossSpawnerFinal);
 
         IsValid = true;
-
-        var totalCached = _cachedObjects.Sum(x => x.Value.Count);
-        ModLogger.LogDebug(
-            $"[WorldObjectCache] Built cache with {totalCached} objects, {_instanceIdLookup.Count} in lookup");
+        ModLogger.LogDebug($"[WorldObjectCache] Built cache with {_cachedObjects.Count} categories");
     }
 
     internal void UpdateDynamicObjects()
     {
-        CacheObjectType<OpenChest>(WorldObjectTypeEnum.OpenChest);
-        CacheObjectType<Enemy>(WorldObjectTypeEnum.Enemy);
-
-        var enemies = GetCachedObjects<Enemy>(WorldObjectTypeEnum.Enemy);
-        var bosses = enemies.Where(e => e && e.IsBoss()).ToList();
-        _cachedObjects[WorldObjectTypeEnum.Boss] = bosses.Cast<Component>().ToList();
+        foreach (var list in _cachedObjects.Values)
+        {
+            foreach (var item in list)
+            {
+                if (item.ComponentRef)
+                {
+                    item.Position = item.ComponentRef.transform.position;
+                }
+            }
+        }
     }
 
     internal void CleanupCompleted()
     {
-        CleanupCompletedShrines<ChargeShrine>(
-            WorldObjectTypeEnum.ChargeShrine,
-            shrine => shrine.completed,
-            "completed charge shrines"
-        );
-
-        CleanupCompletedShrines<InteractableShrineGreed>(
-            WorldObjectTypeEnum.GreedShrine,
-            shrine => shrine.done,
-            "done greed shrines"
-        );
-    }
-
-    private void CleanupCompletedShrines<T>(
-        WorldObjectTypeEnum objectType,
-        Func<T, bool> shouldRemove,
-        string logName) where T : Component
-    {
-        if (!_cachedObjects.TryGetValue(objectType, out var objects))
-            return;
-
-        var toRemove = objects.Where(obj =>
+        foreach (var key in _cachedObjects.Keys.ToList())
         {
-            if (!obj || !obj) return true;
-            var typed = obj as T;
-            return typed && shouldRemove(typed);
-        }).ToList();
-
-        foreach (var obj in toRemove)
-        {
-            objects.Remove(obj);
-            if (obj && obj.gameObject) _instanceIdLookup.Remove(obj.gameObject.GetInstanceID());
+            _cachedObjects[key].RemoveAll(x => !x.ComponentRef);
         }
 
-        if (toRemove.Count > 0) ModLogger.LogDebug($"[WorldObjectCache] Removed {toRemove.Count} {logName}");
+        var idsToRemove = _instanceIdLookup.Where(kvp => !kvp.Value).Select(kvp => kvp.Key).ToList();
+        foreach (var id in idsToRemove) _instanceIdLookup.Remove(id);
     }
 
     internal void Invalidate()
     {
+        IsValid = false;
         _cachedObjects.Clear();
         _instanceIdLookup.Clear();
-        IsValid = false;
-    }
-
-    private void CacheObjectType<T>(WorldObjectTypeEnum objectType) where T : Component
-    {
-        var objects = Object.FindObjectsOfType<T>()
-            .Where(obj => obj && obj.gameObject)
-            .Cast<Component>()
-            .ToList();
-
-        _cachedObjects[objectType] = objects;
-
-        foreach (var obj in objects)
-            if (obj && obj.gameObject)
-                _instanceIdLookup[obj.gameObject.GetInstanceID()] = obj;
     }
 
     public T GetComponentByInstanceId<T>(int instanceId) where T : Component
     {
         if (_instanceIdLookup.TryGetValue(instanceId, out var component))
         {
-            if (component && component) return component as T;
-
+            if (component) return component as T;
             _instanceIdLookup.Remove(instanceId);
         }
 
@@ -134,10 +119,12 @@ public class WorldObjectCache
 
     public IEnumerable<T> GetCachedObjects<T>(WorldObjectTypeEnum objectType) where T : Component
     {
-        if (_cachedObjects.TryGetValue(objectType, out var objects))
-            return objects
-                .Where(obj => obj && obj)
-                .Cast<T>();
+        if (_cachedObjects.TryGetValue(objectType, out var safeObjects))
+        {
+            return safeObjects
+                .Where(x => x.ComponentRef)
+                .Select(x => x.ComponentRef as T);
+        }
 
         return Enumerable.Empty<T>();
     }
@@ -148,10 +135,10 @@ public class WorldObjectCache
             return null;
 
         var nearest = objects
-            .Where(obj => obj && obj)
-            .OrderBy(obj => Vector3.Distance(referencePosition, obj.transform.position))
+            .Where(obj => obj.ComponentRef)
+            .OrderBy(obj => Vector3.Distance(referencePosition, obj.Position))
             .FirstOrDefault();
 
-        return nearest?.transform.position;
+        return nearest?.Position;
     }
 }

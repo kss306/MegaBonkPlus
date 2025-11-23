@@ -1,4 +1,5 @@
-﻿using BonkersLib.Utils;
+﻿using BonkersLib.Core;
+using BonkersLib.Utils;
 using UnityEngine;
 
 namespace BonkersLib.Services;
@@ -10,9 +11,17 @@ public class UiService
 
     public void RefreshUi()
     {
-        _inventoryHud?.Refresh();
-        _xpAndGoldCounter.UpdateGoldCounter();
-        _xpAndGoldCounter.UpdateKillCounter();
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            if (_inventoryHud)
+                _inventoryHud.Refresh();
+
+            if (_xpAndGoldCounter)
+            {
+                _xpAndGoldCounter.UpdateGoldCounter();
+                _xpAndGoldCounter.UpdateKillCounter();
+            }
+        });
     }
 
     internal void OnGameStarted()
@@ -24,6 +33,6 @@ public class UiService
         _xpAndGoldCounter = Object.FindObjectOfType<KillsAndGoldCounter>(true);
 
         if (!_inventoryHud || !_xpAndGoldCounter)
-            ModLogger.LogError("[UiService] Could not find required UI elements. Please check your scene setup.");
+            ModLogger.LogDebug("[UiService] Could not find required UI elements. Please check your scene setup.");
     }
 }

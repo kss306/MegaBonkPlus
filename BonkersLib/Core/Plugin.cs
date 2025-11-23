@@ -13,6 +13,8 @@ public class Plugin : BasePlugin
 {
     public override void Load()
     {
+        MainThreadDispatcher.Initialize();
+        
         var configPath = Path.Combine(Paths.ConfigPath, $"{PluginInfo.PLUGIN_GUID}.cfg");
         var sharedConfig = new ConfigFile(configPath, true);
         ModConfig.Initialize(sharedConfig);
