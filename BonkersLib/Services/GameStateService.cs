@@ -27,7 +27,7 @@ public class GameStateService
 
     public GameStateService()
     {
-        CurrentStateEnum = GameStateEnum.MainMenu;
+        CurrentStateEnum = GameStateEnum.Loading;
     }
 
     public GameManager GameManagerInstance => MainThreadDispatcher.Evaluate(() => _gameManagerInstance);
@@ -137,6 +137,7 @@ public class GameStateService
             ClearGameInstances();
             BonkersAPI.World.OnSceneChanged();
             SceneChanged?.Invoke();
+            Modding.CharacterSwapper.HijackAmogWithKratos();
         }
         else
         {

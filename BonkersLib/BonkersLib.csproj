@@ -36,6 +36,14 @@
             <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\UnityEngine.dll</HintPath>
             <Private>False</Private>
         </Reference>
+        <Reference Include="UnityEngine.AnimationModule">
+          <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\UnityEngine.AnimationModule.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="UnityEngine.AssetBundleModule">
+          <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\UnityEngine.AssetBundleModule.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
         <Reference Include="UnityEngine.CoreModule">
             <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\UnityEngine.CoreModule.dll</HintPath>
             <Private>False</Private>
@@ -56,6 +64,15 @@
             <HintPath>..\..\..\..\AppData\Roaming\r2modmanPlus-local\Megabonk\profiles\Default\BepInEx\interop\UnityEngine.UIModule.dll</HintPath>
             <Private>False</Private>
         </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Assets\kratos" />
+      <EmbeddedResource Include="Assets\kratos" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Tests\" />
     </ItemGroup>
 
     <Target Name="PackageLib" AfterTargets="PostBuildEvent">

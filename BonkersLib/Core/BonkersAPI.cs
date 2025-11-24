@@ -16,7 +16,8 @@ public static class BonkersAPI
     public static UiService Ui { get; private set; }
     public static DataService Data { get; private set; }
     public static AchievementService Achievements { get; private set; }
-
+    public static AssetService Asset { get; private set; }
+    
     internal static void Initialize()
     {
         Game = new GameStateService();
@@ -28,6 +29,7 @@ public static class BonkersAPI
         Tome = new TomeService();
         Ui = new UiService();
         Achievements = new AchievementService();
+        Asset = new AssetService();
 
         Game.SceneChanged += Data.SetDataManager;
         Game.GameStarted += Ui.OnGameStarted;

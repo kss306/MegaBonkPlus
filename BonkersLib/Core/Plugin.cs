@@ -30,5 +30,6 @@ public class Plugin : BasePlugin
 
         ModLogger.LogInfo($"{PluginInfo.PLUGIN_NAME} Initialized");
         ModLogger.LogInfo($"Debug-Logging: {(ModConfig.IsDebugLoggingEnabled.Value ? "ENABLED" : "DISABLED")}");
+
     }
 }
