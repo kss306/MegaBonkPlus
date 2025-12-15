@@ -567,6 +567,20 @@
         <EmbeddedResource Include="Frontend\js\hooks\actions\interactWithEveryHook.js" />
         <None Remove="Frontend\js\core\gameData.js" />
         <EmbeddedResource Include="Frontend\js\core\gameData.js" />
+        <None Remove="Frontend\images\items\bobslantern.png" />
+        <EmbeddedResource Include="Frontend\images\items\bobslantern.png" />
+        <None Remove="Frontend\images\items\cryptkey.png" />
+        <EmbeddedResource Include="Frontend\images\items\cryptkey.png" />
+        <None Remove="Frontend\images\items\oldmask.png" />
+        <EmbeddedResource Include="Frontend\images\items\oldmask.png" />
+        <None Remove="Frontend\images\items\pot.png" />
+        <EmbeddedResource Include="Frontend\images\items\pot.png" />
+        <None Remove="Frontend\images\items\pumpkin.png" />
+        <EmbeddedResource Include="Frontend\images\items\pumpkin.png" />
+        <None Remove="Frontend\images\items\snek.png" />
+        <EmbeddedResource Include="Frontend\images\items\snek.png" />
+        <None Remove="Frontend\images\inventory\scythe.png" />
+        <EmbeddedResource Include="Frontend\images\inventory\scythe.png" />
     </ItemGroup>
 
     <Target Name="PackageMod" AfterTargets="PostBuildEvent">
