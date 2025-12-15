@@ -28,7 +28,7 @@ public class InventoryController : ApiControllerBase
                 {
                     id = eWeapon.ToString().ToLowerInvariant(),
                     name = wd.damageSourceName ?? wd.name,
-                    description = wd.description
+                    description = wd.GetDescription(),
                 };
 
                 allWeapons.Add(vm);

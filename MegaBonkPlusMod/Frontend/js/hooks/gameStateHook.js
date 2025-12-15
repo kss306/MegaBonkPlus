@@ -16,3 +16,23 @@ export async function getGameState() {
         };
     }
 }
+
+export async function setTimeScale(amount) {
+    try {
+        await api.post('/api/game/time-scale', { timeScale: parseFloat(amount) });
+        return true;
+    } catch (error) {
+        console.error('Failed to set time scale', error);
+        return false;
+    }
+}
+
+export async function getTimeScale() {
+    try {
+        const response = await api.get('/api/game/time-scale');
+        return response.data;
+    } catch (error) {
+        console.error('Failed to get time scale', error);
+        return 1.0;
+    }
+}

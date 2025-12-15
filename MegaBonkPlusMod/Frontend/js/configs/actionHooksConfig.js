@@ -7,6 +7,7 @@ import {spawnItems} from '../hooks/actions/itemHook.js';
 import {pickUpAllXp} from "../hooks/actions/pickUpAllXpHook.js";
 import {unlockAll} from "../hooks/actions/achievementHook.js";
 import {interactWithEvery} from "../hooks/actions/interactWithEveryHook.js";
+import {setTimeScale} from "../hooks/gameStateHook.js";
 
 export const ACTION_HOOKS = {
     'interact': (payload) => interact(payload.instanceId),
@@ -25,7 +26,8 @@ export const ACTION_HOOKS = {
     'spawn_items': (payload) => spawnItems(payload.items),
     'pick_up_all_xp': (payload) => pickUpAllXp(payload),
     'unlock_all': (payload) => unlockAll(payload),
-    'interact_with_every': (payload) => interactWithEvery(payload)
+    'interact_with_every': (payload) => interactWithEvery(payload),
+    'set_time_scale': (payload) => setTimeScale(payload.value),
 };
 
 export async function executeAction(actionName, payload) {

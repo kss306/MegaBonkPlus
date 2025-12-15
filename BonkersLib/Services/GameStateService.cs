@@ -20,6 +20,9 @@ public class GameStateService
     private bool _shrinesDetected;
     private float _delayAfterFoundTimer;
 
+    private bool _isTimeScaleLocked;
+    private float _targetTimeScale = 1.0f;
+
     private GameManager _gameManagerInstance;
     private EnemyManager _enemyManagerInstance;
     private PickupManager _pickupManagerInstance;
@@ -43,13 +46,14 @@ public class GameStateService
 
     public MapData CurrentMapData => MainThreadDispatcher.Evaluate(() => _currentRunConfig?.mapData);
 
-    public float StageTime => MainThreadDispatcher.Evaluate(() => _gameManagerInstance?.totalStageTime ?? 0);
+    public float StageTime => MainThreadDispatcher.Evaluate(() => _gameManagerInstance?.lastFoundStageTime ?? 0);
     public float TimeAlive => MainThreadDispatcher.Evaluate(() => _gameManagerInstance?.GetAliveTime() ?? 0);
     public int BossCurses => MainThreadDispatcher.Evaluate(() => _gameManagerInstance?.bossCurses ?? 0);
 
     public int StageTier => MainThreadDispatcher.Evaluate(() => _currentRunConfig?.mapTierIndex + 1 ?? -1);
 
     public string StageName => MainThreadDispatcher.Evaluate(() => CurrentMapData?.GetName() ?? "N/A");
+    public float CurrentTimeScale => MainThreadDispatcher.Evaluate(() => Time.timeScale);
 
     public event Action GameStarted;
     public event Action SceneChanged;
@@ -65,6 +69,12 @@ public class GameStateService
 
     internal void Update()
     {
+        
+        if (_isTimeScaleLocked)
+        {
+            ApplyTimeScale(_targetTimeScale);
+        }
+        
         switch (CurrentStateEnum)
         {
             case GameStateEnum.Loading:
@@ -144,6 +154,8 @@ public class GameStateService
             ClearGameInstances();
             BonkersAPI.World.OnSceneChanged();
         }
+        
+        SetTimeScale(1f, true);
     }
 
     private bool HasWorldStartedBasedOnShrines()
@@ -174,5 +186,36 @@ public class GameStateService
         _worldLoadTimer = 0f;
         _shrinesDetected = false;
         _delayAfterFoundTimer = 0f;
+    }
+
+    public void SetTimeScale(float newScale, bool lockValue = false)
+    {
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            if (newScale < 0f) newScale = 0f;
+
+            _targetTimeScale = newScale;
+            _isTimeScaleLocked = lockValue;
+
+            ApplyTimeScale(newScale);
+
+            ModLogger.LogDebug($"[GameStateService] TimeScale set to: {newScale} (Locked: {lockValue})");
+        });
+    }
+
+    public void UnlockTimeScale()
+    {
+        MainThreadDispatcher.Enqueue(() =>
+        {
+            _isTimeScaleLocked = false;
+            ModLogger.LogDebug("[GameStateService] TimeScale Lock removed.");
+        });
+    }
+
+    private void ApplyTimeScale(float scale)
+    {
+        if (!(Math.Abs(Time.timeScale - scale) > 0.001f)) return;
+        Time.timeScale = scale;
+        Time.fixedDeltaTime = 0.02f * scale;
     }
 }

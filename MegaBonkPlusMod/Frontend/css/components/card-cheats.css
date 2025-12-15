@@ -62,7 +62,8 @@
     flex-direction: column;
     gap: 4px;
     min-width: 0;
-    flex: 1 1 auto;
+    flex: 0 1 110px;
+    max-width: 110px;
 }
 
 
@@ -80,4 +81,43 @@
     min-width: 80px;
     padding-inline: 10px;
     white-space: nowrap;
+}
+
+.slider-control-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1 1 auto;
+    width: auto;
+    justify-content: flex-end;
+}
+
+.slider-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 52px;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.cheat-slider {
+    width: 100%;
+    cursor: pointer;
+    min-width: 0;
+}
+
+.slider-value {
+    display: inline-block;
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.95;
+}
+
+.slider-reset-btn {
+    padding: 2px 8px;
+    font-size: 1.2em;
+    line-height: 1;
+    min-width: auto;
 }

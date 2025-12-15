@@ -38,7 +38,6 @@ public class ItemService
             {
                 var itemData = kvp.Value;
                 if (!itemData) continue;
-                itemData.description = itemData.GetDescription();
                 _cachedRawItems.Add(itemData);
             }
         }

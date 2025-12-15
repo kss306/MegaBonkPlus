@@ -16,14 +16,28 @@ public class ItemController : ApiControllerBase
         try
         {
             var rawItems = BonkersAPI.Item.GetAllRawItems();
-            var items = rawItems.Select(itemData => new ItemViewModel
+            var items = MainThreadDispatcher.Evaluate(() =>
             {
-                id = itemData.eItem.ToString().ToLowerInvariant(),
-                name = itemData.name,
-                description = itemData.description,
-                inItemPool = itemData.inItemPool,
-                rarity = itemData.rarity.ToString()
-            }).ToList();
+                var list = new List<ItemViewModel>(rawItems.Count);
+
+                foreach (var itemData in rawItems)
+                {
+                    try
+                    {
+                        list.Add(new ItemViewModel
+                        {
+                            id = itemData.eItem.ToString().ToLowerInvariant(),
+                            name = itemData.name,
+                            description = itemData.GetDescription(),
+                            inItemPool = itemData.inItemPool,
+                            rarity = itemData.rarity.ToString()
+                        });
+                    }
+                    catch { }
+                }
+
+                return list;
+            });
 
             return Ok(items, $"Retrieved {items.Count} items");
         }

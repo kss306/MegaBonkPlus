@@ -74,4 +74,16 @@ export const CHEATS_CONFIG = [
         },
         confirm: null
     },
+    {
+        id: 'game_time_scale',
+        label: 'Speed',
+        type: 'slider',
+        actionId: 'set_time_scale',
+        min: 0.1,
+        max: 20.0,
+        step: 0.05,
+        defaultValue: 1.0,
+        unit: 'x',
+        showReset: true
+    }
 ];
