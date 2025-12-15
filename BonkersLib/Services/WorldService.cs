@@ -177,7 +177,7 @@ public class WorldService
     {
         return GetNearestObject(WorldObjectTypeEnum.BossSpawnerFinal);
     }
-    
+
     public void KillAllEnemies()
     {
         MainThreadDispatcher.Enqueue(() =>
@@ -189,8 +189,7 @@ public class WorldService
             {
                 if (enemy) enemy.DiedNextFrame();
             }
-
-            ModLogger.LogDebug("[WorldService] Killed all enemies");
+            
         });
     }
 
@@ -240,33 +239,30 @@ public class WorldService
     {
         MainThreadDispatcher.Enqueue(() =>
         {
-            EnsureCacheValid();
-
             switch (objectType)
             {
                 case WorldObjectTypeEnum.ChargeShrine:
-                    foreach (var obj in _cache.GetCachedObjects<ChargeShrine>(objectType))
+                    foreach (var obj in GetCachedObjects<ChargeShrine>(objectType))
                         obj.Complete();
                     break;
                 case WorldObjectTypeEnum.GreedShrine:
-                    foreach (var obj in _cache.GetCachedObjects<InteractableShrineGreed>(objectType))
+                    foreach (var obj in GetCachedObjects<InteractableShrineGreed>(objectType))
                         obj.Interact();
                     break;
                 case WorldObjectTypeEnum.ChallengeShrine:
-                    foreach (var obj in _cache.GetCachedObjects<InteractableShrineChallenge>(objectType))
+                    foreach (var obj in GetCachedObjects<InteractableShrineChallenge>(objectType))
                         obj.Interact();
                     break;
                 case WorldObjectTypeEnum.CursedShrine:
-                    foreach (var obj in _cache.GetCachedObjects<InteractableShrineCursed>(objectType))
+                    foreach (var obj in GetCachedObjects<InteractableShrineCursed>(objectType))
                         obj.Interact();
                     break;
                 case WorldObjectTypeEnum.MoaiShrine:
-                    foreach (var obj in _cache.GetCachedObjects<InteractableShrineMoai>(objectType))
+                    foreach (var obj in GetCachedObjects<InteractableShrineMoai>(objectType))
                         obj.Interact();
                     break;
                 default:
-                    ModLogger.LogDebug(
-                        $"[WorldService] Component type {objectType} has no interaction handler in WorldService");
+                    ModLogger.LogDebug($"[InteractAction] Component type {objectType} has no interaction handler");
                     break;
             }
         });

@@ -1,5 +1,5 @@
 import {setupDashboard} from './core/dashboard.js';
-import {gameData} from './core/gameData.js'; // Import des neuen Services
+import {gameData} from './core/gameData.js';
 import {setupTooltipListeners} from './features/map/mapTooltips.js';
 import {setupQuickActions} from './features/ui/quickActions.js';
 import {initializeFilters} from './features/ui/filters.js';
