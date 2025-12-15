@@ -1,6 +1,6 @@
 ﻿{
   "name": "BonkersLib",
-  "version_number": "1.0.3",
+  "version_number": "1.0.4",
   "website_url": "https://github.com/kss306/MegaBonkPlus/tree/master/BonkersLib",
   "description": "This is a library for Megabonk to provide a stable API and reusable services.",
   "dependencies": [

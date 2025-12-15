@@ -1,3 +1,8 @@
+### v1.0.4
+
+- Updated mod to work for the latest version of MegaBonk SpookyUpdate
+- Added Time Scaling
+
 ### v1.0.3
 
 - Hotfixed some broken logic in new world cache

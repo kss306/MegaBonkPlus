@@ -1,3 +1,9 @@
+### v0.9.4
+
+- Updated mod to work for the latest version of MegaBonk SpookyUpdate
+- Added Time Scaling
+
+
 ### v0.9.3
 
 - Hotfix for BonkersLib 1.0.3
