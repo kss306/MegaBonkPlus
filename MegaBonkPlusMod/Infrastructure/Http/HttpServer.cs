@@ -129,7 +129,6 @@ public class HttpServer
                 if (resourceStream == null)
                 {
                     context.Response.StatusCode = 404;
-                    context.Response.Close();
                     return;
                 }
 
@@ -141,13 +140,10 @@ public class HttpServer
         {
             ModLogger.LogTrace($"Error serving file '{resourcePath}': {ex}");
             context.Response.StatusCode = 500;
-            context.Response.Close();
         }
         finally
         {
-            if (context.Response.OutputStream.CanWrite) context.Response.OutputStream.Close();
-
-            if (context.Response is not null && context.Response.StatusCode != 404) context.Response.Close();
+            context.Response?.Close();
 
             ModLogger.LogTrace($"Response sent for {context.Request.Url.AbsolutePath}");
         }
